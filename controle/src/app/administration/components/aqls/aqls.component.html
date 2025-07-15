@@ -1,0 +1,390 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title  text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{name}}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher aqls par nom"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
+                            data-bs-target="#AjouterModal">
+                            <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des aqls ou du message -->
+            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+                {{ message }}
+            </div>
+
+            <table *ngIf="!isLoading && aqls.length > 0" class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nom</th>
+                        <th scope="col">qte_mineure</th>
+                        <th scope="col">qte_majeure</th>
+                        <th scope="col">qte_critique</th>
+                        <th scope="col">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let aql of aqls" class="align-middle">
+                        <td>{{ aql.id_aql }}</td>
+                        <td>{{ aql.nom }}</td>
+                        <td>{{ aql.qte_mineure }}</td>
+                        <td>{{ aql.qte_majeure }}</td>
+                        <td>{{ aql.qte_critique }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#ConsulterModal" (click)="confirmer(aql)">
+                                    <i class="fas fa-eye"></i> Consulter
+                                </button>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#ModifierModal" (click)="confirmer(aql)">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#SupprimerModal" (click)="confirmer(aql)">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && aqls.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun aqls trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Consulter -->
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title"> {{name}} </h5>
+                                </div>
+                                <div class="card-bodaql p-5" *ngIf=aql!null>
+                                    <p class="card-text"><strong>Identifiant AQL:</strong> {{ aql.id_aql }}</p>
+                                    <p class="card-text"><strong>Nom AQL:</strong> {{ aql.nom }}</p>
+                                    <p class="card-text"><strong>Description:</strong> {{ aql.description }}</p>
+                                    <p class="card-text"><strong>qte min:</strong> {{ aql.qte_min }}</p>
+                                    <p class="card-text"><strong>qte max:</strong> {{ aql.qte_max }}</p>
+                                    <p class="card-text"><strong>qte critique</strong> {{ aql.qte_critique }}</p>
+                                    <p class="card-text"><strong>qte mineure:</strong> {{ aql.qte_mineure }}</p>
+                                    <p class="card-text"><strong>qte majeure:</strong> {{ aql.qte_majeure }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="ajout()" [formGroup]="aqlForm">
+
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" class="form-control" name="nom" formControlName="nom" required>
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                            <small *ngIf="nom?.errors?.['required']">Le nom est requis.</small>
+                            <small *ngIf="nom?.errors?.['minlength']">Le nom doit comporter au moins 3
+                                caractères.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" class="form-control" name="description" formControlName="description"
+                            required>
+                        <div *ngIf="description?.invalid && (description?.dirty || description?.touched)"
+                            class="text-danger">
+                            <small *ngIf="description?.errors?.['required']">La description est requise.</small>
+                            <small *ngIf="description?.errors?.['minlength']">La description doit comporter au moins 10
+                                caractères.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité minimale -->
+                    <div class="form-group">
+                        <label for="qte_min">Quantité minimale :</label>
+                        <input type="number" class="form-control" id="qte_min" formControlName="qte_min" required>
+                        <div *ngIf="qte_min?.invalid && (qte_min?.dirty || qte_min?.touched)" class="text-danger">
+                            <small *ngIf="qte_min?.errors?.['required']">La quantité minimale est requise.</small>
+                            <small *ngIf="qte_min?.errors?.['min']">La quantité minimale doit être au moins 1.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité maximale -->
+                    <div class="form-group">
+                        <label for="qte_max">Quantité maximale :</label>
+                        <input type="number" class="form-control" id="qte_max" formControlName="qte_max" required>
+                        <div *ngIf="qte_max?.invalid && (qte_max?.dirty || qte_max?.touched)" class="text-danger">
+                            <small *ngIf="qte_max?.errors?.['required']">La quantité maximale est requise.</small>
+                            <small *ngIf="qte_max?.errors?.['min']">La quantité maximale doit être au moins 1.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité critique -->
+                    <div class="form-group">
+                        <label for="qte_critique">Quantité critique :</label>
+                        <input type="number" class="form-control" id="qte_critique" formControlName="qte_critique"
+                            required>
+                        <div *ngIf="qte_critique?.invalid && (qte_critique?.dirty || qte_critique?.touched)"
+                            class="text-danger">
+                            <small *ngIf="qte_critique?.errors?.['required']">La quantité critique est requise.</small>
+                            <small *ngIf="qte_critique?.errors?.['min']">La quantité critique doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_critique?.errors?.['max']">La quantité critique ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité mineure -->
+                    <div class="form-group">
+                        <label for="qte_mineure">Quantité mineure :</label>
+                        <input type="number" class="form-control" id="qte_mineure" formControlName="qte_mineure"
+                            required>
+                        <div *ngIf="qte_mineure?.invalid && (qte_mineure?.dirty || qte_mineure?.touched)"
+                            class="text-danger">
+                            <small *ngIf="qte_mineure?.errors?.['required']">La quantité mineure est requise.</small>
+                            <small *ngIf="qte_mineure?.errors?.['min']">La quantité mineure doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_mineure?.errors?.['max']">La quantité mineure ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité majeure -->
+                    <div class="form-group">
+                        <label for="qte_majeure">Quantité majeure :</label>
+                        <input type="number" class="form-control" id="qte_majeure" formControlName="qte_majeure"
+                            required>
+                        <div *ngIf="qte_majeure?.invalid && (qte_majeure?.dirty || qte_majeure?.touched)"
+                            class="text-danger">
+                            <small *ngIf="qte_majeure?.errors?.['required']">La quantité majeure est requise.</small>
+                            <small *ngIf="qte_majeure?.errors?.['min']">La quantité majeure doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_majeure?.errors?.['max']">La quantité majeure ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="aqlForm.invalid" value="Ajouter">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+
+
+<!-- Modal Modifier -->
+<div class="modal fade modal-xl " id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form (ngSubmit)="modifier()" [formGroup]="aqlForm">
+
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" class="form-control" name="nom" formControlName="nom" [value]="aql.nom"
+                            required>
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                            <small *ngIf="nom?.errors?.['required']">Le nom est requis.</small>
+                            <small *ngIf="nom?.errors?.['minlength']">Le nom doit comporter au moins 3
+                                caractères.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" class="form-control" name="description" formControlName="description"
+                            [value]="aql.description" required>
+                        <div *ngIf="description?.invalid && (description?.dirty || description?.touched)"
+                            class="text-danger">
+                            <small *ngIf="description?.errors?.['required']">La description est requise.</small>
+                            <small *ngIf="description?.errors?.['minlength']">La description doit comporter au moins 10
+                                caractères.</small>
+                        </div>
+                    </div>
+
+                    <!-- Quantité minimale -->
+                    <div class="form-group">
+                        <label for="qte_min">Quantité minimale :</label>
+                        <input type="number" class="form-control" id="qte_min" formControlName="qte_min" [value]="aql.qte_min" required>
+                        <div *ngIf="qte_min?.invalid && (qte_min?.dirty || qte_min?.touched)" class="text-danger">
+                            <small *ngIf="qte_min?.errors?.['required']">La quantité minimale est requise.</small>
+                            <small *ngIf="qte_min?.errors?.['min']">La quantité minimale doit être au moins 1.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantité maximale -->
+                    <div class="form-group">
+                        <label for="qte_max">Quantité maximale :</label>
+                        <input type="number" class="form-control" id="qte_max" formControlName="qte_max" [value]="aql.qte_max">
+                        <div *ngIf="qte_max?.invalid && (qte_max?.dirty || qte_max?.touched)" class="text-danger">
+                            <small *ngIf="qte_max?.errors?.['required']">La quantité maximale est requise.</small>
+                            <small *ngIf="qte_max?.errors?.['min']">La quantité maximale doit être au moins 1.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantité critique -->
+                    <div class="form-group">
+                        <label for="qte_critique">Quantité critique :</label>
+                        <input type="number" class="form-control" id="qte_critique" formControlName="qte_critique" [value]="aql.qte_mineure" required="">
+                        <div *ngIf="qte_critique?.invalid && (qte_critique?.dirty || qte_critique?.touched)" class="text-danger">
+                            <small *ngIf="qte_critique?.errors?.['required']">La quantité critique est requise.</small>
+                            <small *ngIf="qte_critique?.errors?.['min']">La quantité critique doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_critique?.errors?.['max']">La quantité critique ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantité mineure -->
+                    <div class="form-group">
+                        <label for="qte_mineure">Quantité mineure :</label>
+                        <input type="number" class="form-control" id="qte_mineure" formControlName="qte_mineure" [value]="aql.qte_majeure" required>
+                        <div *ngIf="qte_mineure?.invalid && (qte_mineure?.dirty || qte_mineure?.touched)" class="text-danger">
+                            <small *ngIf="qte_mineure?.errors?.['required']">La quantité mineure est requise.</small>
+                            <small *ngIf="qte_mineure?.errors?.['min']">La quantité mineure doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_mineure?.errors?.['max']">La quantité mineure ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Quantité majeure -->
+                    <div class="form-group">
+                        <label for="qte_majeure">Quantité majeure :</label>
+                        <input type="number" class="form-control" id="qte_majeure" formControlName="qte_majeure" [value]="aql.qte_critique" required>
+                        <div *ngIf="qte_majeure?.invalid && (qte_majeure?.dirty || qte_majeure?.touched)" class="text-danger">
+                            <small *ngIf="qte_majeure?.errors?.['required']">La quantité majeure est requise.</small>
+                            <small *ngIf="qte_majeure?.errors?.['min']">La quantité majeure doit être au moins
+                                1.</small>
+                            <small *ngIf="qte_majeure?.errors?.['max']">La quantité majeure ne doit pas dépasser
+                                10.</small>
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="aqlForm.invalid" value="Modifier">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade modal-xl " id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+    aria-hidden="true" *ngIf=aql!null>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card">
+
+                                <div class="card-header">
+                                    <h5 class="card-title">{{name}} </h5>
+                                </div>
+
+
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant AQL:</strong> {{ aql.id_aql }}</p>
+                                    <p class="card-text"><strong>Nom AQL:</strong> {{ aql.nom }}</p>
+                                    <p class="card-text"><strong>Désignation:</strong> {{ aql.description }}</p>
+                                    <p class="card-text"><strong>qte min:</strong> {{ aql.qte_min }}</p>
+                                    <p class="card-text"><strong>qte max:</strong> {{ aql.qte_max }}</p>
+                                    <p class="card-text"><strong>qte critique</strong> {{ aql.qte_critique }}</p>
+                                    <p class="card-text"><strong>qte mineure:</strong> {{ aql.qte_mineure }}</p>
+                                    <p class="card-text"><strong>qte majeure:</strong> {{ aql.qte_majeure }}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="supprimer(aql)">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

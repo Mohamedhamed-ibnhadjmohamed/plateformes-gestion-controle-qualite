@@ -1,0 +1,91 @@
+<div class="container-fluid h-custom">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+      <div class="divider d-flex align-items-center my-4">
+        <p class="text-center fw-bold mx-3 mb-0">Inscrivez-vous</p>
+      </div>
+
+      <form class="mx-1 mx-md-4" [formGroup]="registerForm" (ngSubmit)="register()">
+        <div *ngIf="errorMessage" class="alert alert-danger mb-3">{{ errorMessage }}</div>
+
+        <!-- Nom -->
+        <div class="mb-4">
+          <label class="form-label" for="nom">Votre nom</label>
+          <div class="input-group">
+            <input type="text" id="nom" class="form-control form-control-lg" placeholder="Entrez votre nom"
+              formControlName="nom" />
+          </div>
+          <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger mt-2">
+            <div *ngIf="nom?.errors?.['required']">Le nom est obligatoire!</div>
+            <div *ngIf="nom?.errors?.['minlength']">Le nom doit contenir au moins 3 caractères.</div>
+          </div>
+        </div>
+
+        <!-- Prénom -->
+        <div class="mb-4">
+          <label class="form-label" for="prenom">Votre prénom</label>
+          <div class="input-group">
+            <input type="text" id="prenom" class="form-control form-control-lg" placeholder="Entrez votre prénom"
+              formControlName="prenom" />
+          </div>
+          <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger mt-2">
+            <div *ngIf="prenom?.errors?.['required']">Le prénom est obligatoire!</div>
+            <div *ngIf="prenom?.errors?.['minlength']">Le prénom doit contenir au moins 3 caractères.</div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="form-label" for="email">Votre email</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-envelope"></i>
+            </span>
+            <input type="email" id="email" class="form-control form-control-lg"
+              placeholder="Entrez une adresse e-mail valide" formControlName="email" />
+          </div>
+          <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="text-danger mt-2">
+            <div *ngIf="email?.errors?.['required']">Veuillez saisir une adresse e-mail valide!</div>
+            <div *ngIf="email?.errors?.['pattern']">Elle doit être sous la forme exempledomaine.com.</div>
+          </div>
+        </div>
+
+        <!-- Mot de passe -->
+<div class="mb-4">
+  <label class="form-label" for="mot_de_passe">Mot de passe</label>
+  <div class="input-group">
+    <span class="input-group-text">
+      <i class="fas fa-lock"></i>
+    </span>
+    <input [type]="isPasswordVisible ? 'text' : 'password'" id="mot_de_passe" class="form-control form-control-lg"
+      placeholder="Entrez le mot de passe" formControlName="mot_de_passe" />
+    <span class="input-group-text" (click)="togglePasswordVisibility()">
+      <i [class]="isPasswordVisible ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+    </span>
+  </div>
+  <div *ngIf="mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)" class="text-danger mt-2">
+    <div *ngIf="mot_de_passe?.errors?.['required']">Le mot de passe est obligatoire!</div>
+    <div *ngIf="mot_de_passe?.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères.</div>
+  </div>
+</div>
+
+
+        <!-- Boutons d'action -->
+        <div class="d-flex justify-content-center">
+          <button type="reset" class="btn btn-danger btn-lg m-2">Annuler</button>
+          <button type="submit" class="btn btn-primary btn-lg m-2" [disabled]="!registerForm.valid">S'inscrire</button>
+        </div>
+        <div class="d-flex justify-content-center">
+        <div *ngIf="isLoading" class="spinner-border text-danger" role="status">
+          <span class="sr-only">Chargement...</span>
+        </div>
+        </div>
+      </form>
+      <p class="small fw-bold mt-2 pt-1 mb-0">Vous avez un compte ? <a class="link-secondary"
+          (click)="redirectToLogin()">Connectez-vous</a></p>
+    </div>
+    <div class="col-md-9 col-lg-6 col-xl-5">
+      <img src="../../../assets/images/draw2.webp" class="img-fluid" alt="Image d'exemple">
+    </div>
+  </div>
+</div>

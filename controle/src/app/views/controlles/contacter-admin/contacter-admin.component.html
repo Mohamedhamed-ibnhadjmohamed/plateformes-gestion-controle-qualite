@@ -1,0 +1,54 @@
+<section class="contact-block" id="contact">
+
+    <header class="case-studies-header">
+        <h1 class="title">
+            <span class="highlight">contactez-nous</span>
+        </h1>
+        <p class="description">
+            Envoyez-nous un message pour nous contacter.
+        </p>
+    </header>
+
+
+    <div class="content-wrapper">
+        <div>
+            <img src="../../../../assets/images/contact.png" alt="Contact illustration" class="contact-illustration">
+        </div>
+        <div class="form-container">
+        <form [formGroup]="contactForm" (ngSubmit)="ajouterContact()" class="contact-form">
+            <div class="form-fields">
+                <div class="form-field">
+                    <label for="non_utilisateur">Nom*</label>
+                    <input type="text" id="non_utilisateur" formControlName="non_utilisateur" placeholder="Votre nom" required>
+                    <div *ngIf="non_utilisateur?.invalid && (non_utilisateur?.touched || non_utilisateur?.dirty)">
+                        <small *ngIf="non_utilisateur?.errors?.['required']">Le nom est requis.</small>
+                    </div>
+                </div>
+        
+                <div class="form-field">
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" formControlName="email" placeholder="Votre email" required>
+                    <div *ngIf="email?.invalid && (email?.touched || email?.dirty)">
+                        <small *ngIf="email?.errors?.['required']">L'email est requis.</small>
+                        <small *ngIf="email?.errors?.['email']">L'email n'est pas valide.</small>
+                    </div>
+                </div>
+        
+                <div class="form-field">
+                    <label for="message">Message*</label>
+                    <textarea id="message" formControlName="message" placeholder="Votre message" required></textarea>
+                    <div *ngIf="message?.invalid && (message?.touched || message?.dirty)">
+                        <small *ngIf="message?.errors?.['required']">Le message est requis.</small>
+                        <small *ngIf="message?.errors?.['minlength']">
+                            Le message doit contenir au moins 10 caractères.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        
+            <button type="submit" class="submit-button" [disabled]="contactForm.invalid">Envoyer le message</button>
+        </form>
+
+        </div>
+    </div>
+</section>

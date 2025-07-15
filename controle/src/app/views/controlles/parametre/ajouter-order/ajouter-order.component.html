@@ -1,0 +1,111 @@
+<div class="container">
+                <form [formGroup]="orderForm" (ngSubmit)="ajouterOrder()">
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="libelle" class="form-label">Libellé</label>
+                                <input type="text" class="form-control" id="libelle" formControlName="libelle_order">
+                                @if(libelle_order?.invalid && (libelle_order?.dirty || libelle_order?.touched)) {
+                                @if(libelle_order?.errors?.['required']){
+                                <span class=" text-danger"> libellé est obligatoir</span>
+                                }
+                                }
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="designation" class="form-label">Désignation</label>
+                                <input type="text" class="form-control" id="designation"
+                                    formControlName="designation_order">
+                                @if(designation_order?.invalid && (designation_order?.dirty ||
+                                designation_order?.touched)){
+                                @if(designation_order?.errors?.['required']){
+                                <span class=" text-danger"> La désignation est obligatoire </span>
+                                }
+                                @if(designation_order?.errors?.['minlength']){
+                                <span class="text-danger"> La désignation doit contenir au moins 8 caractères. </span>
+                                }
+                                @if(designation_order?.errors?.['maxlength']){
+                                <span class=" text-danger"> La désignation doit contenir au maximum 50
+                                    caractères. </span>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="qte_demandee" class="form-label">Quantité demandée</label>
+                                <input type="number" class="form-control" id="qte_demandee"
+                                    formControlName="qte_demandee">
+                                @if(qte_demandee?.invalid && (qte_demandee?.dirty || qte_demandee?.touched)){
+                                @if(qte_demandee?.errors?.['required']) {
+                                <span class=" text-danger"> La quantité demandée est obligatoire</span>
+                                }
+                                }
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div>
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" formControlName="date">
+                                @if(date?.invalid && (date?.dirty || date?.touched)){
+                                @if(date?.errors?.['required']) {
+                                <span class=" text-danger"> La date demandée est obligatoire</span>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="couleur" class="form-label">Couleur</label>
+                                <input type="text" class="form-control" id="couleur" formControlName="couleur">
+                                @if(couleur?.invalid && (couleur?.dirty || couleur?.touched)){
+                                @if(couleur?.errors?.['required']) {
+                                <span class="text-danger"> Le couleur est obligatoire</span>
+                                }
+                                }
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="taille" class="form-label">Taille</label>
+                                <input type="text" class="form-control" id="taille" formControlName="taille">
+                                @if(taille?.invalid && (taille?.dirty || taille?.touched)){
+                                @if(taille?.errors?.['required']) {
+                                <span class="text-danger"> La taille est obligatoire</span>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="mb-3">
+                        <label for="niveau" class="form-label">Niveau</label>
+                        <input type="text" class="form-control" id="niveau" formControlName="niveau">
+                        @if(niveau?.invalid && (niveau?.dirty || niveau?.touched)){
+                        @if(niveau?.errors?.['required']) {
+                        <span class="text-danger"> Niveau est obligatoire</span>
+                        }
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="orderForm.invalid">
+                            Ajouter
+                        </button>
+                    </div>
+                </form>
+
+</div>

@@ -1,0 +1,113 @@
+
+a {
+  text-decoration: none;
+}
+
+.container {
+  margin-top: 70px !important;
+  height: 90vh;
+}
+
+.radius-10 {
+  border-radius: 10px !important;
+}
+
+
+
+.border-info,
+.border-danger,
+.border-success,
+.border-warning{
+  h2 {
+    text-transform: capitalize !important;
+    font-family: 'Times New Roman', Times, serif !important;
+    font-weight: 800 !important;
+  }
+}
+
+.border-info {
+  border-left: 10px solid #0dcaf0 !important;
+
+}
+.border-danger {
+  border-left: 10px solid #fd3550 !important;
+}
+
+.border-success {
+  border-left: 10px solid #15ca20 !important;
+}
+.border-warning{
+    border-left: 10px solid #f5e503 !important;
+}
+
+.border-info:hover,
+.border-danger:hover,
+.border-success:hover ,
+.border-warning:hover{
+  background-color: transparent;
+  margin: 10px;
+  padding: 10px;
+  transition: 0.3s;
+  border-left: 10px solid #000 !important;
+  h2{
+    color: #fff !important;
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0px solid rgba(0, 0, 0, 0);
+  border-radius: .25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
+}
+
+.widgets-icons-2 {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ededed;
+  font-size: 27px;
+  border-radius: 10px;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.text-white {
+  color: #fff !important;
+}
+
+.ms-auto {
+  margin-left: auto !important;
+}
+.bg-gradient-scooter {
+  background: #17ead9;
+  background: -webkit-linear-gradient(45deg, #17ead9, #6078ea) !important;
+  background: linear-gradient(45deg, #17ead9, #6078ea) !important;
+}
+.bg-gradient-bloody {
+  background: #f54ea2;
+  background: -webkit-linear-gradient(45deg, #f54ea2, #ff7676) !important;
+  background: linear-gradient(45deg, #f54ea2, #ff7676) !important;
+}
+
+.bg-gradient-ohhappiness {
+  background: #00b09b;
+  background: -webkit-linear-gradient(45deg, #00b09b, #96c93d) !important;
+  background: linear-gradient(45deg, #00b09b, #96c93d) !important;
+}
+.bg-gradient {
+  background: #f5e503;
+  background: -webkit-linear-gradient(45deg, #f5e503, #c7fd01) !important;
+  background: linear-gradient(45deg, #f5e503, #c7fd01) !important;
+}

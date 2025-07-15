@@ -1,0 +1,89 @@
+<section class="services-block" id="typecontrole">
+    <header class="case-studies-header">
+        <h1 class="title">
+            <span class="highlight">Types des Controles</span>
+        </h1>
+        <p class="description">
+            Les différents types de contrôle permettent d’assurer la conformité et la qualité des produits tout au long
+            du processus
+            de production, depuis les premières étapes jusqu'à l'audit final avant livraison. </p>
+    </header>
+
+    <div class="cards-section">
+        <article class="card card-souschaine d-flex">
+            <div class="card-content">
+                <h2 class="card-heading">
+                    <span class="card-label">Controle</span>
+                    <span class="card-label">sous chaine</span>
+                </h2>
+                <p>
+                    <strong>La méthode sous chaîne :</strong> Elle consiste en des inspections continues tout au long du
+                    processus de production. Cette approche permet de détecter et de corriger les défauts
+                    en temps réel, minimisant ainsi les rebuts et les gaspillages. L’objectif est d’assurer la
+                    conformité des produits dès les premières étapes de fabrication.
+                </p>
+
+            </div>
+            <div class="card-illustration">
+                <img src="../../../../assets/images/sous chaine.png" alt="souschaine" class="illustration-image" />
+            </div>
+            <button class="button-souschaine" [routerLink]="['/home/souschain']">
+                <span>Contrôller</span>
+            </button>
+
+        </article>
+
+        <article class="card card-ppc">
+            <div class="card-content">
+                <h2 class="card-heading start-0">
+                    <span class="card-label">controle</span>
+                    <span class="card-label">Fin chaîne</span>
+                </h2>
+                <p>
+                    <strong>La méthode Fin chaîne :</strong> Cette méthode implique une vérification à 100 % des
+                    produits
+                    finis. Elle utilise l’AQL (Acceptable Quality Limit) pour s’assurer que seuls les produits
+                    conformes, selon les limites de qualité acceptables, sont livrés aux clients. Cette approche
+                    garantit que les produits qui ne répondent pas aux normes sont identifiés avant la livraison,
+                    évitant ainsi la non-conformité auprès des clients.
+                </p>
+
+            </div>
+            <div class="card-illustration">
+                <img src="../../../../assets/images/fin chaine.png" alt="PPC advertising illustration"
+                    class="illustration-image" />
+            </div>
+            <button [routerLink]="['/home/finchain']" class="button-finchaine">
+                <span>Contrôller</span>
+            </button>
+
+
+        </article>
+
+        <article class="card card-social-media">
+            <div class="card-content">
+                <h2 class="card-heading">
+                    <span class="card-label">Controle</span>
+                    <span class="card-label">Audit</span>
+                </h2>
+                <p>
+                    <strong>La méthode Audit :</strong> Cette méthode est utilisée pour
+                    évaluer les produits reçus d’un fournisseur. Des échantillons représentatifs sont prélevés
+                    et inspectés selon des critères prédéfinis pour évaluer la conformité de l’ensemble de la
+                    livraison. Cette approche permet de vérifier rapidement la qualité des produits tout en
+                    réduisant les coûts et le temps nécessaire à l’inspection de chaque article.
+                </p>
+
+
+            </div>
+            <div class="card-illustration">
+                <img src="../../../../assets/images/audit.png" alt="Social Media Marketing illustration"
+                    class="illustration-image" />
+            </div>
+            <button [routerLink]="['/home/audit']" class="button-audit">
+                <span>Contrôller</span>
+            </button>
+
+        </article>
+    </div>
+</section>

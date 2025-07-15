@@ -1,0 +1,9 @@
+
+          <form [formGroup]="defaultForm" (ngSubmit)="ajoutImageDefault()">
+            <div class="form-group">
+              <label for="image">Image :</label>
+              <input type="file" class="form-control" (change)="onFileSelected($event)" id="image" formControlName="image">
+            </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+          </form>
+      

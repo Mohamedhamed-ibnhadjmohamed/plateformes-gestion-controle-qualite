@@ -1,0 +1,53 @@
+<div>
+  <section class="vh-100">
+    <div class="container-fluid h-custom">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-9 col-lg-6 col-xl-5">
+          <img src="../../../assets/images/draw2.webp" class="img-fluid"
+            alt="Image d'exemple">
+        </div>
+        <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+          <div class="divider d-flex align-items-center my-4">
+            <p class="text-center fw-bold mx-3 mb-0">Connectez-vous</p>
+          </div>
+          <form [formGroup]="loginForm" (ngSubmit)="login()">
+            <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+            <div class="form-outline mb-4">
+              <label class="form-label" for="username">Adresse e-mail</label>
+              <input type="email" id="username" class="form-control form-control-lg"
+                placeholder="Entrez une adresse e-mail valide" formControlName="username" />
+              @if (username?.invalid && (username?.dirty || username?.touched)) {
+              @if(username?.errors?.['required']){
+              <span class="text-danger">Veuillez saisir une adresse e-mail valide !</span>
+              }
+              @if(username?.errors?.['pattern']){
+              <span class="text-danger">Elle doit être sous la forme exemple"&#64;"domaine.com..</span>
+              }
+              }
+            </div>
+            <div class="form-outline mb-3">
+              <label class="form-label" for="password">Mot de passe</label>
+              <input type="password" id="password" class="form-control form-control-lg"
+                placeholder="Entrez le mot de passe" formControlName="password" />
+              @if (password?.invalid && (password?.dirty || password?.touched)) {
+              @if(password?.errors?.['required']){
+              <span class="text-danger">Le mot de passe est obligatoir !</span>
+              }
+              @if(password?.errors?.['minlength']){
+              <span class="text-danger">Le mot de passe doit contenir au moins 8 caractères.</span>
+              }
+              }
+            </div>
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;"
+                [disabled]="!loginForm.valid">Connexion</button>
+            </div>
+          </form>
+          <p class="small fw-bold mt-2 pt-1 mb-0">Vous n'avez pas de compte ?
+          </p>
+          <a class="ink-danger" (click)="redirectToRegister()">Inscrivez-vous</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

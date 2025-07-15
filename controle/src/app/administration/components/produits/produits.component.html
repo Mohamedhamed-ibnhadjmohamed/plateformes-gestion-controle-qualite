@@ -1,0 +1,401 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title  text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{name}}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="number" class="form-control" placeholder="Rechercher produit par code"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
+                            data-bs-target="#AjouterModal">
+                            <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des produits ou du message -->
+            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+                {{ message }}
+            </div>
+
+            <table *ngIf="!isLoading && produits.length > 0" class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Désignation</th>
+                        <th scope="col">Identifiant produit</th>
+                        <th scope="col">Libellé</th>
+                        <th scope="col">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let produit of produits" class="align-middle">
+                        <td>{{ produit.code }}</td>
+                        <td>{{ produit.designation }}</td>
+                        <td>{{ produit.id_produit }}</td>
+                        <td>{{ produit.libelle_produit }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#ConsulterModal" (click)="confirmer(produit)">
+                                    <i class="fas fa-eye"></i> Consulter
+                                </button>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#ModifierModal" (click)="confirmer(produit)">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#SupprimerModal" (click)="confirmer(produit)">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && produits.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun produit trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Consulter -->
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="produit != null">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">{{name}}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant produit:</strong> {{ produit.id_produit }}
+                                    </p>
+                                    <p class="card-text"><strong>Code:</strong> {{ produit.code }}</p>
+                                    <p class="card-text"><strong>Désignation:</strong> {{ produit.designation }}</p>
+                                    <p class="card-text"><strong>Libellé:</strong> {{ produit.libelle_produit }}</p>
+                                    <p class="card-text"><strong>Niveau:</strong> {{ produit.niveau }}</p>
+                                    <p class="card-text"><strong>Quantité:</strong> {{ produit.quantite }}</p>
+                                    <p class="card-text"><strong>Identifiant AQL:</strong> {{ produit.id_aql }}</p>
+                                    <p class="card-text"><strong>Identifiant Order:</strong> {{ produit.id_order }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl p-5" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="produitForm" (ngSubmit)="ajouter()">
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Code</label>
+                                <input type="text" class="form-control" formControlName="code">
+                                <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="text-danger">
+                                    Code requis.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Désignation</label>
+                                <input type="text" class="form-control" formControlName="designation">
+                                <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)"
+                                    class="text-danger">
+                                    La désignation est requise et doit comporter au moins 3 caractères.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Libellé</label>
+                                <input type="text" class="form-control" formControlName="libelle_produit">
+                                <div *ngIf="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)"
+                                    class="text-danger">
+                                    Libellé requis.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Niveau</label>
+                                <input type="number" class="form-control" formControlName="niveau">
+                                <div *ngIf="niveau?.invalid && (niveau?.dirty || niveau?.touched)" class="text-danger">
+                                    Le niveau doit être entre 1 et 5.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Quantité</label>
+                        <input type="number" class="form-control" formControlName="quantite">
+                        <div *ngIf="quantite?.invalid && (quantite?.dirty || quantite?.touched)" class="text-danger">
+                            Quantité minimale de 1 requise.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_aql">Identifiant AQL :</label>
+                                <select id="id_aql" class="form-select" formControlName="id_aql">
+                                    <option value="" disabled selected>Sélectionnez une option</option>
+                                    <option *ngFor="let aql of aqls" [value]="aql.id_aql">{{ aql.nom }}</option>
+                                </select>
+                                <div *ngIf="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)" class="text-danger">
+                                    Sélectionnez un AQL.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="id_order">Identifiant Order :</label>
+                                <select id="id_order" class="form-select" formControlName="id_order">
+                                    <option value="" disabled selected>Sélectionnez une option</option>
+                                    <option *ngFor="let order of orders" [value]="order.id_order">{{ order.libelle_order
+                                        }}
+                                    </option>
+                                </select>
+                                <div *ngIf="id_order?.invalid && (id_order?.dirty || id_order?.touched)"
+                                    class="text-danger">
+                                    Sélectionnez un Order.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="produitForm.invalid">
+                            Ajouter
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+<!-- Modal Modifier -->
+<div class="modal fade modal-xl" id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body " *ngIf="produit!null">
+                    <form [formGroup]="produitForm" (ngSubmit)="modifier()">
+
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label>Code</label>
+                                    <input type="text" class="form-control" formControlName="code"
+                                        [value]="produit.code">
+                                    <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="text-danger">
+                                        Code requis.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label>Désignation</label>
+                                    <input type="text" class="form-control" formControlName="designation"
+                                        [value]="produit.designation">
+                                    <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)"
+                                        class="text-danger">
+                                        La désignation est requise et doit comporter au moins 3 caractères.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+
+                                <div class="form-group">
+                                    <label>Libellé</label>
+                                    <input type="text" class="form-control" formControlName="libelle_produit"
+                                        [value]="produit.libelle_produit">
+                                    <div *ngIf="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)"
+                                        class="text-danger">
+                                        Libellé requis.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label>Niveau</label>
+                                    <input type="number" class="form-control" formControlName="niveau"
+                                        [value]="produit.niveau">
+                                    <div *ngIf="niveau?.invalid && (niveau?.dirty || niveau?.touched)"
+                                        class="text-danger">
+                                        Le niveau doit être entre 1 et 5.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantité</label>
+                            <input type="number" class="form-control" formControlName="quantite"
+                                [value]="produit.quantite">
+                            <div *ngIf="quantite?.invalid && (quantite?.dirty || quantite?.touched)"
+                                class="text-danger">
+                                Quantité minimale de 1 requise.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="id_aql">Identifiant AQL :</label>
+                                    <select id="id_aql" class="form-select" formControlName="id_aql"
+                                        [value]="produit.id_aql">
+                                        <option value="" disabled selected>Sélectionnez une option</option>
+                                        <option *ngFor="let aql of aqls" [value]="aql.id_aql">{{ aql.nom }}</option>
+                                    </select>
+                                    <div *ngIf="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)"
+                                        class="text-danger">
+                                        Sélectionnez un AQL.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="id_order">Identifiant Order :</label>
+                                    <select id="id_order" class="form-select" formControlName="id_order"
+                                        [value]="produit.id_order">
+                                        <option value="" disabled selected>Sélectionnez une option</option>
+                                        <option *ngFor="let order of orders" [value]="order.id_order">{{
+                                            order.libelle_order }}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="id_order?.invalid && (id_order?.dirty || id_order?.touched)"
+                                        class="text-danger">
+                                        Sélectionnez un Order.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <input type="reset" class="btn btn-danger  m-2 p-3" (click)="resetForm()" value="Annuler">
+                            <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                                [disabled]="produitForm.invalid" value="Modifier">
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+    aria-hidden="true" *ngIf=produit! null>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card">
+
+                                <div class="card-header">
+                                    <h5 class="card-title">Produit </h5>
+                                </div>
+
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant produit:</strong> {{ produit.id_produit }}
+                                    </p>
+                                    <p class="card-text"><strong>Code:</strong> {{ produit.code }}</p>
+                                    <p class="card-text"><strong>Désignation:</strong> {{ produit.designation }}</p>
+                                    <p class="card-text"><strong>Libellé:</strong> {{ produit.libelle_produit }}</p>
+                                    <p class="card-text"><strong>Niveau:</strong> {{ produit.niveau }}</p>
+                                    <p class="card-text"><strong>Quantité:</strong> {{ produit.quantite }}</p>
+                                    <p class="card-text"><strong>Identifiant AQL:</strong> {{ produit.id_aql }}</p>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="supprimer(produit)">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

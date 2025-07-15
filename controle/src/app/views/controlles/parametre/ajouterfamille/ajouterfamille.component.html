@@ -1,0 +1,41 @@
+<div class="container">
+                <form [formGroup]="familleForm" (ngSubmit)="ajout()">
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" class="form-control" formControlName="code" required>
+                        <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="text-danger">
+                            <div *ngIf="code?.errors?.['required']">
+                                Code is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" class="form-control" formControlName="nom" required>
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                            <div *ngIf="nom?.errors?.['required']">
+                                Nom is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" class="form-control" formControlName="description" required>
+                        <div *ngIf="description?.invalid && (description?.dirty || description?.touched)"
+                            class="text-danger">
+                            <div *ngIf="description?.errors?.['required']">
+                                Description is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" [disabled]="familleForm.invalid"
+                            value="Ajouter">
+                    </div>
+                </form>
+
+            </div>

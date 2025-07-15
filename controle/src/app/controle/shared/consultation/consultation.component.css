@@ -1,0 +1,46 @@
+.container-xl{
+    
+    min-height: 100vh;
+}
+.case-studies-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    color: #000;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 0 100px;
+}
+
+.title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    font-size: 30px !important;
+    font-weight: 500;
+    justify-content: flex-start;
+    margin: 0;
+}
+
+.highlight {
+    border-radius: 7px;
+    background-color: #b9ff66;
+    padding: 10px;
+}
+
+.description {
+    font-size: 18px;
+    font-weight: 400;
+    width: 800px;
+    margin: 0;
+}
+
+@media (max-width: 991px) {
+    .case-studies-header {
+        padding: 0 20px;
+    }
+
+    .description {
+        max-width: 100%;
+    }
+}

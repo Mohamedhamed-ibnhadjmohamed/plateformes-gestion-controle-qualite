@@ -1,0 +1,79 @@
+<!-- menu controlr -->
+<div class="container mb-0">
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 mb-0">
+
+    <div class="col mb-4 p-5">
+      <a [routerLink]="['/home/souschain']" aria-label="Méthode Sous Chaine" role="button">
+        <div class="card radius-10 border-info">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <h2 class="mb-0 text-secondary">Sous Chaine</h2>
+                <h4 class="my-1 text-info"></h4>
+              </div>
+              <div class="widgets-icons-2 rounded-circle bg-gradient-scooter text-white ms-auto">
+                <i class="fas fa-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col mb-4 p-5">
+      <a [routerLink]="['/home/finchain']" aria-label="Méthode Fin Chaine" role="button">
+        <div class="card radius-10 border-danger">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <h2 class="mb-0 text-secondary">Fin Chaine</h2>
+                <h4 class="my-1 text-danger"></h4>
+              </div>
+              <div class="widgets-icons-2 rounded-circle bg-gradient-bloody text-white ms-auto">
+                <i class="fas fa-clipboard-check"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col mb-4 p-5">
+      <a [routerLink]="['/home/audit']" aria-label="Méthode Audit" role="button">
+        <div class="card radius-10 border-success">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <h2 class="mb-0 text-secondary">Audit</h2>
+                <h4 class="my-1 text-success"></h4>
+              </div>
+              <div class="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col mb-4 p-5">
+      <a [routerLink]="['/home/consulter']" aria-label="Méthode Consulter" role="button">
+        <div class="card radius-10 border-warning">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <h2 class="mb-0 text-secondary">Inspection</h2>
+                <h4 class="my-1 text-warning"></h4>
+              </div>
+              <div class="widgets-icons-2 rounded-circle bg-gradient text-white ms-auto">
+                <i class="fas fa-file-alt"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>

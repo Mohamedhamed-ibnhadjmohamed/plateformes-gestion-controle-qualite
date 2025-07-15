@@ -1,0 +1,179 @@
+<header class="case-studies-header">
+  <h1 class="title">
+    <span class="highlight">Controle Fin de chaîne</span>
+  </h1>
+  <p class="description">
+    Le Controle fin de chaîne implique une vérification complète des produits finis en utilisant l'AQL
+    (Acceptable Quality Limit) pour s'assurer que seuls les produits conformes sont livrés. Elle permet d'identifier les
+    produits non conformes avant la livraison, évitant ainsi la non-conformité auprès des clients. </p>
+</header>
+
+<!-------------------------- choisir d'un produit -->
+<div class="container mt-4">
+  <form class="p-4 border rounded shadow-sm " [formGroup]="idForm" (change)="getProduit()"
+    [ngClass]="{'d-none': !formVisible}">
+
+    <header class="case-studies-header">
+      <h1 class="title">
+        <span class="highlight">choisir le produit à contrôler </span>
+      </h1>
+    </header>
+
+    <div class="mb-3">
+      <label for="produit" class="form-label custom-label title">Sélectionner un produit</label>
+      <select id="produit" class="form-select form-select-lg" aria-label="Sélection du produit"
+        formControlName="idproduit">
+        <option *ngFor="let produit of produits" [value]="produit.id_produit"
+          [ngStyle]="{'color': 'blue', 'font-weight': 'bold'}">
+          Libellé : {{produit.libelle_produit}} - Quantité : {{produit.quantite}} - Description : {{produit.designation
+          }}
+        </option>
+
+      </select>
+    </div>
+
+  </form>
+</div>
+
+
+
+<!---------------------------- Produit a controller   -->
+<div class="container-fluat m-5" [ngClass]="{'d-none': !produitVisible}">
+  <h3 class="mb-0  ">
+    <h1 class="title">
+      <span class="highlight"><i class="fas fa-box"></i> Produits à Contrôler avec niveau de qualité acceptable (AQL
+        )</span>
+    </h1>
+  </h3>
+  <table class="table table-striped table-bordered mb-0">
+    <thead class="table-dark">
+      <tr>
+        <th>Code</th>
+        <th>Libellé</th>
+        <th>Niveau</th>
+        <th>Quantité</th>
+        <th>Désignation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let produit of allproduit">
+        <td>{{ produit.code }}</td>
+        <td>{{ produit.libelle_produit }}</td>
+        <td>{{ produit.niveau }}</td>
+        <td>{{ produit.quantite }}</td>
+        <td>{{ produit.designation }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table table-striped table-bordered mt-0">
+    <thead class="table-dark">
+      <tr>
+
+        <th>Quantité Minimale</th>
+        <th>Quantité Maximale</th>
+        <th>Quantité Critique</th>
+        <th>Quantité Mineure</th>
+        <th>Quantité Majeure</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let produit of allproduit">
+
+        <td>{{ produit.qte_min }}</td>
+        <td>{{ produit.qte_max }}</td>
+        <td>{{ produit.qte_critique }}</td>
+        <td>{{ produit.qte_mineure }}</td>
+        <td>{{ produit.qte_majeure }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+<!---------------------------- Liste des défauts -->
+<div class="container-fluat m-5  listedefauts" [ngClass]="{'d-none': !DefaultVisible}">
+
+  <div class=" card-body">
+    <header class="case-studies-header">
+      <h1 class="title">
+        <span class="highlight">Ajouter defaut </span>
+      </h1>
+      <p class="description">
+        Utilisez ce formulaire pour saisir les défauts que vous avez détectés dans le produit et les comparer aux
+        critères AQL
+        afin de garantir que le processus de production reste conforme aux exigences de qualité.
+      </p>
+    </header>
+    <!--controller-->
+    <router-outlet></router-outlet>
+    <app-controle-b [donnee]="donneePourEnfant"></app-controle-b>
+  </div>
+
+</div>
+
+
+
+<!---------------------------- Inspectation -->
+<div class="container-fluat m-5 p-4  bg-body-tertiary Inspectation" [ngClass]="{'d-none': !DefaultVisible}">
+  <header class="case-studies-header">
+    <h1 class="title">
+      <span class="highlight">observation </span>
+    </h1>
+    <p class="description">
+      Merci de bien vouloir compléter le formulaire ci-dessous afin de finaliser le processus de contrôle. Votre
+      contribution
+      est essentielle pour garantir la qualité et l'exactitude de cette vérification.
+    </p>
+  </header>
+
+  <!--form-->
+  <form [formGroup]="inspectionForm" (ngSubmit)="EnregistrerInspection()">
+    <div class="mb-3">
+
+      <label for="observation" class="form-label">Observation</label>
+      <input type="text" class="form-control" id="observation" name="observation" formControlName="observations">
+      <div *ngIf="observations?.invalid && (observations?.dirty || observations?.touched)">
+        <div *ngIf="observations?.errors?.['required']" class="text-danger">
+          Veuillez saisir une Observation valide !
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="designation" class="form-label">Description</label>
+        <input type="text" class="form-control" id="designation" name="designation" formControlName="designation">
+        <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)">
+          <div *ngIf="designation?.errors?.['required']" class="text-danger">
+            Veuillez saisir une Description valide !
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="evaluation" class="form-label">Évaluation</label>
+        <select class="form-select" id="evaluation" name="evaluation" formControlName="resultat">
+          <option disabled>choisir une evaluation</option>
+          <option value="passable">Passable</option>
+          <option value="acceptable">Acceptable</option>
+          <option value="refusee">Refusée</option>
+        </select>
+        @if (resultat?.invalid && (resultat?.dirty || resultat?.touched)) {
+        @if(resultat?.errors?.['required']){
+        <span class="text-danger">Veuillez saisir une Évaluation valide !</span>
+        }
+        }
+      </div>
+    </div>
+
+
+    <button type="reset" class="btn btn-danger m-3">Annuler</button>
+    <button type="submit" class="btn btn-success text-dark " [disabled]="!inspectionForm.valid">Enregistrer</button>
+  </form>
+
+</div>
+
+<!-- Footer -->
+<div [ngClass]="{'d-none': !DefaultVisible}">
+  <app-footer></app-footer>
+</div>

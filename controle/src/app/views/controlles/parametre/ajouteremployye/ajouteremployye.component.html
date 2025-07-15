@@ -1,0 +1,45 @@
+<div class="container">
+
+    <form [formGroup]="employeeForm" (ngSubmit)="ajouter()" class="">
+        <div class="form-group">
+            <label for="matricule" class="form-label">Matricule</label>
+            <input type="text" class="form-control" id="matricule" formControlName="matricule" required>
+            <!-- Optionnel: Affichage d'un message d'erreur si le champ est requis -->
+            <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="text-danger">
+                Le matricule est requis.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="nom" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="nom" formControlName="nom" required>
+            <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                Le nom est requis.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="prenom" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="prenom" formControlName="prenom" required>
+            <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger">
+                Le prénom est requis.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="notes" class="form-label">Notes</label>
+            <input type="number" class="form-control" id="notes" formControlName="notes" required>
+            <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="text-danger">
+                Les notes doivent être comprises entre 0 et 20.
+            </div>
+        </div>
+        <br>
+        <div class="d-flex justify-content-end">
+            <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+            <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                [disabled]="employeeForm.invalid" value="Ajouter">
+        </div>
+    </form>
+
+
+</div>

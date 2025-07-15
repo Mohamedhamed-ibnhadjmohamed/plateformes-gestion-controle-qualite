@@ -1,0 +1,128 @@
+<header class="case-studies-header">
+    <h1 class="title">
+        <span class="highlight">Imprimer Rapport des Contrôles</span>
+    </h1>
+    <p class="description">
+        Ce rapport présente les résultats détaillés des contrôles effectués sur les différents processus. Vous pouvez
+        imprimer ce rapport pour l'archiver ou le partager.
+    </p>
+    <button class="btn btn-primary" (click)="imprimer()">
+        <i class="bi bi-printer me-2"></i> <!-- Ajout d'un margin-end pour espacer l'icône du texte -->
+        Imprimer
+    </button>
+</header>
+
+
+<div class="a4-container position-relative ">
+    <div *ngIf="inspectionData && inspectionData.length > 0; else noDataTemplate">
+
+        
+        <div id="imprimerpartie">
+            <!-- Date et Titre de la Page -->
+            <h4 class="text-center m-2">Fiche d’Évaluation de Contrôle de Qualité<br><strong>N° </strong>{{
+                inspectionData[0].id_inspection }}</h4>
+            <p class="text-end mt-3">Fait le : {{ inspectionData[0].date | date: 'dd/MM/yyyy' }}</p>
+
+
+            <!-- Informations sur le Contrôleur -->
+            <p class="ms-0">
+                <strong>Objet :</strong> Rapport de contrôle qualité en utilisant la méthode de contrôle {{
+                inspectionData[0].type_categorie }}.
+                <br><br>
+                <strong>Nom et Prénom du Contrôleur : </strong>{{ inspectionData[0].nom }} {{ inspectionData[0].prenom
+                }}<br>
+                <strong>Email : </strong>{{ inspectionData[0].email }}
+            </p>
+
+            <!-- Détails du Produit -->
+            <p>
+                Le produit inspecté par ce contrôle est un <strong>{{ inspectionData[0].libelle_produit }}</strong>,
+                avec le
+                code
+                <strong>{{inspectionData[0].code }}</strong>.
+                Ce produit est classé au niveau <strong>{{ inspectionData[0].niveau }}</strong> et la quantité inspectée
+                est
+                de
+                <strong>{{inspectionData[0].quantite }}</strong> unités, avec la description du produit est la suivante
+                :
+                <strong>{{ inspectionData[0].designation }}</strong>.
+            </p>
+
+            <p *ngIf="inspectionData[0].type_categorie == 'fin chaine'">
+                Le contrôle qualité pour la catégorie {{ inspectionData[0].type_categorie }} utilise l'AQL nommé
+                <strong>{{
+                    inspectionData[0].aql_nom }}</strong>.
+                Cet AQL est défini comme suit : <em>{{ inspectionData[0].aql_description }}</em>. Les quantités tolérées
+                pour les défauts sont les suivantes :
+                <strong>{{ inspectionData[0].detail_aql_qte_critique }}</strong> pour les défauts critiques,
+                <strong>{{ inspectionData[0].detail_aql_qte_majeure }}</strong> pour les défauts majeurs,
+                et <strong>{{ inspectionData[0].detail_aql_qte_mineure }}</strong> pour les défauts mineurs.
+            </p>
+
+            <p *ngIf="inspectionData[0].type_categorie == 'audit'">
+                L'ordre de fabrication établi est <strong>{{ inspectionData[0].orderfabrication_libelle }}</strong>,
+                décrit comme <em>{{ inspectionData[0].orderfabrication_designation }}</em>.
+                La quantité demandée pour cet ordre est de <strong>{{ inspectionData[0].orderfabrication_qte_demandee
+                    }}</strong> unités.
+                Le produit se caractérise par une couleur <strong>{{ inspectionData[0].orderfabrication_couleur
+                    }}</strong>
+                et une taille <strong>{{ inspectionData[0].orderfabrication_taille }}</strong>.
+                Ce produit est classé au niveau <strong>{{ inspectionData[0].orderfabrication_niveau }}</strong>.
+            </p>
+
+            <!-- Table des Défauts -->
+            <table *ngIf="defaults && defaults.length > 0" class="table table-striped table-bordered text-center">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th rowspan="2">Défauts</th>
+                        <th rowspan="2">Description</th>
+                        <th colspan="3">Type</th>
+                    </tr>
+                    <tr>
+                        <th>Mineurs</th>
+                        <th>Majeurs</th>
+                        <th>Critiques</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let def of defaults">
+                        <td>
+                            <ng-container *ngFor="let famille of familledefaults">
+                                <ng-container *ngIf="def.id_famille === famille.id_famille">
+                                    <p class="mb-0">{{ famille.nom }}</p>
+                                </ng-container>
+                            </ng-container>
+                        </td>
+                        <td>{{ def.description }}</td>
+                        <td>
+                            <div *ngIf="def.type === 'mineur'">x</div>
+                        </td>
+                        <td>
+                            <div *ngIf="def.type === 'majeur'">x</div>
+                        </td>
+                        <td>
+                            <div *ngIf="def.type === 'critique'">x</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+            <br>
+            <p>
+                Lors de l'inspection, plusieurs points importants ont été notés. Les observations indiquent que
+                <strong>{{inspectionData[0].observations }}</strong>. Le type de contrôle réalisé était <strong>{{
+                    inspectionData[0].type_categorie }}</strong>.
+                La désignation de l'objet inspecté est <strong>{{ inspectionData[0].designation }}</strong>. En ce qui
+                concerne le
+                résultat de l'inspection, il a été évalué comme <strong>{{ inspectionData[0].resultat }}</strong>.
+            </p>
+        </div>
+    </div>
+
+    <!-- Template de données manquantes -->
+    <ng-template #noDataTemplate>
+        <p class="text-center text-danger">Aucune donnée d'inspection disponible.</p>
+    </ng-template>
+</div>

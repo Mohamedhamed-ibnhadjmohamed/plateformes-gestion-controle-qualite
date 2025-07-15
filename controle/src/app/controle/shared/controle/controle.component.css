@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Text+New+Romance:wght@400;700&display=swap');
+
+/* Application de la police à l'étiquette */
+p {
+    font-size: 1em;
+    font-family: 'Text New Romance', serif;
+    font-weight: 700;
+    color: #343a40;
+    text-align: center;
+
+}
+
+.btn-success {
+    background: linear-gradient(109.5deg, rgb(13, 11, 136) 9.4%, rgb(86, 255, 248) 78.4%) !important;
+    font-weight: 900;
+    color: #fefeff;
+}
+
+.section {
+    background: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0.1%, rgba(233, 226, 226, 0.28) 90.1%);
+    margin: auto;
+}
+
+.icon-critique,
+.icon-mineure,
+.icon-majeure {
+    font-weight: 600;
+    color: #fff;
+    font-size: 30px;
+}
+
+img {
+    width: 50px;
+    height: 50px;
+}
+
+

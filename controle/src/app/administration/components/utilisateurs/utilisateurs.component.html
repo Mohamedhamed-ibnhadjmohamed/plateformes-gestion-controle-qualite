@@ -1,0 +1,343 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title  text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{name}}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher  par Email"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
+                            data-bs-target="#AjouterModal">
+                            <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des produits ou du message -->
+            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+                {{ message }}
+            </div>
+
+        <div *ngIf=" utilisateurs; else noData">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">ID Utilisateur</th>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Prenom</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let utilisateur of utilisateurs">
+                        <td>{{ utilisateur.id_utilisateur }}</td>
+                        <td>{{ utilisateur.nom }}</td>
+                        <td>{{ utilisateur.prenom }}</td>
+                        <td>{{ utilisateur.email}}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#ConsulterModal" (click)="confirmer(utilisateur)">
+                                    <i class="fas fa-eye"></i> Consulter
+                                </button>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#ModifierModal" (click)="confirmer(utilisateur)">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#SupprimerModal" (click)="confirmer(utilisateur)">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+            <ng-template #noData>
+                <p>Aucun élément à afficher</p>
+            </ng-template>
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && utilisateurs.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun produit trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Consulter -->
+<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title"> {{name}} </h5>
+                                </div>
+                                <div class="card-body" *ngIf="utilisateur!null">
+                                    <p class="card-text"><strong>Identifiant Utilisateur:</strong> {{
+                                        utilisateur.id_utilisateur}}
+                                    </p>
+                                    <p class="card-text"><strong>Nom:</strong> {{ utilisateur.nom }}</p>
+                                    <p class="card-text"><strong>Prenom :</strong> {{ utilisateur.prenom }}</p>
+                                    <p class="card-text"><strong>Email </strong> {{ utilisateur.email }}</p>
+                                    <p class="card-text"><strong> Mot de passe:</strong> {{ utilisateur.mot_de_passe }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="registerForm" (ngSubmit)="register()">
+                    <div>
+                        <label for="nom1" class="form-label">Nom</label>
+                        <div class="">
+                            <input type="text" id="nom1" class="form-control form-control-lg"
+                                placeholder="Entrez un nom valide" formControlName="nom" />
+                            @if (nom?.invalid && (nom?.dirty || nom?.touched)) {
+                            @if(nom?.errors?.['required']){
+                            <p class="text-danger">Le nom est obligatoir!</p>
+                            }
+                            @if(nom?.errors?.['minlength']){
+                            <p class="text-danger">Le nom doit contenir au moins 3 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+                    <div class="">
+                        <label for="prenom1" class="form-label">Prénom</label>
+                        <div class="">
+                            <input type="text" id="prenom1" class="form-control form-control-lg"
+                                placeholder="Entrez un Prenom valide" formControlName="prenom" />
+                            @if (prenom?.invalid && (prenom?.dirty || prenom?.touched)) {
+                            @if(prenom?.errors?.['required']){
+                            <p class="text-danger">Le prenom est obligatoir!</p>
+                            }
+                            @if(prenom?.errors?.['minlength']){
+                            <p class="text-danger">Le prenom doit contenir au moins 3 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email1" class="form-label">Email</label>
+                        <div class="">
+                            <input type="email" id="email1" class="form-control form-control-lg"
+                                placeholder="Entrez une adresse e-mail valide" formControlName="email" />
+                            @if (email?.invalid && (email?.dirty || email?.touched)) {
+                            @if(email?.errors?.['required']){
+                            <p class="text-danger">Veuillez saisir une adresse e-mail valide !</p>
+                            }
+                            @if(email?.errors?.['pattern']){
+                            <p class="text-danger">Elle doit être sous la forme exemple"&#64;"domaine.com..</p>
+                            }
+                            }
+                        </div>
+
+                    </div>
+                    <div class="mb-4">
+                        <label for="mot_de_passe1" class="form-label">Mot de passe</label>
+                        <div class="">
+                            <input type="password" id="mot_de_passe1" class="form-control form-control-lg"
+                                placeholder="Entrez le mot de passe" formControlName="mot_de_passe" />
+                            @if (mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)) {
+                            @if(mot_de_passe?.errors?.['required']){
+                            <p class="text-danger">Le mot de passe est obligatoir !</p>
+                            }
+                            @if(mot_de_passe?.errors?.['minlength']){
+                            <p class="text-danger">Le mot de passe doit contenir au moins 8 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center">
+                        <button type="reset" class="btn btn-danger btn-lg m-10">Annuler</button>
+                        <button type="submit" class="btn btn-primary btn-lg"
+                            [disabled]="!registerForm.valid">S'inscrire</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+
+
+<!-- Modal Modifier -->
+<div class="modal fade" id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form *ngIf="utilisateur!null" [formGroup]="registerForm" (ngSubmit)="modifier()">
+                    <div>
+                        <label for="nom" class="form-label">Nom</label>
+                        <div class="">
+                            <input type="text" id="nom" class="form-control form-control-lg"
+                                placeholder="Entrez un nom valide" formControlName="nom" value="{{utilisateur.nom}}" />
+                            @if (nom?.invalid && (nom?.dirty || nom?.touched)) {
+                            @if(nom?.errors?.['required']){
+                            <p class="text-danger">Le nom est obligatoir!</p>
+                            }
+                            @if(nom?.errors?.['minlength']){
+                            <p class="text-danger">Le nom doit contenir au moins 3 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+                    <div class="">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <div class="">
+                            <input type="text" id="prenom" class="form-control form-control-lg"
+                                placeholder="Entrez un prenom valide" formControlName="prenom"
+                                value="{{utilisateur.prenom}}" />
+                            @if (prenom?.invalid && (prenom?.dirty || prenom?.touched)) {
+                            @if(prenom?.errors?.['required']){
+                            <p class="text-danger">Le prenom est obligatoir!</p>
+                            }
+                            @if(prenom?.errors?.['minlength']){
+                            <p class="text-danger">Le prenom doit contenir au moins 3 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="">
+                            <input type="email" id="email" class="form-control form-control-lg"
+                                placeholder="Entrez une adresse e-mail valide" formControlName="email"
+                                value="{{utilisateur.email}}" />
+                            @if (email?.invalid && (email?.dirty || email?.touched)) {
+                            @if(email?.errors?.['required']){
+                            <p class="text-danger">Veuillez saisir une adresse e-mail valide !</p>
+                            }
+                            @if(email?.errors?.['pattern']){
+                            <p class="text-danger">Elle doit être sous la forme exemple"&#64;"domaine.com..</p>
+                            }
+                            }
+                        </div>
+
+                    </div>
+                    <div class="mb-4">
+                        <label for="mot_de_passe" class="form-label">Mot de passe</label>
+                        <div class="">
+                            <input type="password" id="mot_de_passe" class="form-control form-control-lg"
+                                placeholder="Entrez le mot de passe" formControlName="mot_de_passe"
+                                value="{{utilisateur.mot_de_passe}}" />
+                            @if (mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)) {
+                            @if(mot_de_passe?.errors?.['required']){
+                            <p class="text-danger">Le mot de passe est obligatoir !</p>
+                            }
+                            @if(mot_de_passe?.errors?.['minlength']){
+                            <p class="text-danger">Le mot de passe doit contenir au moins 8 caractères.</p>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center">
+                        <button type="reset" class="btn btn-danger btn-lg m-10">Annuler</button>
+                        <button type="submit" class="btn btn-primary btn-lg"
+                            [disabled]="!registerForm.valid">S'inscrire</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label" aria-hidden="true"
+    *ngIf=utilisateur!null>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card">
+
+                                <div class="card-header">
+                                    <h5 class="card-title">{{name}} </h5>
+                                </div>
+                                <p class="card-text"><strong>Identifiant Utilisateur:</strong> {{
+                                    utilisateur.id_utilisateur}}</p>
+                                <p class="card-text"><strong>Nomn :</strong> {{ utilisateur.nom }}</p>
+                                <p class="card-text"><strong>Prenom :</strong> {{ utilisateur.prenom }}</p>
+                                <p class="card-text"><strong>Email </strong> {{ utilisateur.email }}</p>
+                                <p class="card-text"><strong> Mot de passe:</strong> {{ utilisateur.mot_de_passe }}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="supprimer(utilisateur)">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

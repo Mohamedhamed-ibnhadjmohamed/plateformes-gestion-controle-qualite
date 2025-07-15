@@ -1,0 +1,388 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title  text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{name}}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher  par Observations"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
+                            data-bs-target="#AjouterModal">
+                            <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des produits ou du message -->
+            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+                {{ message }}
+            </div>
+
+            <div *ngIf="Inspections && Inspections.length > 0; else noData">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID Inspection</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">ID Utilisateur</th>
+                            <th scope="col">ID Produit</th>
+                            <th scope="col">Option</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr *ngFor="let Inspection of Inspections">
+                            <td>{{ Inspection.id_inspection }}</td>
+                            <td>{{ Inspection.date | date:'dd/MM/yyyy' }}</td>
+                            <td>{{ Inspection.id_utilisateur }}</td>
+                            <td>{{ Inspection.id_produit }}</td>
+
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#ConsulterModal" (click)="confirmer(Inspection)">
+                                        <i class="fas fa-eye"></i> Consulter
+                                    </button>
+                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#ModifierModal" (click)="confirmer(Inspection)">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#SupprimerModal" (click)="confirmer(Inspection)">
+                                        <i class="fas fa-trash-alt"></i> Supprimer
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ng-template #noData>
+                <p>Aucun élément à afficher</p>
+            </ng-template>
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && produits.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun produit trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Consulter -->
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf=inspection! null>
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title"> {{name}} </h5>
+
+                                    <p class="card-text"><strong>Identifiant Inspection :</strong> {{
+                                        inspection.id_inspection }}</p>
+                                    <p class="card-text"><strong>Date :</strong> {{ inspection.date| date:'dd/MM/yyyy'
+                                        }}
+                                    </p>
+                                    <p class="card-text"><strong>Observations :</strong> {{ inspection.observations }}
+                                    </p>
+                                    <p class="card-text"><strong>Type Catégorie :</strong> {{ inspection.type_categorie
+                                        }}
+                                    </p>
+                                    <p class="card-text"><strong>Désignation :</strong> {{ inspection.designation }}</p>
+                                    <p class="card-text"><strong>Identifiant Produit :</strong> {{ inspection.id_produit
+                                        }}
+                                    </p>
+                                    <p class="card-text"><strong>Identifiant Utilisateur :</strong> {{
+                                        inspection.id_utilisateur }}</p>
+                                    <p class="card-text"><strong> Resultat :</strong> {{
+                                        inspection.resultat }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form [formGroup]="inspectionForm" (ngSubmit)="ajout()">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" formControlName="date" required>
+                        <div *ngIf="inspectionForm.get('date')?.invalid && inspectionForm.get('date')?.touched"
+                            class="text-danger">
+                            Date is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="observations" class="form-label">Observations</label>
+                        <textarea class="form-control" id="observations" formControlName="observations" rows="3"
+                            required></textarea>
+                        <div *ngIf="inspectionForm.get('observations')?.invalid && inspectionForm.get('observations')?.touched"
+                            class="text-danger">
+                            Observations are required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="type_categorie" class="form-label">Type Catégorie</label>
+                        <select class="form-select" id="type_categorie" formControlName="type_categorie" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="sous chaine">sous chaine</option>
+                            <option value="fin chaine">fin chaine</option>
+                            <option value="audit">audit</option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('type_categorie')?.invalid && inspectionForm.get('type_categorie')?.touched"
+                            class="text-danger">
+                            Type Catégorie is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="designation" class="form-label">Désignation</label>
+                        <input type="text" class="form-control" id="designation" formControlName="designation" required>
+                        <div *ngIf="inspectionForm.get('designation')?.invalid && inspectionForm.get('designation')?.touched"
+                            class="text-danger">
+                            Désignation is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_produit" class="form-label">ID Produit</label>
+                        <select class="form-select" id="id_produit" formControlName="id_produit" required>
+                            <option *ngFor="let produit of produits" [value]="produit.id_produit">{{produit.id_produit}}
+                            </option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('id_produit')?.invalid && inspectionForm.get('id_produit')?.touched"
+                            class="text-danger">
+                            ID Produit is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_utilisateur" class="form-label">ID Utilisateur</label>
+                        <select class="form-select" id="id_utilisateur" formControlName="id_utilisateur" required>
+                            <option *ngFor="let utilisateur of utilisateurs" [value]="utilisateur.id_utilisateur">
+                                {{utilisateur.id_utilisateur}}</option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('id_utilisateur')?.invalid && inspectionForm.get('id_utilisateur')?.touched"
+                            class="text-danger">
+                            ID Utilisateur is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="resultat" class="form-label">Resultat</label>
+                        <textarea class="form-control" id="resultat" formControlName="resultat" rows="3"
+                            required></textarea>
+                        <div *ngIf="inspectionForm.get('resultat')?.invalid && inspectionForm.get('resultat')?.touched"
+                            class="text-danger">
+                            Resultat is required.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="inspectionForm.invalid" value="Ajouter">
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+
+
+<!-- Modal Modifier -->
+<div class="modal fade modal-xl" id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form [formGroup]="inspectionForm" (ngSubmit)="modifier()">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" formControlName="date" required>
+                        <div *ngIf="inspectionForm.get('date')?.invalid && inspectionForm.get('date')?.touched"
+                            class="text-danger">
+                            Date is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="observations" class="form-label">Observations</label>
+                        <textarea class="form-control" id="observations" formControlName="observations" rows="3"
+                            required></textarea>
+                        <div *ngIf="inspectionForm.get('observations')?.invalid && inspectionForm.get('observations')?.touched"
+                            class="text-danger">
+                            Observations are required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="type_categorie" class="form-label">Type Catégorie</label>
+                        <select class="form-select" id="type_categorie" formControlName="type_categorie" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="sous chaine">sous chaine</option>
+                            <option value="fin chaine">fin chaine</option>
+                            <option value="audit">audit</option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('type_categorie')?.invalid && inspectionForm.get('type_categorie')?.touched"
+                            class="text-danger">
+                            Type Catégorie is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="designation" class="form-label">Désignation</label>
+                        <input type="text" class="form-control" id="designation" formControlName="designation" required>
+                        <div *ngIf="inspectionForm.get('designation')?.invalid && inspectionForm.get('designation')?.touched"
+                            class="text-danger">
+                            Désignation is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_produit" class="form-label">ID Produit</label>
+                        <select class="form-select" id="id_produit" formControlName="id_produit" required>
+                            <option *ngFor="let produit of produits" [value]="produit.id_produit">{{produit.id_produit}}
+                            </option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('id_produit')?.invalid && inspectionForm.get('id_produit')?.touched"
+                            class="text-danger">
+                            ID Produit is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_utilisateur" class="form-label">ID Utilisateur</label>
+                        <select class="form-select" id="id_utilisateur" formControlName="id_utilisateur" required>
+                            <option *ngFor="let utilisateur of utilisateurs" [value]="utilisateur.id_utilisateur">
+                                {{utilisateur.id_utilisateur}}</option>
+                        </select>
+                        <div *ngIf="inspectionForm.get('id_utilisateur')?.invalid && inspectionForm.get('id_utilisateur')?.touched"
+                            class="text-danger">
+                            ID Utilisateur is required.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="resultat" class="form-label">Resultat</label>
+                        <textarea class="form-control" id="resultat" formControlName="resultat" rows="3"
+                            required></textarea>
+                        <div *ngIf="inspectionForm.get('resultat')?.invalid && inspectionForm.get('resultat')?.touched"
+                            class="text-danger">
+                            Resultat is required.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="inspectionForm.invalid" value="Ajouter">
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+    aria-hidden="true" *ngIf=inspection! null>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card">
+
+                                <div class="card-header">
+                                    <h5 class="card-title">{{name}} </h5>
+                                </div>
+                                <p class="card-text"><strong>Identifiant Inspection :</strong> {{
+                                    inspection.id_inspection }}</p>
+                                <p class="card-text"><strong>Date :</strong> {{ inspection.date }}</p>
+                                <p class="card-text"><strong>Observations :</strong> {{ inspection.observations }}</p>
+                                <p class="card-text"><strong>Type Catégorie :</strong> {{ inspection.type_categorie }}
+                                </p>
+                                <p class="card-text"><strong>Désignation :</strong> {{ inspection.designation }}</p>
+                                <p class="card-text"><strong>Identifiant Produit :</strong> {{ inspection.id_produit }}
+                                </p>
+                                <p class="card-text"><strong>Identifiant Utilisateur :</strong> {{
+                                    inspection.id_utilisateur }}</p>
+                                <p class="card-text"><strong>Resultat :</strong> {{
+                                    inspection.resultat }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" (click)="supprimer(inspection)" data-bs-dismiss="modal">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

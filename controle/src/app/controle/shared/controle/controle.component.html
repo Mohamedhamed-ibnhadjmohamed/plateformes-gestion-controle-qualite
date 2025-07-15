@@ -1,0 +1,333 @@
+<!--------------------- information -->
+<div class="container section" *ngIf="defaults && defaults.length > 0;">
+    <div class="alert alert-warning m-0" role="alert">
+        <p class="m-0">Si seulement 30% des produits sont contrôlés</p>
+    </div>
+    <div class="d-flex justify-content-between">
+
+
+        <div class="fs-6 mb-3 px-3">
+            <i class="fas fa-lightbulb" [ngClass]="couleurmineur"></i> {{ mineur }} Qte mineure
+        </div>
+        
+        <div class="fs-6 mb-3 px-3">
+            <i class="fas fa-lightbulb" [ngClass]="couleurmajeur"></i> {{ majeur }} Qte majeure
+        </div>
+        
+        <div class="fs-6 mb-3 px-3">
+            <i class="fas fa-lightbulb" [ngClass]="couleurcritique"></i> {{ critique }} Qte critique
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+<div class="table-responsive">
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#AjouterModal">
+            <i class="fa-solid fa-plus"></i> Ajouter un defaut
+        </button>
+    </div>
+    <table *ngIf="defaults && defaults.length > 0; else noData" class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Description</th>
+                <th scope="col">Image</th>
+                <th scope="col">Type</th>
+                <th scope="col">Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let default of defaults">
+                <td>{{ default.description }}</td>
+                <td>
+                    <img *ngIf="default.image"
+                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)" alt="img"
+                        class="img-thumbnail" width="100">
+                </td>
+                <td>{{ default.type }}</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#ConsulterModal" (click)="confirmer(default)">
+                            <i class="fas fa-eye"></i> Consulter
+                        </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#ModifierModal" (click)="confirmer(default)">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#SupprimerModal" (click)="confirmer(default)">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<ng-template #noData>
+    <p class="text-center py-3 btn-success">Aucun élément à afficher</p>
+</ng-template>
+
+<!-- Modal Consulter -->
+<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf=default!null>
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title"> {{name}} </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                    </p>
+                                    <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
+                                    <p class="card-text"><strong>Image:</strong>
+                                        <br>
+                                        <img *ngIf="default.image"
+                                            style="width: 400px !important; height: 200px !important"
+                                            [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                            alt="img">
+                                    </p>
+                                    <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>
+                                    <p class="card-text"><strong>ID inspection:</strong> {{ default.id_inspection }}</p>
+                                    <p class="card-text"><strong>Nombre:</strong> {{ default.nombre }}</p>
+                                    <p class="card-text"><strong>ID employe:</strong> {{ default.id_employee}}</p>
+                                    <p class="card-text"><strong>Type:</strong> {{ default.type }}</p>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="defaultForm" (ngSubmit)="ajoutDefault()">
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <input type="text" class="form-control" id="description" formControlName="description"
+                            placeholder="Description">
+                        <div *ngIf="description!.invalid && description!.dirty && description!.touched"
+                            class="text-danger">
+                            <small *ngIf="description!.errors?.['required']">La description est requise.</small>
+                            <small *ngIf="description!.errors?.['maxlength']">La description ne peut pas dépasser 255
+                                caractères.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Image :</label>
+                        <input type="file" class="form-control" id="image" formControlName="image">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_famille">ID famille :</label>
+                        <select class="form-control" id="id_famille" formControlName="id_famille">
+                            <option *ngFor="let familledefault of familledefaults" [value]="familledefault.id_famille">
+                                {{familledefault.nom}}
+                            </option>
+                        </select>
+                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="text-danger">
+                            <small *ngIf="id_famille?.errors?.['required']">L'ID famille est requis.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre :</label>
+                        <input type="number" class="form-control" id="nombre" formControlName="nombre">
+                        <div *ngIf="nombre!.invalid && nombre!.touched" class="text-danger">
+                            <small *ngIf="nombre?.errors?.['required']">Le nombre est requis.</small>
+                            <small *ngIf="nombre?.errors?.['min']">Le nombre doit être supérieur ou égal à 1.</small>
+                            <small *ngIf="nombre?.errors?.['max']">Le nombre ne peut pas dépasser 100.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="type">Type :</label>
+                        <select class="form-control" id="type" formControlName="type">
+                            <option value="mineur">Mineur</option>
+                            <option value="majeur">Majeur</option>
+                            <option value="critique">Critique</option>
+                        </select>
+                        <div *ngIf="type?.invalid && type?.touched" class="text-danger">
+                            <small *ngIf="type?.errors?.['required']">Le type est requis.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_employee">ID employé :</label>
+                        <select class="form-control" id="id_employee" formControlName="id_employee">
+                            <option *ngFor="let employee of employees" [value]="employee.id_employee">
+                                {{employee.nom}} {{employee.prenom}}
+                            </option>
+                        </select>
+                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="text-danger">
+                            <small *ngIf="id_employee?.errors?.['required']">L'ID employé est requis.</small>
+                        </div>
+                    </div>
+
+                    <button type="reset" class="btn btn-danger" (click)="resetForm()">Annuler</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="!defaultForm.valid">Ajouter</button>
+                </form>
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+
+
+<!-- Modal Modifier -->
+<div class="modal fade modal-xl" id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf="default!null">
+                <form [formGroup]="defaultForm" (ngSubmit)="modifierDefault()">
+                    <div class="form-group">
+                        <label for="qte_min">Description :</label>
+                        <input type="text" class="form-control" id="descrption" formControlName="description"
+                            placeholder="Description" value="{{default.description}}">
+                        <div *ngIf="description?.invalid && description?.touched" class="text-danger">
+                            <small *ngIf="description?.errors?.['required']">La description est requise.</small>
+                            <small *ngIf="description?.errors?.['maxLength']">La description ne peut pas dépasser 255
+                                caractères.</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="qte_max">Image :</label>
+                        <input type="file" class="form-control" (change)="($event)" id="image" formControlName="image"
+                            value="{{default.image}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_famille">famille default:</label>
+                        <select class="form-select" id="id_famille" formControlName="id_famille">
+                            <option *ngFor="let familledefault of familledefaults" [value]="familledefault.id_famille">
+                                {{familledefault.nom}}</option>
+                        </select>
+                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="text-danger">
+                            <small *ngIf="id_famille?.errors?.['required']">L'ID famille est requis.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qte_min">Nombre :</label>
+                        <input type="text" class="form-control" id="nombre" value="{{default.nombre}}"
+                            formControlName="nombre">
+                        <div *ngIf="nombre?.invalid && nombre?.touched" class="text-danger">
+                            <small *ngIf="nombre?.errors?.['required']">Le nombre est requis.</small>
+                            <small *ngIf="nombre?.errors?.['min']">Le nombre doit être supérieur ou égal à 1.</small>
+                            <small *ngIf="nombre?.errors?.['max']">Le nombre ne peut pas dépasser 100.</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="Type">Type :</label>
+                        <select class="form-select" id="Type" formControlName="type">
+                            <option value="mineur">Mineur</option>
+                            <option value="majeur">Majeur</option>
+                            <option value="critique">Critique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qte_majeure">ID employee :</label>
+                        <select class="form-select" id="id_employe" formControlName="id_employee">
+                            <option *ngFor="let employee of employees" [value]="employee.id_employee">
+                                {{employee.nom}}</option>
+                        </select>
+                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="text-danger">
+                            <small *ngIf="id_employee?.errors?.['required']">L'ID employé est requis.</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
+                        [disabled]="!defaultForm.valid">Modifier</button>
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+    aria-hidden="true">
+    <div class="modal-dialog" *ngIf="default!null">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                </p>
+                                <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
+                                <p class="card-text"><strong>Image:</strong>
+                                    <br>
+                                    <img *ngIf="default.image" style="width: 400px !important; height: 200px !important"
+                                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                        alt="img">
+                                </p>
+                                <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>
+                                <p class="card-text"><strong>ID inspection:</strong> {{ default.id_inspection }}</p>
+                                <p class="card-text"><strong>Nombre:</strong> {{ default.nombre }}</p>
+                                <p class="card-text"><strong>ID employe:</strong> {{ default.id_employee}}</p>
+                                <p class="card-text"><strong>Type:</strong> {{ default.type }}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" (click)="supprimer(default)" data-bs-dismiss="modal">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

@@ -1,0 +1,33 @@
+<section class="process-block" id="information">
+    
+<header class="case-studies-header">
+    <h1 class="title">
+        <span class="highlight">Étapes des Contrôles</span>
+    </h1>
+    <p class="description">
+        Suivez les différentes étapes du processus de contrôle qualité, de la sélection du produit à l'enregistrement
+        des résultats. Chaque étape est conçue pour garantir une inspection rigoureuse et précise des produits,
+        permettant ainsi de détecter et corriger tout défaut avant la validation finale.
+    </p>
+</header>
+
+
+    <article *ngFor="let step of processSteps"
+        [ngClass]="{'card': true, 'card-expanded': step.number === '01', 'card-collapsed': step.number !== '01'}">
+        <div class="card-content">
+            <header class="card-header">
+                <h2 class="step-number">{{step.number}}</h2>
+                <h3 class="step-title">{{step.title}}</h3>
+            </header>
+            <button class="expand-button" (click)="toggleExpand(step)" [attr.aria-expanded]="step.isExpanded"
+                [attr.aria-controls]="'step-description-' + step.number">
+                <span class="visually-hidden">{{step.isExpanded ? 'Collapse' : 'Expand'}} step details</span>
+                <div class="plus-icon" [ngClass]="{'expanded': step.isExpanded}"></div>
+            </button>
+        </div>
+        <div class="card-divider" *ngIf="step.isExpanded"></div>
+        <p class="step-description" *ngIf="step.isExpanded" [id]="'step-description-' + step.number">
+            {{step.description}}
+        </p>
+    </article>
+</section>

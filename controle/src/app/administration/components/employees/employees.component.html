@@ -1,0 +1,286 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title  text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{name}}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher par prenom"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
+                            data-bs-target="#AjouterModal">
+                            <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des produits ou du message -->
+            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+                {{ message }}
+            </div>
+
+            <table *ngIf="!isLoading && employees.length > 0" class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Identifiant employee</th>
+                        <th scope="col">Matricule</th>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Prenom</th>
+                        <th scope="col"> Option </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let employee of employees" class="align-middle">
+                        <td>{{ employee.id_employee }}</td>
+                        <td>{{ employee.matricule }}</td>
+                        <td>{{ employee.nom }}</td>
+                        <td>{{ employee.prenom }}</td>
+
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#ConsulterModal" (click)="confirmer(employee)">
+                                    <i class="fas fa-eye"></i> Consulter
+                                </button>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#ModifierModal" (click)="confirmer(employee)">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#SupprimerModal" (click)="confirmer(employee)">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </div>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && employees.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun produit trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Consulter -->
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf=employee! null>
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title"> {{name}} </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant Employee:</strong> {{ employee.id_employee
+                                        }}</p>
+                                    <p class="card-text"><strong>Matricule:</strong> {{ employee.matricule }}</p>
+                                    <p class="card-text"><strong>Nom:</strong> {{ employee.nom }}</p>
+                                    <p class="card-text"><strong>prenom:</strong> {{ employee.prenom }}</p>
+                                    <p class="card-text"><strong>Notes:</strong> {{ employee.notes }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Consulter -->
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form [formGroup]="employeeForm" (ngSubmit)="ajouter()" class="">
+                    <div class="form-group">
+                        <label for="matricule" class="form-label">Matricule</label>
+                        <input type="text" class="form-control" id="matricule" formControlName="matricule" required>
+                        <!-- Optionnel: Affichage d'un message d'erreur si le champ est requis -->
+                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="text-danger">
+                            Le matricule est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" formControlName="nom" required>
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                            Le nom est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" formControlName="prenom" required>
+                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger">
+                            Le prénom est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes" class="form-label">Notes</label>
+                        <input type="number" class="form-control" id="notes" formControlName="notes" required>
+                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="text-danger">
+                            Les notes doivent être comprises entre 0 et 20.
+                        </div>
+                    </div>
+                    <br>
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="employeeForm.invalid" value="Ajouter">
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+
+
+<!-- Modal Modifier -->
+<div class="modal fade modal-xl" id="ModifierModal" tabindex="-1" aria-labelledby="ModifierModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" *ngIf=employee! null>
+
+                <form [formGroup]="employeeForm" (ngSubmit)="modifier()" class="">
+                    <div class="form-group">
+                        <label for="matricule" class="form-label">Matricule</label>
+                        <input type="text" class="form-control" id="matricule" formControlName="matricule"
+                            [value]="employee.matricule" required>
+                        <!-- Optionnel: Affichage d'un message d'erreur si le champ est requis -->
+                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="text-danger">
+                            Le matricule est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" formControlName="nom" [value]="employee.nom"
+                            required>
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                            Le nom est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" formControlName="prenom"
+                            [value]="employee.prenom" required>
+                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger">
+                            Le prénom est requis.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes" class="form-label">Notes</label>
+                        <input type="number" class="form-control" id="notes" formControlName="notes"
+                            [value]="employee.notes" required>
+                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="text-danger">
+                            Les notes doivent être comprises entre 0 et 20.
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="d-flex justify-content-end">
+                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                            [disabled]="employeeForm.invalid" value="Ajouter">
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Modifier -->
+
+<!-- Modal Supprimer  -->
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+    aria-hidden="true" *ngIf=employee! null>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-danger" role="alert">
+                                Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
+                            </div>
+                            <div class="card">
+
+                                <div class="card-header">
+                                    <h5 class="card-title">{{name}} </h5>
+                                </div>
+
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Identifiant Employee:</strong> {{ employee.id_employee
+                                        }}</p>
+                                    <p class="card-text"><strong>Matricule:</strong> {{ employee.matricule }}</p>
+                                    <p class="card-text"><strong>Nom:</strong> {{ employee.nom }}</p>
+                                    <p class="card-text"><strong>prenom:</strong> {{ employee.prenom }}</p>
+                                    <p class="card-text"><strong>Notes:</strong> {{ employee.notes }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" (click)="supprimer(employee)" data-bs-dismiss="modal">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer  -->

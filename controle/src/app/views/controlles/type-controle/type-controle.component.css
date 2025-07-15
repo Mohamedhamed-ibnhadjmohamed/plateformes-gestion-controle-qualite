@@ -1,0 +1,256 @@
+.services-block {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.cards-section {
+    padding: 0 100px;
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.card {
+    align-items: center;
+    border-radius: 45px;
+    border: 1px solid #191a23;
+    box-shadow: 0 5px 0 0 #191a23;
+    display: flex;
+    min-width: 300px;
+    /* Adjusted for smaller screens */
+    max-width: 100%;
+    /* Ensures the card doesn't overflow */
+    overflow: hidden;
+    flex-wrap: wrap;
+    width: 450px;
+    padding: 30px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.card-souschaine,
+.card-email {
+        background-color: #f3f3f3;
+}
+
+.card-ppc,
+.card-content-creation {
+    background-color: #b9ff66;
+}
+
+.card-social-media,
+.card-analytics {
+    background-color: #191a23;
+    color: #fff;
+}
+
+.card-content {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 300px;
+    /* Ensures the content takes full width */
+}
+
+.card-content>p {
+    height: 200px;
+    text-align: justify;
+}
+
+.card-heading {
+    display: flex;
+    flex-direction: column;
+    font-size: 24px;
+    /* Reduced size for better mobile compatibility */
+    font-weight: 500;
+}
+
+.card-label {
+    border-radius: 7px;
+    padding: 5px 10px;
+    /* Adjusted padding for better balance */
+    align-self: flex-start;
+}
+
+.card-souschaine .card-label,
+.card-email .card-label {
+    background-color: #b9ff66;
+}
+
+.card-ppc .card-label,
+.card-content-creation .card-label {
+    background-color: #fff;
+}
+
+.card-social-media .card-label,
+.card-analytics .card-label {
+    background-color: #b9ff66;
+    color: #000;
+}
+
+.card-link {
+    display: flex;
+    margin-top: 40px;
+    /* Reduced for better fit */
+    align-items: center;
+    gap: 15px;
+    font-size: 18px;
+    /* Reduced for better readability on mobile */
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    color: inherit;
+}
+
+.link-icon {
+    width: 35px;
+    /* Adjusted size */
+    height: 35px;
+    object-fit: contain;
+}
+
+.card-illustration {
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 200px;
+}
+
+.illustration-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (max-width: 991px) {
+    .cards-section {
+        padding: 0 20px;
+        flex-direction: column;
+        /* Stacked layout for smaller screens */
+    }
+
+    .card {
+        width: 100%;
+        /* Ensures full width for mobile */
+        padding: 20px;
+        /* Reduced padding */
+    }
+
+    .card-link {
+        margin-top: 20px;
+        /* Reduced margin for mobile */
+    }
+
+    .card-heading {
+        font-size: 22px;
+        /* Adjusted heading size */
+    }
+
+    .link-icon {
+        width: 30px;
+        height: 30px;
+        /* Further reduced icon size */
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        padding: 10px;
+        /* Further reduced padding for very small screens */
+    }
+
+    .card-heading {
+        font-size: 18px;
+        /* Further reduced for small screens */
+    }
+
+    .card-link {
+        font-size: 16px;
+        /* Font size adjustment */
+        margin-top: 10px;
+    }
+}
+
+
+
+.case-studies-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    color: #000;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 0 100px;
+}
+
+.title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    font-size: 30px !important;
+    font-weight: 500;
+    justify-content: flex-start;
+    margin: 0;
+}
+
+.highlight {
+    border-radius: 7px;
+    background-color: #b9ff66;
+    padding: 10px;
+}
+
+.description {
+    font-size: 18px;
+    font-weight: 400;
+    width: 580px;
+    margin: 0;
+}
+
+@media (max-width: 991px) {
+    .case-studies-header {
+        padding: 0 20px;
+    }
+
+    .description {
+        max-width: 100%;
+    }
+}
+
+
+
+.button-souschaine {
+    background-color: #b9ff66;
+    border-radius: 5px;
+    border-color: #b9ff66;
+    font-size: 24px;
+    padding: 10px;
+    font-weight: 500;
+    color: #000;
+}
+
+.button-finchaine {
+    background-color: #fff;
+    border-radius: 5px;
+    border-color: #fff;
+    font-size: 24px;
+    padding: 10px;
+    font-weight: 500;
+    color: #000;
+}
+
+.button-audit {
+    background-color: #b9ff66;
+    border-radius: 5px;
+    border-color: #b9ff66;
+    font-size: 24px;
+    padding: 10px;
+    font-weight: 500;
+    color: #000;
+}

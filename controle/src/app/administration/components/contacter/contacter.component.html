@@ -1,0 +1,149 @@
+<div class="container-xl ">
+    <div class="table-responsive">
+        <div class="table-wrapper shadow-sm rounded bg-white">
+            <div class="table-title text-white p-3 rounded-top">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestion <b>{{ name }}</b></h2>
+                    </div>
+                    <div class="col-sm-6 d-flex justify-content-end align-items-center">
+                        <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Rechercher contact par mail"
+                                    formControlName="rech">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                       
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicateur de chargement -->
+            <div *ngIf="isLoading" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
+            </div>
+
+            <!-- Affichage des contacts ou du message -->
+         
+
+<div *ngIf="contacts.length > 0" class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="list-group">
+                <div *ngFor="let contact of contacts"
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center email-item py-3">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center">
+                            <span class="email-sender fw-bold me-2">{{ contact.non_utilisateur }}</span>
+                            <span class="email-address text-muted">&lt;{{ contact.email }}&gt;</span>
+                        </div>
+                        <span class="email-subject text-truncate" style="max-width: 300px;">{{ contact.message |
+                            slice:0:50 }}...</span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#SupprimerModal" (click)="confirmer(contact)">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+            <!-- Message en cas d'absence de résultats ou d'erreur -->
+            <div *ngIf="!isLoading && contacts.length === 0 && !message" class="alert alert-warning text-center">
+                Aucun contact trouvé.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Ajouter -->
+<div class="modal fade modal-xl" id="AjouterModal" tabindex="-1" aria-labelledby="AjouterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="AjouterModalLabel">Ajouter {{ name }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="contactForm" (ngSubmit)="ajouterContact()">
+                    <div class="mb-3">
+                        <label for="non_utilisateur" class="form-label">Nom Utilisateur</label>
+                        <input type="text" class="form-control" id="non_utilisateur" formControlName="non_utilisateur">
+                        <div *ngIf="non_utilisateur?.invalid && (non_utilisateur?.dirty || non_utilisateur?.touched)">
+                            <span class="text-danger" *ngIf="non_utilisateur?.errors?.['required']">Nom utilisateur est
+                                obligatoire</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" formControlName="email">
+                        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+                            <span class="text-danger" *ngIf="email?.errors?.['required']">Email est obligatoire</span>
+                            <span class="text-danger" *ngIf="email?.errors?.['email']">Email invalide</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" formControlName="message"></textarea>
+                        <div *ngIf="message?.invalid && (message?.dirty || message?.touched)">
+                            <span class="text-danger" *ngIf="message?.errors?.['required']">Message est
+                                obligatoire</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-danger m-2">Annuler</button>
+                        <button type="submit" class="btn btn-primary m-2"
+                            [disabled]="contactForm.invalid">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Ajouter -->
+
+<!-- Modal Supprimer -->
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
+    aria-hidden="true" *ngIf="contact">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{ name }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{ name }}</strong>" ?
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">{{ name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>ID Contact :</strong> {{ contact.id_contact }}</p>
+                        <p class="card-text"><strong>Nom Utilisateur :</strong> {{ contact.non_utilisateur }}</p>
+                        <p class="card-text"><strong>Email :</strong> {{ contact.email }}</p>
+                        <p class="card-text"><strong>Message :</strong> {{ contact.message }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" (click)="supprimerContact(contact)">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fin Modal Supprimer -->

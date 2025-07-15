@@ -1,0 +1,90 @@
+<div class="container">
+    <form (ngSubmit)="ajout()" [formGroup]="aqlForm">
+
+        <div class="form-group">
+            <label>Nom</label>
+            <input type="text" class="form-control" name="nom" formControlName="nom" required>
+            <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                <small *ngIf="nom?.errors?.['required']">Le nom est requis.</small>
+                <small *ngIf="nom?.errors?.['minlength']">Le nom doit comporter au moins 3
+                    caractères.</small>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" class="form-control" name="description" formControlName="description" required>
+            <div *ngIf="description?.invalid && (description?.dirty || description?.touched)" class="text-danger">
+                <small *ngIf="description?.errors?.['required']">La description est requise.</small>
+                <small *ngIf="description?.errors?.['minlength']">La description doit comporter au moins 10
+                    caractères.</small>
+            </div>
+        </div>
+
+        <!-- Quantité minimale -->
+        <div class="form-group">
+            <label for="qte_min">Quantité minimale :</label>
+            <input type="number" class="form-control" id="qte_min" formControlName="qte_min" required>
+            <div *ngIf="qte_min?.invalid && (qte_min?.dirty || qte_min?.touched)" class="text-danger">
+                <small *ngIf="qte_min?.errors?.['required']">La quantité minimale est requise.</small>
+                <small *ngIf="qte_min?.errors?.['min']">La quantité minimale doit être au moins 1.</small>
+            </div>
+        </div>
+
+        <!-- Quantité maximale -->
+        <div class="form-group">
+            <label for="qte_max">Quantité maximale :</label>
+            <input type="number" class="form-control" id="qte_max" formControlName="qte_max" required>
+            <div *ngIf="qte_max?.invalid && (qte_max?.dirty || qte_max?.touched)" class="text-danger">
+                <small *ngIf="qte_max?.errors?.['required']">La quantité maximale est requise.</small>
+                <small *ngIf="qte_max?.errors?.['min']">La quantité maximale doit être au moins 1.</small>
+            </div>
+        </div>
+
+        <!-- Quantité critique -->
+        <div class="form-group">
+            <label for="qte_critique">Quantité critique :</label>
+            <input type="number" class="form-control" id="qte_critique" formControlName="qte_critique" required>
+            <div *ngIf="qte_critique?.invalid && (qte_critique?.dirty || qte_critique?.touched)" class="text-danger">
+                <small *ngIf="qte_critique?.errors?.['required']">La quantité critique est requise.</small>
+                <small *ngIf="qte_critique?.errors?.['min']">La quantité critique doit être au moins
+                    1.</small>
+                <small *ngIf="qte_critique?.errors?.['max']">La quantité critique ne doit pas dépasser
+                    10.</small>
+            </div>
+        </div>
+
+        <!-- Quantité mineure -->
+        <div class="form-group">
+            <label for="qte_mineure">Quantité mineure :</label>
+            <input type="number" class="form-control" id="qte_mineure" formControlName="qte_mineure" required>
+            <div *ngIf="qte_mineure?.invalid && (qte_mineure?.dirty || qte_mineure?.touched)" class="text-danger">
+                <small *ngIf="qte_mineure?.errors?.['required']">La quantité mineure est requise.</small>
+                <small *ngIf="qte_mineure?.errors?.['min']">La quantité mineure doit être au moins
+                    1.</small>
+                <small *ngIf="qte_mineure?.errors?.['max']">La quantité mineure ne doit pas dépasser
+                    10.</small>
+            </div>
+        </div>
+
+        <!-- Quantité majeure -->
+        <div class="form-group">
+            <label for="qte_majeure">Quantité majeure :</label>
+            <input type="number" class="form-control" id="qte_majeure" formControlName="qte_majeure" required>
+            <div *ngIf="qte_majeure?.invalid && (qte_majeure?.dirty || qte_majeure?.touched)" class="text-danger">
+                <small *ngIf="qte_majeure?.errors?.['required']">La quantité majeure est requise.</small>
+                <small *ngIf="qte_majeure?.errors?.['min']">La quantité majeure doit être au moins
+                    1.</small>
+                <small *ngIf="qte_majeure?.errors?.['max']">La quantité majeure ne doit pas dépasser
+                    10.</small>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
+            <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal" [disabled]="aqlForm.invalid"
+                value="Ajouter">
+        </div>
+    </form>
+
+</div>

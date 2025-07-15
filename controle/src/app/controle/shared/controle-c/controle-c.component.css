@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Text+New+Romance:wght@400;700&display=swap');
+
+/* Application de la police à l'étiquette */
+p {
+    font-size: 1em;
+    font-family: 'Text New Romance', serif;
+    font-weight: 700;
+    color: #000;
+    text-align: center;
+
+}
+
+.btn-success {
+    background-color: #b9ff66;
+    font-weight: 900;
+    color: #000;
+}
+
+.section {
+    background: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0.1%, rgba(233, 226, 226, 0.28) 90.1%);
+    margin: auto;
+}
+
+.icon-critique,
+.icon-mineure,
+.icon-majeure {
+    font-weight: 600;
+    color: #fff;
+    font-size: 30px;
+}
+
+img {
+    width: 200px;
+    height: 80px;
+}
+
+
+.case-studies-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    color: #000;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 0 100px;
+}
+
+.title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    font-size: 30px !important;
+    font-weight: 500;
+    justify-content: flex-start;
+    margin: 0;
+}
+
+.highlight {
+    border-radius: 7px;
+    background-color: #b9ff66;
+    padding: 10px;
+}
+
+.description {
+    font-size: 18px;
+    font-weight: 400;
+    width: 1000px;
+    margin: 0;
+}
+
+@media (max-width: 991px) {
+    .case-studies-header {
+        padding: 0 20px;
+    }
+
+    .description {
+        max-width: 100%;
+    }
+}
