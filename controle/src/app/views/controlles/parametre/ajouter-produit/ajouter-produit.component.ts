@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { AQL } from '../../../../models/AQL';
@@ -7,16 +7,25 @@ import { Produit } from '../../../../models/Produit';
 import { AqlsService } from '../../../../services/aqls.service';
 import { OrdersService } from '../../../../services/orders.service';
 import { ProduitsService } from '../../../../services/produits.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-ajouter-produit',
-  templateUrl: './ajouter-produit.component.html',
-  styleUrl: './ajouter-produit.component.css'
+    selector: 'app-ajouter-produit',
+    templateUrl: './ajouter-produit.component.html',
+    styleUrl: './ajouter-produit.component.css',
+    standalone: false
 })
 export class AjouterProduitComponent  implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   produits: Produit[] = [];
   aqls: AQL[] = [];
   orders: Order[] = [];
+
+  // Contrôle à la saisie : suivi de la quantité de l'OF sélectionné.
+  suiviQuantite: { qte_demandee: number; qte_enregistree: number; qte_restante: number } | null = null;
+  private readonly suiviRecherche$ = new Subject<number>();
 
   constructor(
     private produitService: ProduitsService,
@@ -27,6 +36,48 @@ export class AjouterProduitComponent  implements OnInit {
 
   ngOnInit(): void {
     this.reloadData();
+
+    // Recherche automatique du suivi de quantité dès qu'un OF est sélectionné
+    // (avec anti-rebond).
+    this.suiviRecherche$
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        switchMap((idOrder) => this.orderservice.getSuiviQuantite(idOrder)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (suivi) => (this.suiviQuantite = suivi),
+        error: () => (this.suiviQuantite = null),
+      });
+  }
+
+  /** Quantité formulée pour l'OF en cours de saisie. */
+  get quantiteSaisie(): number {
+    return Number(this.produitForm.get('quantite')?.value) || 0;
+  }
+
+  /** Vrai si la quantité saisie + quantité déjà enregistrée dépasse la commande. */
+  get depassementQuantite(): boolean {
+    if (!this.suiviQuantite) {
+      return false;
+    }
+    return this.quantiteSaisie > this.suiviQuantite.qte_restante;
+  }
+
+  /** Déclenche la vérification du suivi de quantité pour l'OF sélectionné. */
+  verifierSuiviQuantite(): void {
+    const idOrder = this.produitForm.get('id_order')?.value;
+    if (idOrder) {
+      this.suiviRecherche$.next(Number(idOrder));
+    } else {
+      this.suiviQuantite = null;
+    }
+  }
+
+  /** Formate un nombre avec séparateur de milliers. */
+  formatNbre(valeur: number): string {
+    return new Intl.NumberFormat('fr-FR').format(valeur);
   }
 
   reloadData(): void {
@@ -40,59 +91,40 @@ export class AjouterProduitComponent  implements OnInit {
   }
 
   getAllOrdersFabrication(): void {
-    this.orderservice.getAllordersFabrication().subscribe(
+    this.orderservice.getAllordersFabrication().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.orders && Array.isArray(response.orders)) {
           this.orders = response.orders;
-          console.log('Orders de fabrication récupérés avec succès!');
         } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'orders' valide.",
-            response
-          );
         }
       },
       (error: any) => {
-        console.log(
-          'Erreur lors de la récupération des orders de fabrication.',
-          error
-        );
       }
     );
   }
 
   getAllProduits(): void {
-    this.produitService.getAllProduits().subscribe(
+    this.produitService.getAllProduits().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.produits && Array.isArray(response.produits)) {
           this.produits = response.produits;
         } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'produits' valide."
-          );
         }
       },
       (error: any) => {
-        console.log('Erreur lors de la récupération des produits.');
       }
     );
   }
 
   getAllAql(): void {
-    this.aqlservice.getAllAql().subscribe(
+    this.aqlservice.getAllAql().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.aqls && Array.isArray(response.aqls)) {
           this.aqls = response.aqls;
-          console.log('AQLs récupérés avec succès!', response);
         } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'aqls' valide.",
-            response
-          );
         }
       },
       (error: any) => {
-        console.log('Erreur lors de la récupération des AQLs.', error);
       }
     );
   }
@@ -144,10 +176,21 @@ export class AjouterProduitComponent  implements OnInit {
   }
   ajouter() {
     if (this.produitForm.valid) {
-      this.produitService.createProduit(this.produitForm.value).subscribe(
+      const depassement = this.depassementQuantite;
+      const suivi = this.suiviQuantite;
+      const quantiteSaisie = this.quantiteSaisie;
+      this.produitService.createProduit(this.produitForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
           this.produits.push(response);
-          this.toastr.success('Produit ajouté avec succès!');
+          this.toastr.success('Produit ajouté avec succès.');
+          // Contrôle à la saisie : avertir si la quantité dépasse la commande.
+          if (depassement && suivi) {
+            this.toastr.warning(
+              `Quantité dépassée : la commande prévoit ${this.formatNbre(suivi.qte_demandee)} pcs, ` +
+              `vous enregistrez ${this.formatNbre(suivi.qte_enregistree + quantiteSaisie)} pcs.`,
+              'Écart de quantité'
+            );
+          }
           this.resetForm(); // Réinitialiser le formulaire après ajout
           this.reloadData(); // Mettre à jour la liste des produits sans recharger la page
         },

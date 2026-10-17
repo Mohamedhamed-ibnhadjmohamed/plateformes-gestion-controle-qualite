@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Contact = require('../models/Contact'); // Correctement importer le modèle Contact
+const Contact = require('../models/Contact');
+const { requireRole } = require('../middleware/auth'); // Correctement importer le modèle Contact
 
 // Ajouter un contact
 router.post('/add', (req, res) => {
@@ -25,7 +26,7 @@ router.post('/add', (req, res) => {
 });
 
 // Récupérer tous les contacts
-router.get('/all', (req, res) => {
+router.get('/all', requireRole('admin'), (req, res) => {
     // Utilisez la méthode findAll du modèle Contact pour récupérer tous les contacts
     Contact.findAll((error, contacts) => {
         if (error) {
@@ -41,7 +42,7 @@ router.get('/all', (req, res) => {
 });
 
 // Mettre à jour un contact
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const contactId = req.params.id;
     const { non_utilisateur, email, message } = req.body;
 
@@ -71,7 +72,7 @@ router.put('/update/:id', (req, res) => {
 
 // Supprimer un contact
 
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', requireRole('admin'), (req, res) => {
     const contactId = req.params.id;
 
     // Utiliser la méthode delete du modèle Contact pour supprimer le contact
@@ -90,7 +91,7 @@ router.delete('/delete/:id', (req, res) => {
     });
 });
 
-router.get('/rechercher/:rech', (req, res) => {
+router.get('/rechercher/:rech', requireRole('admin'), (req, res) => {
     const rech = req.params.rech;
 
     Contact.recherche(rech, (error, contacts) => {

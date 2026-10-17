@@ -1,15 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../../environments/environment';
+import { UploadResponse } from '../../../../models/api';
 
 @Component({
-  selector: 'app-uploadimage',
-  templateUrl: './uploadimage.component.html',
-  styleUrls: ['./uploadimage.component.css']
+    selector: 'app-uploadimage',
+    templateUrl: './uploadimage.component.html',
+    styleUrls: ['./uploadimage.component.css'],
+    standalone: false
 })
 export class UploadimageComponent {
-  private uploadUrl = 'http://localhost:3000/defaults/upload'; // URL de l'endpoint d'upload
+  protected readonly destroyRef = inject(DestroyRef);
+  private readonly uploadUrl = environment.apiUrl + 'defaults/upload';
   defaultForm: FormGroup;
   selectedFile: File | null = null;
 
@@ -31,9 +36,8 @@ export class UploadimageComponent {
       const formData = new FormData();
       formData.append('image', this.selectedFile, this.selectedFile.name);
 
-      this.uploadImage(formData).subscribe(
+      this.uploadImage(formData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response) => {
-          console.log('Upload successful:', response);
           // Mettez à jour le champ de formulaire "image" avec le chemin de l'image retourné
           this.defaultForm.get('image')?.setValue(response.filename);
         },
@@ -44,7 +48,7 @@ export class UploadimageComponent {
     }
   }
 
-  private uploadImage(formData: FormData): Observable<any> {
-    return this.http.post<any>(this.uploadUrl, formData);
+  private uploadImage(formData: FormData): Observable<UploadResponse> {
+    return this.http.post<UploadResponse>(this.uploadUrl, formData);
   }
 }

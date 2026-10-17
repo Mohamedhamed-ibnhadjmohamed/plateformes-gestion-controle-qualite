@@ -1,0 +1,19 @@
+<a class="stat-card" [ngClass]="'ton-' + carte.ton" [routerLink]="carte.lien ?? null"
+  [class.stat-card--statique]="!carte.lien">
+  <header class="stat-card-tete">
+    <span class="stat-card-icone"><i [class]="carte.icone"></i></span>
+    <h3 class="stat-card-libelle">{{ carte.libelle }}</h3>
+  </header>
+
+  <p class="stat-card-valeur">
+    {{ carte.valeur | number }}<span class="stat-card-suffixe" *ngIf="carte.suffixe">{{ carte.suffixe }}</span>
+  </p>
+
+  <p class="stat-card-legende">{{ carte.legende }}</p>
+
+  <span class="stat-card-progression" *ngIf="carte.progression !== undefined">
+    <span class="stat-card-jauge" [ngClass]="'jauge-' + carte.ton" [style.width.%]="carte.progression"></span>
+  </span>
+
+  <i class="fas fa-arrow-right stat-card-fleche" *ngIf="carte.lien"></i>
+</a>

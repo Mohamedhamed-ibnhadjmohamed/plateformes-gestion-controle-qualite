@@ -1,52 +1,795 @@
-* {
-    p{
-          font-size: 18px ;
-    font-family: 'Times New Roman', serif !important; 
-    }
- 
+/* ============================================================
+   QualityMaster — système de design global
+   Palette · Typographie · Formulaires · Boutons · Cartes ·
+   Modales · Tableaux · Alertes · Menus · Sections marketing.
+   ============================================================ */
 
-    a {
-        font-size: 18px !important;
-        font-weight: 600 ;
-        text-decoration: none;
-    }
+:root {
+    /* — Identité principale — */
+    --qm-bg: #f4f7fb;              /* Fond principal */
+    --qm-surface: #ffffff;         /* Cartes et formulaires */
+    --qm-ink: #172b4d;             /* Titres et texte principal */
+    --qm-muted: #64748b;           /* Texte secondaire */
+    --qm-border: #dce4ef;          /* Bordures */
+    --qm-primary: #2864dc;         /* Bleu interactif — boutons principaux */
+    --qm-primary-hover: #1f50b5;   /* Survol des boutons */
+    --qm-primary-soft: #eaf0ff;    /* Actions de consultation (fond doux) */
+    --qm-pale: #e8eef6;            /* Bleu pâle (surfaces douces) */
+    --qm-industrial: #17365d;      /* Bleu industriel (structure) */
+    --qm-sidebar: #12243a;         /* Sidebar d'administration */
+    --qm-accent: #b9f36b;          /* Vert signature de la marque */
 
+    /* — Statuts métier du contrôle qualité — */
+    --qm-success: #159a68;         /* Conforme / Accepté */
+    --qm-warning: #c77708;         /* À vérifier / En attente */
+    --qm-danger: #d92d20;          /* Non conforme / Rejeté */
+    --qm-info: #2864dc;            /* Information / En cours */
+    --qm-neutral-status: #64748b;  /* Neutre / Inactif */
+
+    /* — Fonds teintés des alertes et badges doux — */
+    --qm-success-soft: #e7f6ef;
+    --qm-warning-soft: #fdf3e3;
+    --qm-danger-soft: #feeceb;
+    --qm-info-soft: #eaf1ff;
+    --qm-neutral-soft: #eef1f6;
+
+    /* — Textes sur fonds teintés (contraste AA) — */
+    --qm-success-ink: #0e6b4a;
+    --qm-warning-ink: #7a4705;
+    --qm-danger-ink: #8f1d15;
+    --qm-info-ink: #1e4fad;
+
+    /* Formes */
+    --qm-radius-sm: 8px;   /* Champs et petits boutons */
+    --qm-radius: 12px;     /* Cartes et composants standards */
+    --qm-radius-lg: 16px;  /* Modales et grandes surfaces */
+
+    /* Ombres — légères et discrètes */
+    --qm-shadow-sm: 0 1px 2px rgba(23, 43, 77, .05), 0 1px 3px rgba(23, 43, 77, .07);
+    --qm-shadow-md: 0 4px 12px rgba(23, 43, 77, .08), 0 2px 4px rgba(23, 43, 77, .05);
+    --qm-shadow-lg: 0 20px 48px rgba(23, 43, 77, .18), 0 6px 16px rgba(23, 43, 77, .10);
+
+    /* Anneau de focus — un seul modèle pour toute l'application */
+    --qm-focus-ring: 0 0 0 .22rem rgba(40, 100, 220, .18);
+
+    /* Transitions */
+    --qm-ease: cubic-bezier(.4, 0, .2, 1);
+
+    /* Typographie */
+    --qm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
 }
 
 body {
-    background-color: #fff;
-    font-family: 'Times New Roman', serif;
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--qm-bg);
+    color: var(--qm-ink);
+    font-family: var(--qm-font);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-input,
-select {
-    &.ng-invalid.ng-touched {
-        border: 3px solid red;
-    }
-
-    &.ng-valid.ng-dirty {
-        border: 3px solid green;
-    }
+::selection {
+    background: rgba(40, 100, 220, .18);
+    color: var(--qm-ink);
 }
 
-label,
-placeholder {
-    font-size: 1.3em;
-    text-align: justify;
-    padding: 5px;
-    color: #000;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    letter-spacing: 2px;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--qm-ink);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+}
+
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+    color: var(--qm-primary);
+    text-decoration: none;
+    transition: color .15s var(--qm-ease);
+}
+
+a:hover { color: var(--qm-primary-hover); }
+
+p { margin: 0 0 .75rem; }
+
+hr {
+    border-color: var(--qm-border);
+    opacity: 1;
+}
+
+/* Accessibilité : anneau de focus visible au clavier, jamais gênant à la souris. */
+:focus-visible {
+    outline: 2px solid rgba(40, 100, 220, .55);
+    outline-offset: 2px;
+}
+
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: none;
+}
+
+/* ============================================================
+   FORMULAIRES
+   Champs aérés, libellés nets, états de validation explicites.
+   ============================================================ */
+
+.form-label,
+label {
+    font-size: .88rem;
     font-weight: 600;
+    color: var(--qm-ink);
+    margin-bottom: .4rem;
+    letter-spacing: .01em;
+    text-shadow: none;
 }
 
-form>button {
-    margin: 15px;
+.form-control,
+.form-select {
+    border-color: var(--qm-border);
+    border-radius: var(--qm-radius-sm);
+    font-size: .95rem;
+    padding: .6rem .85rem;
+    color: var(--qm-ink);
+    background-color: var(--qm-surface);
+    transition: border-color .15s var(--qm-ease), box-shadow .15s var(--qm-ease);
 }
 
+.form-control::placeholder {
+    color: #98a2b3;
+}
 
-.modal-header>h1 {
-    color: #000;
-    font-size: 24px !important;
+.form-control:hover:not(:focus):not(:disabled),
+.form-select:hover:not(:focus):not(:disabled) {
+    border-color: #c3cede;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--qm-primary);
+    box-shadow: var(--qm-focus-ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background-color: var(--qm-bg);
+    color: var(--qm-muted);
+    cursor: not-allowed;
+}
+
+.input-group-text {
+    border-color: var(--qm-border);
+    border-radius: var(--qm-radius-sm);
+    background: var(--qm-bg);
+    color: var(--qm-muted);
+    font-size: .95rem;
+}
+
+textarea.form-control { min-height: 96px; }
+
+.form-group,
+.form-item {
+    margin-bottom: 1rem;
+}
+
+.form-text {
+    font-size: .82rem;
+    color: var(--qm-muted);
+    margin-top: .35rem;
+}
+
+/* États de validation Angular : discrets mais lisibles */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+    border-color: var(--qm-danger);
+    box-shadow: 0 0 0 .22rem rgba(217, 45, 32, .12);
+}
+
+input.ng-valid.ng-dirty,
+select.ng-valid.ng-dirty,
+textarea.ng-valid.ng-dirty {
+    border-color: var(--qm-success);
+}
+
+.is-invalid { border-color: var(--qm-danger) !important; }
+.is-valid { border-color: var(--qm-success) !important; }
+
+.text-danger,
+.invalid-feedback {
+    color: var(--qm-danger) !important;
+    font-size: .85rem;
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: .35rem;
+    margin-bottom: 0;
+}
+
+form>button { margin-top: .75rem; }
+
+/* ============================================================
+   BOUTONS
+   Hauteur et rayon constants, survol doux, ombre au repos,
+   anneau de focus cohérent sur toute la plateforme.
+   ============================================================ */
+
+.btn {
+    --bs-btn-border-radius: var(--qm-radius-sm);
+    border-radius: var(--qm-radius-sm);
+    padding: .55rem 1.05rem;
+    font-size: .925rem;
     font-weight: 600;
+    letter-spacing: .005em;
+    transition: background-color .15s var(--qm-ease), border-color .15s var(--qm-ease),
+        color .15s var(--qm-ease), box-shadow .15s var(--qm-ease), transform .08s var(--qm-ease);
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn:focus-visible { box-shadow: var(--qm-focus-ring); }
+
+.btn-lg {
+    border-radius: var(--qm-radius-sm);
+    font-size: 1rem;
+    padding: .7rem 1.35rem;
+}
+
+.btn-sm {
+    font-size: .82rem;
+    padding: .35rem .7rem;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--qm-primary);
+    --bs-btn-border-color: var(--qm-primary);
+    --bs-btn-hover-bg: var(--qm-primary-hover);
+    --bs-btn-hover-border-color: var(--qm-primary-hover);
+    --bs-btn-active-bg: var(--qm-primary-hover);
+    --bs-btn-active-border-color: var(--qm-primary-hover);
+    box-shadow: 0 1px 2px rgba(40, 100, 220, .25);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 3px 8px rgba(40, 100, 220, .28);
+}
+
+.btn-success {
+    --bs-btn-bg: var(--qm-success);
+    --bs-btn-border-color: var(--qm-success);
+    --bs-btn-hover-bg: #0f7a54;
+    --bs-btn-hover-border-color: #0f7a54;
+    box-shadow: 0 1px 2px rgba(21, 154, 104, .25);
+}
+
+.btn-warning {
+    --bs-btn-bg: var(--qm-warning);
+    --bs-btn-border-color: var(--qm-warning);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-bg: #a66206;
+    --bs-btn-hover-border-color: #a66206;
+    --bs-btn-hover-color: #fff;
+    box-shadow: 0 1px 2px rgba(199, 119, 8, .25);
+}
+
+.btn-danger {
+    --bs-btn-bg: var(--qm-danger);
+    --bs-btn-border-color: var(--qm-danger);
+    --bs-btn-hover-bg: #b9251b;
+    --bs-btn-hover-border-color: #b9251b;
+    box-shadow: 0 1px 2px rgba(217, 45, 32, .25);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--qm-primary);
+    --bs-btn-border-color: var(--qm-primary);
+    --bs-btn-hover-bg: var(--qm-primary);
+    --bs-btn-hover-border-color: var(--qm-primary);
+}
+
+.btn-secondary,
+.btn-light {
+    --bs-btn-bg: var(--qm-neutral-soft);
+    --bs-btn-border-color: var(--qm-neutral-soft);
+    --bs-btn-color: var(--qm-ink);
+    --bs-btn-hover-bg: #e2e7ef;
+    --bs-btn-hover-border-color: #e2e7ef;
+    --bs-btn-hover-color: var(--qm-ink);
+}
+
+.btn:disabled,
+.btn.disabled {
+    --bs-btn-disabled-bg: var(--bs-btn-bg);
+    --bs-btn-disabled-border-color: var(--bs-btn-border-color);
+    --bs-btn-disabled-color: var(--bs-btn-color);
+    opacity: .55;
+}
+
+/* ---------- Boutons d'action des tableaux (style tonal) ----------
+   Uniformise les actions des tableaux sur toute la plateforme :
+   Consulter = bleu doux · Modifier/Imprimer = indigo doux · Supprimer = rouge doux. */
+.table tbody .btn-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+.table tbody .btn-group > .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin: 0;
+    padding: .4rem .7rem;
+    border: 1px solid transparent;
+    border-radius: var(--qm-radius-sm) !important;
+    box-shadow: none;
+    font-size: .82rem;
+    font-weight: 600;
+    line-height: 1.1;
+    transition: background-color .15s var(--qm-ease), color .15s var(--qm-ease);
+}
+
+/* Consulter — bleu doux */
+.table tbody .btn-group > .btn-primary,
+.table tbody .btn-group > .btn-dark {
+    background-color: var(--qm-primary-soft);
+    color: var(--qm-primary);
+}
+
+.table tbody .btn-group > .btn-primary:hover,
+.table tbody .btn-group > .btn-primary:focus,
+.table tbody .btn-group > .btn-primary:active,
+.table tbody .btn-group > .btn-dark:hover,
+.table tbody .btn-group > .btn-dark:focus,
+.table tbody .btn-group > .btn-dark:active {
+    background-color: #dbe4f8;
+    color: var(--qm-primary-hover);
+}
+
+/* Modifier / Imprimer — indigo doux */
+.table tbody .btn-group > .btn-warning {
+    background-color: #eef2ff;
+    color: #4f46e5;
+}
+
+.table tbody .btn-group > .btn-warning:hover,
+.table tbody .btn-group > .btn-warning:focus,
+.table tbody .btn-group > .btn-warning:active {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+/* Supprimer — rouge doux */
+.table tbody .btn-group > .btn-danger {
+    background-color: var(--qm-danger-soft);
+    color: var(--qm-danger);
+}
+
+.table tbody .btn-group > .btn-danger:hover,
+.table tbody .btn-group > .btn-danger:focus,
+.table tbody .btn-group > .btn-danger:active {
+    background-color: #fddcda;
+    color: #b9251b;
+}
+
+/* ============================================================
+   CARTES
+   Surface blanche, bordure fine, en-tête/pied subtils.
+   ============================================================ */
+
+.card {
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius);
+    box-shadow: var(--qm-shadow-sm);
+    transition: box-shadow .2s var(--qm-ease), border-color .2s var(--qm-ease);
+}
+
+.card:hover {
+    box-shadow: var(--qm-shadow-md);
+}
+
+.card-header,
+.card-footer {
+    background: #f8fafd;
+    border-color: var(--qm-border);
+    padding: .85rem 1.15rem;
+}
+
+.card-header {
+    border-bottom-width: 1px;
+}
+
+.card-footer {
+    border-top-width: 1px;
+}
+
+.card-title {
+    font-weight: 700;
+    color: var(--qm-ink);
+    font-size: 1.05rem;
+}
+
+.card-text {
+    font-size: .95rem;
+}
+
+/* ============================================================
+   MODALES
+   En-tête clair + bouton de fermeture discret, corps défilant
+   (hauteur max = fenêtre), pied de page aligné, voile assombri.
+   ============================================================ */
+
+/* Voile subtil derrière la modale */
+.modal-backdrop.show {
+    opacity: .45;
+    background-color: #0b1220;
+}
+
+.modal {
+    /* Espace autour de la modale sur les petits écrans */
+    padding: 1.25rem .75rem;
+}
+
+.modal-dialog {
+    box-shadow: none; /* l'ombre est portée par .modal-content */
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-lg);
+    box-shadow: var(--qm-shadow-lg);
+    background-clip: padding-box;
+    overflow: hidden;
+    /* Hauteur maximale compatible avec la fenêtre */
+    max-height: calc(100vh - 2.5rem);
+}
+
+.modal.show .modal-content {
+    animation: qm-modal-in .22s var(--qm-ease);
+}
+
+@keyframes qm-modal-in {
+    from { opacity: 0; transform: translateY(-8px) scale(.985); }
+    to { opacity: 1; transform: none; }
+}
+
+/* En-tête : titre net, bouton de fermeture discret dans un cercle doux */
+.modal-header {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    border-bottom: 1px solid var(--qm-border);
+    padding: 1rem 1.35rem;
+}
+
+.modal-title,
+.modal-header>h1,
+.modal-header>h2,
+.modal-header>h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin: 0;
+    color: var(--qm-ink);
+}
+
+.modal-header .btn-close {
+    width: 2.1rem;
+    height: 2.1rem;
+    margin: -.25rem -.35rem -.25rem auto;
+    padding: .55rem;
+    border-radius: var(--qm-radius-sm);
+    background-color: rgba(100, 116, 139, .12);
+    opacity: .65;
+    transition: background-color .15s var(--qm-ease), opacity .15s var(--qm-ease);
+}
+
+.modal-header .btn-close:hover {
+    background-color: rgba(100, 116, 139, .22);
+    opacity: 1;
+}
+
+/* Corps : défilement interne si le contenu dépasse la fenêtre */
+.modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1.35rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* Les consultations embarquent souvent .container.mt-5 : on assainit l'espacement */
+.modal-body>.container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.modal-body .mt-5 {
+    margin-top: .75rem !important;
+}
+
+/* Pied de page : actions secondaires à gauche, principales à droite */
+.modal-footer {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .5rem;
+    border-top: 1px solid var(--qm-border);
+    background: #f8fafd;
+    padding: .9rem 1.35rem;
+}
+
+/* Sur mobile, les actions prennent toute la largeur, empilées */
+@media (max-width: 575.98px) {
+    .modal-footer .btn {
+        flex: 1 1 auto;
+    }
+}
+
+/* ============================================================
+   MENUS DÉROULANTS, ONGLETS
+   ============================================================ */
+
+.dropdown-menu {
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius);
+    box-shadow: var(--qm-shadow-md);
+    padding: .35rem;
+}
+
+.dropdown-item {
+    border-radius: var(--qm-radius-sm);
+    padding: .5rem .75rem;
+    font-size: .925rem;
+    transition: background-color .12s var(--qm-ease), color .12s var(--qm-ease);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--qm-primary-soft);
+    color: var(--qm-primary);
+}
+
+.nav-tabs .nav-link {
+    color: var(--qm-muted);
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 600;
+    font-size: .95rem;
+    padding: .55rem .9rem;
+    transition: color .15s var(--qm-ease), border-color .15s var(--qm-ease);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--qm-primary);
+    border-bottom-color: var(--qm-border);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--qm-primary);
+    border-bottom-color: var(--qm-primary);
+    background: none;
+}
+
+/* ============================================================
+   ALERTES
+   Fond teinté, filet de statut à gauche, texte contrasté.
+   ============================================================ */
+
+.alert {
+    border: none;
+    border-left: 4px solid transparent;
+    border-radius: var(--qm-radius-sm);
+    font-size: .95rem;
+    padding: .85rem 1.1rem;
+}
+
+.alert-danger {
+    background-color: var(--qm-danger-soft);
+    border-left-color: var(--qm-danger);
+    color: var(--qm-danger-ink);
+}
+
+.alert-warning {
+    background-color: var(--qm-warning-soft);
+    border-left-color: var(--qm-warning);
+    color: var(--qm-warning-ink);
+}
+
+.alert-info {
+    background-color: var(--qm-info-soft);
+    border-left-color: var(--qm-primary);
+    color: var(--qm-info-ink);
+}
+
+.alert-success {
+    background-color: var(--qm-success-soft);
+    border-left-color: var(--qm-success);
+    color: var(--qm-success-ink);
+}
+
+/* ============================================================
+   BADGES — pastilles de statut
+   ============================================================ */
+
+.badge {
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .74rem;
+    letter-spacing: .02em;
+    padding: .35em .75em;
+}
+
+/* ============================================================
+   TABLEAUX
+   En-tête discret, lignes aérées, survol bleu doux.
+   ============================================================ */
+
+.table {
+    --bs-table-border-color: var(--qm-border);
+    --bs-table-striped-bg: transparent;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.table>thead th {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--qm-muted);
+    font-weight: 700;
+    background: #f7f9fc;
+    border-bottom: 1px solid var(--qm-border);
+    white-space: nowrap;
+    padding: .75rem 1rem;
+}
+
+.table>tbody td {
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--qm-border);
+    color: var(--qm-ink);
+    font-size: .925rem;
+}
+
+.table>tbody>tr { transition: background-color .12s var(--qm-ease); }
+
+.table-hover>tbody>tr:hover>* {
+    background-color: var(--qm-primary-soft);
+}
+
+.table>tbody>tr:last-child>td {
+    border-bottom: 0;
+}
+
+.table-dark {
+    --bs-table-bg: #0f172a;
+    --bs-table-color: #e2e8f0;
+}
+
+/* ============================================================
+   PIED DE PAGE
+   Entièrement stylé par le composant FooterComponent
+   (voir app/shared/footer/footer.component.css).
+   ============================================================ */
+
+/* ============================================================
+   DÉFILEMENT
+   ============================================================ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+::-webkit-scrollbar-thumb {
+    background: #cfd6e4;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #aab4c8;
+    background-clip: content-box;
+}
+
+/* Respect des préférences système : mouvement réduit. */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* ============================================================
+   SECTIONS « MARKETING » DE LA PAGE D'ACCUEIL
+   En-tête commun (titre accentué + description) partagé par les
+   sections de la home : fonctionnalités, chiffres clés, FAQ, etc.
+   ============================================================ */
+.qm-section {
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 3.75rem);
+    font-family: var(--qm-font);
+}
+
+/* Variante sur fond blanc, pour alterner le rythme des sections. */
+.qm-section--surface {
+    background-color: var(--qm-surface);
+}
+
+.qm-section__inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.qm-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(1rem, 3vw, 1.875rem);
+    width: 100%;
+    color: var(--qm-ink);
+}
+
+.qm-section-title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+}
+
+/* Le mot mis en avant porte l'accent vert de l'identité visuelle. */
+.qm-section-title>span {
+    align-self: flex-start;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    padding: .2rem .7rem;
+    color: #14261c;
+}
+
+.qm-section-text {
+    width: 100%;
+    max-width: 62ch;
+    margin: 0;
+    color: var(--qm-muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+/* Les ancres (#contact, #information…) ne doivent pas passer sous la navbar. */
+section[id] {
+    scroll-margin-top: 88px;
 }

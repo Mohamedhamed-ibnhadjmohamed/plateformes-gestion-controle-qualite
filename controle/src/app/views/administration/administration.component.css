@@ -1,7 +1,80 @@
-.col1{
+/* ============================================================
+   Coquille de mise en page de l'administration.
+   Barre latérale fixe à gauche + colonne de contenu à droite.
+   Sur desktop, la barre latérale peut se replier en icônes ; sur
+   mobile, elle s'affiche en tiroir avec un voile sombre.
+   ============================================================ */
 
-  z-index: 999;
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--qm-bg);
 }
-.aaa{
-  zoom: 90% !important;
+
+/* Réserve la largeur de la barre latérale (position fixed). */
+app-sidebarr-admin {
+    flex: 0 0 270px;
+    width: 270px;
+    transition: flex-basis .2s ease, width .2s ease;
+}
+
+.admin-principal {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-contenu {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1.5rem;
+}
+
+.admin-shell__backdrop {
+    display: none;
+}
+
+/* ---------- Repli en icônes (desktop) ---------- */
+@media (min-width: 992px) {
+    .admin-shell--reduit app-sidebarr-admin {
+        flex-basis: 76px;
+        width: 76px;
+    }
+}
+
+/* ---------- Tiroir (mobile) ---------- */
+@media (max-width: 991.98px) {
+    app-sidebarr-admin {
+        flex-basis: 0;
+        width: 0;
+    }
+
+    .admin-contenu {
+        padding: 1rem;
+    }
+
+    .admin-shell__backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1030;
+        display: block;
+        background-color: rgba(16, 24, 40, .5);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .admin-shell--menu-ouvert .admin-shell__backdrop {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    app-sidebarr-admin,
+    .admin-shell__backdrop {
+        transition: none;
+    }
 }

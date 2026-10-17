@@ -1,26 +1,60 @@
-<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-  <div class=" container collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="home/accueil">Accueil</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="home/consulter">consulter</a>
-        </li>
-        
-    </ul>
-</div>
-  <!-- Navbar-->
-  <ul class="navbar-nav ms-auto">
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <i class="fas fa-user fa-fw"></i> {{nom}} 
+<header class="admin-navbar">
+    <button class="admin-navbar__menu" type="button" (click)="basculerMenu()"
+        aria-label="Afficher ou masquer le menu">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+
+    <div class="admin-navbar__titre">
+        <span class="admin-navbar__eyebrow">Administration</span>
+        <span class="admin-navbar__page">{{ titre }}</span>
+    </div>
+
+    <nav class="admin-navbar__liens" aria-label="Liens rapides">
+        <a class="admin-navbar__lien" routerLink="/home/accueil">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>
+            <span>Accueil</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-           
-            <li><a class="dropdown-item" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        <a class="admin-navbar__lien" routerLink="/home/consulter">
+            <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+            <span>Rapports</span>
+        </a>
+    </nav>
+
+    <div class="dropdown admin-navbar__utilisateur">
+        <a class="admin-navbar__profil dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span class="admin-avatar" aria-hidden="true">{{ initiales }}</span>
+            <span class="admin-profil">
+                <span class="admin-profil__nom">{{ nom }}</span>
+                <span class="admin-profil__role">{{ roleLabel }}</span>
+            </span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li class="admin-menu-entete">
+                <span class="admin-menu-entete__nom">{{ nom }}</span>
+                <span class="admin-menu-entete__email" *ngIf="email">{{ email }}</span>
+            </li>
+            <li>
+                <hr class="dropdown-divider" />
+            </li>
+            <li>
+                <a class="dropdown-item" routerLink="/home/parametre">
+                    <i class="fa-solid fa-gear" aria-hidden="true"></i> Paramètres
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" routerLink="/home/accueil">
+                    <i class="fa-solid fa-globe" aria-hidden="true"></i> Retour au site
+                </a>
+            </li>
+            <li>
+                <hr class="dropdown-divider" />
+            </li>
+            <li>
+                <button type="button" class="dropdown-item admin-navbar__deconnexion" (click)="logout()">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Déconnexion
+                </button>
+            </li>
         </ul>
-    </li>
-</ul>
-</nav>
+    </div>
+</header>

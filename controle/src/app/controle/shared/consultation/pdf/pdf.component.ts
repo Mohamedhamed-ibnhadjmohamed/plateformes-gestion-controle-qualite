@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InspectionsService } from '../../../../services/inspections.service';
 import { DefautsService } from '../../../../services/defauts.service';
 import { FamilliedefaultService } from '../../../../services/familliedefault.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-pdf',
-  templateUrl: './pdf.component.html',
-  styleUrls: ['./pdf.component.css'],
+    selector: 'app-pdf',
+    templateUrl: './pdf.component.html',
+    styleUrls: ['./pdf.component.css'],
+    standalone: false
 })
 export class PdfComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   idInspection: any; // Stocker l'ID de l'inspection récupérée
   inspectionData: any; // Variable pour stocker les données d'inspection récupérées
   defaults: any[] = [];
@@ -23,10 +26,9 @@ export class PdfComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.idInspection = params.get('id'); // Récupération du paramètre idInspection
       if (this.idInspection) {
-        console.log('ID Inspection:', this.idInspection);
         this.loadPdf(this.idInspection); // Charger le PDF
         this.getDefaultsByIdInspection(this.idInspection);
       }
@@ -35,10 +37,9 @@ export class PdfComponent implements OnInit {
   }
 
   loadPdf(id: string): void {
-    this.inspectionsService.getConsultation(id).subscribe(
+    this.inspectionsService.getConsultation(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.inspectionData = response.inspections;
-        console.log("Données d'inspection récupérées :", this.inspectionData);
       },
       (error: any) => {
         console.error(
@@ -50,11 +51,10 @@ export class PdfComponent implements OnInit {
   }
 
   getDefaultsByIdInspection(id: number): void {
-    this.defaultservice.getDefaultsByIdInspection(id).subscribe(
+    this.defaultservice.getDefaultsByIdInspection(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && Array.isArray(response)) {
           this.defaults = response;
-          console.log('Defaults:', this.defaults);
         } else {
           console.error(
             'La réponse du service ne contient pas de tableau valide :',
@@ -63,18 +63,17 @@ export class PdfComponent implements OnInit {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         // Traiter les erreurs de requête ici
       }
     );
   }
   getAllfamilledefault(): void {
-    this.famillesdefaultservice.getAllfamilledefault().subscribe(
+    this.famillesdefaultservice.getAllfamilledefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && response.familles && Array.isArray(response.familles)) {
           // Utiliser la clé 'familles' au lieu de 'familledefault'
           this.familledefaults = response.familles; // Utiliser 'familles' au lieu de 'familledefault'
-          //alert(JSON.stringify(this.familledefaults));
         } else {
           console.error(
             'La réponse du service ne contient pas de tableau familledefaults valide :',
@@ -83,7 +82,7 @@ export class PdfComponent implements OnInit {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }

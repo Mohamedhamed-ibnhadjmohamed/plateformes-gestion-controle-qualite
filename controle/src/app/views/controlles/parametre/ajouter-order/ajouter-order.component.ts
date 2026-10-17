@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../../../models/Order';
 import { OrdersService } from '../../../../services/orders.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-ajouter-order',
-  templateUrl: './ajouter-order.component.html',
-  styleUrl: './ajouter-order.component.css'
+    selector: 'app-ajouter-order',
+    templateUrl: './ajouter-order.component.html',
+    styleUrl: './ajouter-order.component.css',
+    standalone: false
 })
 export class AjouterOrderComponent implements OnInit{
+  protected readonly destroyRef = inject(DestroyRef);
  
 
   orders: Order[] = [];
@@ -32,17 +35,16 @@ export class AjouterOrderComponent implements OnInit{
 
  
   getAllordersFabrication(): void {
-    this.OrdersService.getAllordersFabrication().subscribe(
+    this.OrdersService.getAllordersFabrication().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.orders && Array.isArray(response.orders)) {
           this.orders = response.orders;
-          console.log('orders:', this.orders);
          
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
-        this.toastr.error('Erreur lors de la récupération des orders');
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des ordres de fabrication.');
       }
     );
   }
@@ -90,13 +92,10 @@ export class AjouterOrderComponent implements OnInit{
   }
 
   ajouterOrder() {
-    console.log(this.orderForm.value);
 
-    this.OrdersService.addorderFabrication(this.orderForm.value).subscribe(
+    this.OrdersService.addorderFabrication(this.orderForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.orders.push(response);
-        console.log(this.orders.length);
-        console.log("L'élément a été ajouté avec succès :", response);
         this.reloadData();
       },
       (error: any) => {
@@ -104,7 +103,7 @@ export class AjouterOrderComponent implements OnInit{
           "Erreur lors de l'ajout de l'order de fabrication :",
           error
         );
-        this.toastr.error("Erreur lors de l'ajout de l'order de fabrication");
+        this.toastr.error("Erreur lors de l'ajout de l'ordre de fabrication.");
       }
     );
   }

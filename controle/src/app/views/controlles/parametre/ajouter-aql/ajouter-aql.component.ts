@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { AQL } from '../../../../models/AQL';
 import { AqlsService } from '../../../../services/aqls.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-ajouter-aql',
-  templateUrl: './ajouter-aql.component.html',
-  styleUrl: './ajouter-aql.component.css'
+    selector: 'app-ajouter-aql',
+    templateUrl: './ajouter-aql.component.html',
+    styleUrl: './ajouter-aql.component.css',
+    standalone: false
 })
 export class AjouterAqlComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   name: string = 'AQL';
   aqls: AQL[] = [];
   aql: AQL = new AQL();
@@ -30,7 +33,7 @@ export class AjouterAqlComponent implements OnInit {
   }
 
   getAllAql(): void {
-    this.aqlservice.getAllAql().subscribe(
+    this.aqlservice.getAllAql().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.aqls && Array.isArray(response.aqls)) {
           this.aqls = response.aqls;         
@@ -114,11 +117,9 @@ export class AjouterAqlComponent implements OnInit {
   ajout(): void {
     if (this.aqlForm && this.aqlForm.valid) {
       this.isLoading = true;
-      console.log('Formulaire AQL valide, soumission en cours...');
 
-      this.aqlservice.createAql(this.aqlForm.value).subscribe(
+      this.aqlservice.createAql(this.aqlForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
-          console.log('Réponse du serveur:', response);
           this.aqls.push(response);
           this.toastr.success('AQL ajouté avec succès.', 'Succès');
           this.aqlForm.reset(); // Réinitialiser le formulaire après ajout

@@ -1,20 +1,8 @@
+
 'use strict';
-const mysql = require('mysql');
 
-const dbConn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'pfe'
-});
+const { pool: dbConn } = require('../config/database');
 
-dbConn.connect((err) => {
-    if (err) {
-        console.error('Erreur de connexion à la base de données : ' + err.stack);
-        return;
-    }
-    console.log('Connecté à la base de données MySQL.');
-});
 
 // Define the Aql model
 var Aql = function (aql) {
@@ -58,7 +46,7 @@ Aql.findAll = function (result) {
     dbConn.query("SELECT * FROM aql", function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             console.log('AQL : ', res);
             result(null, res);
@@ -74,7 +62,7 @@ Aql.update = function (id, aql, result) {
         function (err, res) {
             if (err) {
                 console.log("error: ", err);
-                result(null, err);
+                result(err, null);
             } else {
                 result(null, res);
             }
@@ -87,7 +75,7 @@ Aql.delete = function (id, result) {
     dbConn.query("DELETE FROM aql WHERE id_aql = ?", [id], function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             result(null, res);
         }

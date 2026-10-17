@@ -1,26 +1,208 @@
+/* ============================================================
+   Section « Contactez-nous » — bandeau sombre + formulaire.
+   Reprend le rythme et l'identité des sections voisines
+   (accent vert, encre, surfaces claires, arrondis doux).
+   ============================================================ */
+
 .contact-block {
-    height: 100vh;
-    border-radius: 45px;
-    background-color: #000;
-    align-items: center;
-    padding: 30px !important;
-    margin: 50px;
-    color: #fff !important;
+    position: relative;
+    margin: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 3vw, 2.5rem);
+    padding: clamp(2rem, 5vw, 3.25rem);
+    border-radius: var(--qm-radius-lg);
+    background-color: var(--qm-ink);
+    /* Halo d'accent discret pour donner de la profondeur au fond sombre. */
+    background-image:
+        radial-gradient(circle at 8% 12%, rgba(185, 255, 102, .12), transparent 42%),
+        radial-gradient(circle at 92% 88%, rgba(40, 100, 220, .18), transparent 45%);
+    color: #e2e8f0;
+    font-family: var(--qm-font);
+    overflow: hidden;
 }
 
+/* ---------- En-tête de section (sur fond sombre) ---------- */
+.case-studies-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(1rem, 3vw, 1.875rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #fff;
+}
 
+.title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.highlight {
+    align-self: flex-start;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    padding: .2rem .7rem;
+    color: #14261c;
+}
+
+.description {
+    width: 100%;
+    max-width: 62ch;
+    margin: 0;
+    color: #cbd5e1;
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+/* ---------- Contenu : illustration + formulaire ---------- */
 .content-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: clamp(1.75rem, 4vw, 2.5rem) auto 0;
+}
+
+/* ---------- Colonne illustration + points forts ---------- */
+.contact-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 2rem);
+}
+
+.contact-illustration {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    margin-inline: auto;
+    object-fit: contain;
+    /* Léger détachement du fond sombre. */
+    filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .35));
+}
+
+.contact-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+    width: 100%;
+    max-width: 420px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.contact-highlights li {
     display: flex;
     align-items: center;
-    gap: 20px;
-    justify-content: space-between;
+    gap: .85rem;
+    padding: .7rem .9rem;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: var(--qm-radius);
+    background-color: rgba(255, 255, 255, .05);
+    color: #e2e8f0;
+    font-size: .98rem;
+    font-weight: 500;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
 }
 
+.contact-highlights li:hover {
+    background-color: rgba(255, 255, 255, .09);
+    border-color: rgba(185, 255, 102, .4);
+    transform: translateX(4px);
+}
+
+.highlight-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: var(--qm-accent);
+    color: #14261c;
+    font-size: .95rem;
+}
+
+/* ---------- Carte du formulaire ---------- */
 .form-container {
-    border-radius: 45px;
-    background-color: #f3f3f3;
-    padding: 60px;
-    flex: 1;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: var(--qm-radius-lg);
+    background-color: var(--qm-surface);
+    box-shadow: var(--qm-shadow-lg);
+}
+
+.form-head {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-eyebrow {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: .45rem;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    background-color: var(--qm-primary-soft);
+    color: var(--qm-primary);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+}
+
+.form-title {
+    margin: .35rem 0 0;
+    color: var(--qm-ink);
+    font-size: clamp(1.25rem, 2.4vw, 1.5rem);
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+.form-subtitle {
+    margin: 0;
+    color: var(--qm-muted);
+    font-size: .92rem;
+    line-height: 1.5;
+}
+
+/* Bandeau de confirmation affiché après un envoi réussi. */
+.form-success {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-bottom: 1.25rem;
+    padding: .75rem 1rem;
+    border: 1px solid rgba(21, 154, 104, .35);
+    border-radius: var(--qm-radius-sm);
+    background-color: rgba(21, 154, 104, .1);
+    color: #05603a;
+    font-size: .95rem;
+    font-weight: 600;
+    animation: form-success-in .3s ease;
+}
+
+.form-success i {
+    color: var(--qm-success);
+    font-size: 1.1rem;
+}
+
+@keyframes form-success-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .contact-form {
@@ -32,7 +214,7 @@
 .form-fields {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 1.15rem;
 }
 
 .form-field {
@@ -41,117 +223,170 @@
 }
 
 .form-field label {
-    color: #000;
-    margin-bottom: 5px;
+    margin-bottom: .4rem;
+    color: var(--qm-ink);
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+/* Champ avec icône intégrée à gauche. */
+.input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: .85rem;
+    color: var(--qm-muted);
+    font-size: .95rem;
+    pointer-events: none;
+    transition: color .15s ease;
+}
+
+.input-wrap:focus-within .input-icon {
+    color: var(--qm-primary);
 }
 
 .form-field input,
 .form-field textarea {
-    border-radius: 14px;
+    width: 100%;
+    padding: .7rem .9rem .7rem 2.6rem;
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-surface);
+    color: var(--qm-ink);
+    font-family: var(--qm-font);
+    font-size: 1rem;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.input-wrap-textarea .input-icon {
+    top: .95rem;
+    align-self: flex-start;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: #98a2b3;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--qm-primary);
     background-color: #fff;
-    border: 1px solid #000;
-    padding: 8px 15px;
-    color: #898989;
+    box-shadow: 0 0 0 .2rem rgba(40, 100, 220, .15);
 }
 
 .form-field textarea {
-    min-height: 100px;
+    min-height: 130px;
     resize: vertical;
 }
 
+/* Compteur + indication de longueur sous le message. */
+.field-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: .35rem;
+}
+
+.char-target,
+.form-hint {
+    color: var(--qm-muted);
+    font-size: .82rem;
+}
+
+/* Messages d'erreur de validation du formulaire. */
+.form-field .form-error {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: .35rem;
+    color: var(--qm-danger);
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.field-meta .form-error {
+    margin-top: 0;
+}
+
 .submit-button {
-    border-radius: 14px;
-    background-color: #191a23;
-    color: #fff;
-    text-align: center;
-    padding: 15px 30px;
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: .55rem;
+    margin-top: 1.75rem;
+    padding: .85rem 1.75rem;
     border: none;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-primary);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 40px;
-    transition: background-color 0.3s ease;
+    box-shadow: var(--qm-shadow-sm);
+    transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
 
-.submit-button:hover {
-    background-color: #2c2d3a;
+.submit-button:hover:not(:disabled) {
+    background-color: var(--qm-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--qm-shadow-md);
 }
 
-.contact-illustration {
-    max-width: 692px;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
+.submit-button:focus-visible {
+    outline: 3px solid rgba(40, 100, 220, .35);
+    outline-offset: 2px;
 }
 
-@media (max-width: 991px) {
+.submit-button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--qm-shadow-sm);
+}
+
+/* ---------- Adaptations ---------- */
+@media (max-width: 991.98px) {
+    .contact-block {
+        margin: 2rem 1rem;
+        padding: 1.5rem 1.25rem;
+    }
+
     .content-wrapper {
-        flex-direction: column;
-        padding: 10px;
-    }
-
-    .form-container {
-        padding: 20px 10px;
-        width: 100%;
-    }
-
-    .contact-form {
-        max-width: 100%;
-    }
-
-    .form-field input,
-    .form-field textarea {
-        padding: 10px 15px;
-    }
-
-    .submit-button {
-        padding: 10px 15px;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .contact-illustration {
-        max-width: 100%;
+        max-width: 280px;
+    }
+
+    .contact-aside {
+        order: 2;
+    }
+
+    .submit-button {
+        width: 100%;
+        justify-content: center;
     }
 }
 
-
-.case-studies-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    color: #fff;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    padding: 0 100px;
-}
-
-.title {
-    display: flex;
-    min-width: 250px;
-    flex-direction: column;
-    font-size: 30px !important;
-    font-weight: 500;
-    justify-content: flex-start;
-    margin: 0;
-    color: #000;
-}
-
-.highlight {
-    border-radius: 7px;
-    background-color: #b9ff66;
-    padding: 10px;
-}
-
-.description {
-    font-size: 18px;
-    font-weight: 400;
-    width: 580px;
-    margin: 0;
-}
-
-@media (max-width: 991px) {
-    .case-studies-header {
-        padding: 0 20px;
+@media (prefers-reduced-motion: reduce) {
+    .contact-highlights li,
+    .submit-button {
+        transition: none;
     }
 
-    .description {
-        max-width: 100%;
+    .contact-highlights li:hover,
+    .submit-button:hover:not(:disabled) {
+        transform: none;
+    }
+
+    .form-success {
+        animation: none;
     }
 }

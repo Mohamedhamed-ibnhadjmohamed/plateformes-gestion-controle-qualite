@@ -1,20 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { AQL } from '../../../models/AQL';
 import { AqlsService } from '../../../services/aqls.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr'; // Importer ToastrService
 
 @Component({
-  selector: 'app-aqls',
-  templateUrl: './aqls.component.html',
-  styleUrls: ['../../shared/styles/style.css'], // Corriger 'styleUrl' en 'styleUrls'
+    selector: 'app-aqls',
+    templateUrl: './aqls.component.html',
+    styleUrls: ['../../shared/styles/style.css'],
+    standalone: false
 })
 export class AqlsComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   name: string = 'AQL';
   aqls: AQL[] = [];
   aql: AQL = new AQL();
   message: string = '';
   isLoading: boolean = false;
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get aqlsPage(): AQL[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.aqls.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   constructor(
     private aqlservice: AqlsService,
@@ -30,11 +47,13 @@ export class AqlsComponent implements OnInit {
   }
 
   getAllAql(): void {
-    this.aqlservice.getAllAql().subscribe(
+    this.aqlservice.getAllAql().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response.aqls && Array.isArray(response.aqls)) {
           this.aqls = response.aqls;
-          this.toastr.success('AQLs récupérés avec succès.');
+          this.page = 1;
+          this.toastr.success('AQL récupérés avec succès.');
         } else {
           this.toastr.error(
             'La réponse du service ne contient pas de tableau "aqls" valide.',
@@ -43,6 +62,7 @@ export class AqlsComponent implements OnInit {
         }
       },
       (error: any) => {
+        this.chargement = false;
         this.toastr.error(
           'Erreur lors de la récupération des données.',
           'Erreur'
@@ -66,17 +86,17 @@ export class AqlsComponent implements OnInit {
     ]),
     qte_critique: new FormControl('', [
       Validators.required,
-      Validators.min(1),
+      Validators.min(0),
       Validators.max(10),
     ]),
     qte_mineure: new FormControl('', [
       Validators.required,
-      Validators.min(1),
+      Validators.min(0),
       Validators.max(10),
     ]),
     qte_majeure: new FormControl('', [
       Validators.required,
-      Validators.min(1),
+      Validators.min(0),
       Validators.max(10),
     ]),
   });
@@ -108,22 +128,16 @@ export class AqlsComponent implements OnInit {
     return this.aqlForm.get('description');
   }
 
-  get id_detail_aql() {
-    return this.aqlForm.get('id_detail_aql');
-  }
-
   ajout(): void {
     if (this.aqlForm && this.aqlForm.valid) {
       this.isLoading = true;
-      console.log('Formulaire AQL valide, soumission en cours...');
 
-      this.aqlservice.createAql(this.aqlForm.value).subscribe(
+      this.aqlservice.createAql(this.aqlForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
-          console.log('Réponse du serveur:', response);
-          this.aqls.push(response);
           this.toastr.success('AQL ajouté avec succès.', 'Succès');
           this.aqlForm.reset(); // Réinitialiser le formulaire après ajout
           this.isLoading = false;
+          this.reloadData(); // Rafraîchit la liste une fois l'ajout confirmé
         },
         (error: any) => {
           console.error("Erreur lors de l'ajout du détail AQL:", error);
@@ -131,8 +145,6 @@ export class AqlsComponent implements OnInit {
           this.isLoading = false;
         }
       );
-
-      this.reloadData(); // Mieux que location.reload()
     } else {
       console.error('Formulaire AQL invalide ou non défini.');
       this.toastr.error(
@@ -142,32 +154,57 @@ export class AqlsComponent implements OnInit {
     }
   }
 
-  async modifier(): Promise<void> {
+  modifier(): void {
+    if (this.aqlForm.invalid || this.aql.id_aql === undefined) {
+      this.toastr.error(
+        'Veuillez vérifier le formulaire avant de valider.',
+        'Erreur de validation'
+      );
+      return;
+    }
+
     this.isLoading = true;
 
-    try {
-      await this.aqlservice
-        .updateAql(this.aql.id_aql, this.aqlForm.value)
-        .toPromise();
-      this.toastr.success("L'élément a été mis à jour avec succès.", 'Succès');
-      this.reloadData();
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'élément:", error);
-      this.toastr.error(
-        "Erreur lors de la mise à jour de l'élément.",
-        'Erreur'
+    this.aqlservice
+      .updateAql(this.aql.id_aql, this.aqlForm.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(
+        () => {
+          this.toastr.success("L'élément a été mis à jour avec succès.", 'Succès');
+          this.isLoading = false;
+          this.reloadData();
+        },
+        (error: any) => {
+          console.error("Erreur lors de la mise à jour de l'élément:", error);
+          this.toastr.error(
+            "Erreur lors de la mise à jour de l'élément.",
+            'Erreur'
+          );
+          this.isLoading = false;
+        }
       );
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   confirmer(a: AQL) {
     this.aql = a;
   }
 
+  /** Sélectionne l'AQL et pré-remplit le formulaire de modification. */
+  ouvrirModifier(a: AQL): void {
+    this.aql = a;
+    this.aqlForm.patchValue({
+      nom: a.nom ?? '',
+      description: a.description ?? '',
+      qte_min: a.qte_min ?? null,
+      qte_max: a.qte_max ?? null,
+      qte_critique: a.qte_critique ?? null,
+      qte_mineure: a.qte_mineure ?? null,
+      qte_majeure: a.qte_majeure ?? null,
+    } as any);
+  }
+
   supprimer(aql: AQL): void {
-    this.aqlservice.deleteAql(aql.id_aql).subscribe(
+    this.aqlservice.deleteAql(aql.id_aql).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.aqls = this.aqls.filter((item) => item.id_aql !== aql.id_aql);
         this.toastr.success("L'élément a été supprimé avec succès.", 'Succès');
@@ -192,7 +229,7 @@ export class AqlsComponent implements OnInit {
 
     if (!searchValue) {
       this.toastr.warning(
-        'Veuillez entrer un code de produit valide.',
+        "Veuillez entrer un nom d'AQL valide.",
         'Avertissement'
       );
       return;
@@ -200,14 +237,15 @@ export class AqlsComponent implements OnInit {
 
     this.isLoading = true;
 
-    this.aqlservice.getByNom(searchValue).subscribe(
+    this.aqlservice.getByNom(searchValue).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.isLoading = false;
 
         if (response.aqls && Array.isArray(response.aqls)) {
           this.aqls = response.aqls;
+          this.page = 1;
         } else {
-          this.toastr.info('Aucun aql trouvé pour ce code.', 'Information');
+          this.toastr.info('Aucun AQL trouvé pour ce code.', 'Information');
           this.aqls = [];
         }
       },

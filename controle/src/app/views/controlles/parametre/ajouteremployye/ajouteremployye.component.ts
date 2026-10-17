@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Employee } from '../../../../models/Employee';
 import { EmployeesService } from '../../../../services/employees.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-ajouteremployye',
-  templateUrl: './ajouteremployye.component.html',
-  styleUrl: './ajouteremployye.component.css'
+    selector: 'app-ajouteremployye',
+    templateUrl: './ajouteremployye.component.html',
+    styleUrl: './ajouteremployye.component.css',
+    standalone: false
 })
 export class AjouteremployyeComponent implements OnInit {
-  name: string = 'Employee';
+  protected readonly destroyRef = inject(DestroyRef);
+  name: string = 'Employé';
   employees: Employee[] = [];
   employee: Employee = new Employee();
 
@@ -28,23 +31,22 @@ export class AjouteremployyeComponent implements OnInit {
   }
 
   getAllEmployees(): void {
-    this.EmployeeService.getAllEmployees().subscribe(
+    this.EmployeeService.getAllEmployees().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
-        if (response.employés && Array.isArray(response.employés)) {
-          this.employees = response.employés;
-          console.log('Employés:', this.employees);
+        if (response.employees && Array.isArray(response.employees)) {
+          this.employees = response.employees;
           
         } else {
           console.error(
-            "La réponse du service ne contient pas de tableau 'employés' valide :",
+            "La réponse du service ne contient pas de tableau 'employees' valide :",
             response
           );
-          this.toastr.error('Données invalides reçues du service');
+          this.toastr.error('Données invalides reçues du service.');
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
-        this.toastr.error('Erreur lors de la récupération des données');
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des données.');
       }
     );
   }
@@ -76,21 +78,20 @@ export class AjouteremployyeComponent implements OnInit {
   // Méthode pour ajouter un employé
   ajouter() {
     if (this.employeeForm.valid) {
-      this.EmployeeService.createEmployee(this.employeeForm.value).subscribe(
+      this.EmployeeService.createEmployee(this.employeeForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
           this.employees.push(response);
           this.reloadData(); // Vérifiez que cette méthode est efficace
-          console.log('Ajout réussi avec succès');
-          this.toastr.success('Ajout réussi avec succès');
+          this.toastr.success('Employé ajouté avec succès.');
           this.employeeForm.reset(); // Réinitialiser le formulaire après ajout
         },
         (error: any) => {
           console.error("Erreur lors de l'ajout de l'employé :", error);
-          this.toastr.error("Erreur lors de l'ajout de l'employé");
+          this.toastr.error("Erreur lors de l'ajout de l'employé.");
         }
       );
     } else {
-      this.toastr.error('Formulaire invalide');
+      this.toastr.error('Formulaire invalide.');
     }
   }
 }

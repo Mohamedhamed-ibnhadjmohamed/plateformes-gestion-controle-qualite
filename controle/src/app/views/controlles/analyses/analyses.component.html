@@ -1,0 +1,196 @@
+@if (vue$ | async; as vue) {
+<div class="an">
+  <header class="an-entete">
+    <div class="an-entete-texte">
+      <h1 class="an-titre">{{ titre(vue.portee) }}</h1>
+      <p class="an-soustitre">
+        @if (utilisateur) {
+        Bonjour {{ utilisateur.prenom || utilisateur.nom }} — @if (vue.portee === 'tous') { voici l'activité
+        de contrôle de toute l'équipe. } @else { voici le détail de vos contrôles qualité. }
+        } @else { Indicateurs calculés à partir de vos inspections et des défauts constatés. }
+      </p>
+    </div>
+
+    <div class="an-actions">
+      @if (peutVoirTous) {
+      <div class="an-segments" role="group" aria-label="Périmètre des analyses">
+        <button type="button" class="an-segment" [class.actif]="vue.portee === 'moi'"
+          (click)="choisirPortee('moi')">Mes analyses</button>
+        <button type="button" class="an-segment" [class.actif]="vue.portee === 'tous'"
+          (click)="choisirPortee('tous')">Toute l'équipe</button>
+      </div>
+      }
+
+      <div class="an-segments" role="group" aria-label="Période affichée">
+        <button type="button" class="an-segment" [class.actif]="(periode$ | async) === 6"
+          (click)="choisirPeriode(6)">6 mois</button>
+        <button type="button" class="an-segment" [class.actif]="(periode$ | async) === 12"
+          (click)="choisirPeriode(12)">12 mois</button>
+      </div>
+
+      <button type="button" class="btn btn-outline-primary btn-sm an-bouton" (click)="rafraichir()"
+        [disabled]="vue.chargement">
+        <i class="fas fa-rotate-right" [class.an-tourne]="vue.chargement"></i>
+        Actualiser
+      </button>
+    </div>
+  </header>
+
+  @if (vue.erreur) {
+  <div class="alert alert-danger an-alerte" role="alert">
+    <i class="fas fa-circle-exclamation"></i> {{ vue.erreur }}
+  </div>
+  } @else if (vue.echecs.length) {
+  <div class="alert alert-warning an-alerte" role="alert">
+    <i class="fas fa-triangle-exclamation"></i>
+    Certaines données n'ont pas pu être chargées : {{ vue.echecs.join(', ') }}.
+  </div>
+  } @if (vue.portee === 'moi' && vue.analyses.inspectionsNonAttribuees > 0) {
+  <div class="alert alert-info an-alerte" role="status">
+    <i class="fas fa-circle-info"></i>
+    {{ vue.analyses.inspectionsNonAttribuees }} inspection{{
+      vue.analyses.inspectionsNonAttribuees > 1 ? 's' : '' }} enregistrée{{
+      vue.analyses.inspectionsNonAttribuees > 1 ? 's' : '' }} sans utilisateur rattaché
+      n'apparaissent pas dans vos analyses.
+  </div>
+  }
+
+  @if (vue.initial) {
+  <!-- Squelettes de chargement : évite le « saut » de mise en page. -->
+  <div class="an-kpis">
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+    <div class="an-squelette"></div>
+    }
+  </div>
+  } @else if (vue.analyses.aucuneDonnee && !vue.echecs.length) {
+  <div class="an-vide">
+    <i class="fas fa-chart-pie an-vide-icone"></i>
+    <h2>@if (vue.portee === 'tous') { Aucune donnée à analyser } @else { Aucune analyse pour le moment }</h2>
+    <p>
+      @if (vue.portee === 'tous') { Enregistrez des inspections pour voir apparaître les indicateurs de
+      qualité. } @else { Vos inspections apparaîtront ici dès votre premier contrôle qualité, avec votre
+      taux de conformité et les défauts que vous aurez constatés. }
+    </p>
+    <a class="btn btn-primary" routerLink="/home/souschain">
+      <i class="fas fa-plus"></i> Commencer un contrôle
+    </a>
+  </div>
+  } @else {
+
+  <!-- ==================== Indicateurs clés ==================== -->
+  <section class="an-kpis">
+    @for (carte of vue.analyses.cartes; track carte.id) {
+    <app-stat-card class="an-kpi" [carte]="carte"></app-stat-card>
+    }
+  </section>
+
+  <!-- ============ Activité mensuelle & gravité des défauts ============ -->
+  <div class="row g-3 an-rangee">
+    <section class="col-xl-8">
+      <article class="an-panneau">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Évolution des inspections</h2>
+            <p class="an-panneau-texte">Contrôles réalisés par mois</p>
+          </div>
+        </header>
+        <app-line-chart [points]="vue.analyses.inspectionsParMois" suffixe=" inspections" couleur="#2864dc"
+          identifiant="analyses-inspections"></app-line-chart>
+      </article>
+    </section>
+
+    <section class="col-xl-4">
+      <article class="an-panneau an-panneau--centre">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Gravité des défauts</h2>
+            <p class="an-panneau-texte">Pièces défectueuses par niveau</p>
+          </div>
+        </header>
+        <app-donut-chart [parts]="vue.analyses.defautsParGravite" libelleCentre="Défauts"></app-donut-chart>
+      </article>
+    </section>
+  </div>
+
+  <!-- ============ Chaînes de contrôle & évaluations ============ -->
+  <div class="row g-3 an-rangee">
+    <section class="col-lg-7">
+      <article class="an-panneau">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Inspections par chaîne</h2>
+            <p class="an-panneau-texte">Répartition des contrôles et refus constatés</p>
+          </div>
+        </header>
+        <app-bar-chart [series]="vue.analyses.inspectionsParCategorie" suffixe=" inspections"
+          couleur="#2864dc"></app-bar-chart>
+      </article>
+    </section>
+
+    <section class="col-lg-5">
+      <article class="an-panneau">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Évaluations</h2>
+            <p class="an-panneau-texte">Résultats saisis lors des inspections</p>
+          </div>
+        </header>
+        <app-bar-list [items]="vue.analyses.resultatsInspection"
+          [couleurs]="couleursEvaluations(vue.analyses.resultatsInspection)" suffixe=" inspections">
+        </app-bar-list>
+      </article>
+    </section>
+  </div>
+
+  <!-- ============ Familles de défauts & synthèse ============ -->
+  <div class="row g-3 an-rangee">
+    <section class="col-lg-7">
+      <article class="an-panneau">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Familles de défauts les plus fréquentes</h2>
+            <p class="an-panneau-texte">Top 5 des pièces défectueuses constatées</p>
+          </div>
+        </header>
+        <app-bar-list [items]="vue.analyses.topFamillesDefauts" suffixe=" pièces" couleur="#d92d20">
+        </app-bar-list>
+      </article>
+    </section>
+
+    <section class="col-lg-5">
+      <article class="an-panneau">
+        <header class="an-panneau-entete">
+          <div>
+            <h2 class="an-panneau-titre">Synthèse</h2>
+            <p class="an-panneau-texte">Points de repère de la période</p>
+          </div>
+        </header>
+
+        <dl class="an-synthese">
+          <div class="an-synthese-ligne">
+            <dt>Inspections réalisées</dt>
+            <dd>{{ vue.analyses.totalInspections | number }}</dd>
+          </div>
+          <div class="an-synthese-ligne">
+            <dt>Dont ce mois-ci</dt>
+            <dd>{{ vue.analyses.inspectionsDuMois | number }}</dd>
+          </div>
+          <div class="an-synthese-ligne">
+            <dt>Inspections refusées</dt>
+            <dd>{{ vue.analyses.inspectionsRefusees | number }}</dd>
+          </div>
+          <div class="an-synthese-ligne">
+            <dt>Pièces défectueuses</dt>
+            <dd>{{ vue.analyses.totalDefauts | number }}</dd>
+          </div>
+          <div class="an-synthese-ligne">
+            <dt>Taux de conformité</dt>
+            <dd>{{ vue.analyses.tauxConformite | number: '1.0-1' }} %</dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+  </div>
+  }
+</div>
+}

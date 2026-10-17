@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { Employee } from '../../../models/Employee';
+import { EmployeesResponse } from '../../../models/api';
 import { EmployeesService } from '../../../services/employees.service';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-employees',
-  templateUrl: './employees.component.html',
-  styleUrl: '../../shared/styles/style.css',
+    selector: 'app-employees',
+    templateUrl: './employees.component.html',
+    styleUrl: '../../shared/styles/style.css',
+    standalone: false
 })
-export class EmployeesComponent {
-  name: string = 'Employee';
+export class EmployeesComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
+  name: string = 'Employé';
   employees: Employee[] = [];
   employee: Employee = new Employee();
 
@@ -28,23 +32,25 @@ export class EmployeesComponent {
   }
 
   getAllEmployees(): void {
-    this.EmployeeService.getAllEmployees().subscribe(
+    this.EmployeeService.getAllEmployees().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
-        if (response.employés && Array.isArray(response.employés)) {
-          this.employees = response.employés;
-          console.log('Employés:', this.employees);
-          this.toastr.success('Employés récupérés avec succès');
+        this.chargement = false;
+        if (response.employees && Array.isArray(response.employees)) {
+          this.employees = response.employees;
+          this.page = 1;
+          this.toastr.success('Employés récupérés avec succès.');
         } else {
           console.error(
-            "La réponse du service ne contient pas de tableau 'employés' valide :",
+            "La réponse du service ne contient pas de tableau 'employees' valide :",
             response
           );
-          this.toastr.error('Données invalides reçues du service');
+          this.toastr.error('Données invalides reçues du service.');
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
-        this.toastr.error('Erreur lors de la récupération des données');
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des données.');
       }
     );
   }
@@ -75,44 +81,45 @@ export class EmployeesComponent {
 
   // Méthode pour modifier un employé
   modifier() {
-    if (this.employeeForm.valid) {
-      this.EmployeeService.updateEmployee(
-        this.employee.id_employee,
-        this.employeeForm.value
-      ).subscribe(
-        (response: any) => {
-          console.log('Mise à jour réussie :', response);
-          this.toastr.success('Mise à jour réussie');
-          this.reloadData(); // Vérifiez que cette méthode est efficace
-        },
-        (error: any) => {
-          console.error('Erreur lors de la mise à jour :', error);
-          this.toastr.error('Erreur lors de la mise à jour');
-        }
+    if (this.employeeForm.invalid || this.employee.id_employee === undefined) {
+      this.toastr.error(
+        'Veuillez vérifier le formulaire avant de valider.',
+        'Erreur de validation'
       );
-    } else {
-      this.toastr.error('Formulaire invalide');
+      return;
     }
+
+    this.EmployeeService.updateEmployee(
+      this.employee.id_employee,
+      this.employeeForm.value
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      () => {
+        this.toastr.success('Employé mis à jour avec succès.');
+        this.reloadData();
+      },
+      (error: any) => {
+        console.error('Erreur lors de la mise à jour :', error);
+        this.toastr.error("Erreur lors de la mise à jour de l'employé.");
+      }
+    );
   }
 
   // Méthode pour ajouter un employé
   ajouter() {
     if (this.employeeForm.valid) {
-      this.EmployeeService.createEmployee(this.employeeForm.value).subscribe(
-        (response: any) => {
-          this.employees.push(response);
-          this.reloadData(); // Vérifiez que cette méthode est efficace
-          console.log('Ajout réussi avec succès');
-          this.toastr.success('Ajout réussi avec succès');
+      this.EmployeeService.createEmployee(this.employeeForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success('Employé ajouté avec succès.');
           this.employeeForm.reset(); // Réinitialiser le formulaire après ajout
+          this.reloadData();
         },
         (error: any) => {
           console.error("Erreur lors de l'ajout de l'employé :", error);
-          this.toastr.error("Erreur lors de l'ajout de l'employé");
+          this.toastr.error("Erreur lors de l'ajout de l'employé.");
         }
       );
     } else {
-      this.toastr.error('Formulaire invalide');
+      this.toastr.error('Formulaire invalide.');
     }
   }
 
@@ -120,24 +127,48 @@ export class EmployeesComponent {
     this.employee = employee;
   }
 
+  /** Sélectionne l'employé et pré-remplit le formulaire de modification. */
+  ouvrirModifier(employee: Employee): void {
+    this.employee = employee;
+    this.employeeForm.patchValue({
+      matricule: employee.matricule ?? null,
+      nom: employee.nom ?? '',
+      prenom: employee.prenom ?? '',
+      notes: employee.notes ?? null,
+    } as any);
+  }
+
   supprimer(employee: Employee) {
-    this.EmployeeService.deleteEmployee(employee.id_employee).subscribe(
+    this.EmployeeService.deleteEmployee(employee.id_employee).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.employees = this.employees.filter(
           (item) => item.id_employee !== employee.id_employee
         );
-        console.log("L'employé a été supprimé avec succès :", response);
-        this.toastr.success("L'employé a été supprimé avec succès");
+        this.toastr.success("L'employé a été supprimé avec succès.");
       },
       (error: any) => {
         console.error("Erreur lors de la suppression de l'employé :", error);
-        this.toastr.error("Erreur lors de la suppression de l'employé");
+        this.toastr.error("Erreur lors de la suppression de l'employé.");
       }
     );
   }
 
   isLoading = false;
   message: string = '';
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get employeesPage(): Employee[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.employees.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   searchForm = new FormGroup({
     rech: new FormControl('', Validators.required),
@@ -159,17 +190,17 @@ export class EmployeesComponent {
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.EmployeeService.rechercher(searchValue.trim()).subscribe(
-      (response: { employees: any[] }) => {
+    this.EmployeeService.rechercher(searchValue.trim()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: EmployeesResponse) => {
         this.isLoading = false; 
 
         if (response && response.employees && response.employees.length > 0) {
           this.employees = response.employees;
-          this.toastr.success('employees trouvés avec succès!');
-          console.log('Résultats de la recherche:', this.employees);
+          this.page = 1;
+          this.toastr.success('Employés trouvés avec succès !');
         } else {
           this.employees = [];
-          this.message = 'Aucun employee trouvé pour ce libellé.';
+          this.message = 'Aucun employé trouvé pour ce libellé.';
           this.toastr.info(this.message);
         }
       },

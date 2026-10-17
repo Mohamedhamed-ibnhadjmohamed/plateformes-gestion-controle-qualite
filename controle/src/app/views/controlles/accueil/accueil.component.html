@@ -1,8 +1,27 @@
+@if (resume$ | async; as resume) {
+@if (resume.pret) {
+<section class="accueil-stats">
+  <div class="accueil-stats-interne">
+    <header class="accueil-stats-entete">
+      <div>
+        <h2 class="accueil-stats-titre">
+          @if (resume.prenom) { Bonjour {{ resume.prenom }} } @else { Votre activité }
+        </h2>
+        <p class="accueil-stats-texte">Vos indicateurs de contrôle qualité en un coup d'œil.</p>
+      </div>
+      <a class="btn btn-primary btn-sm accueil-stats-lien" routerLink="/home/analyses">
+        <i class="fas fa-chart-pie"></i> Voir toutes mes analyses
+      </a>
+    </header>
+
+    <div class="accueil-stats-cartes">
+      @for (carte of resume.cartes; track carte.id) {
+      <app-stat-card [carte]="carte"></app-stat-card>
+      }
+    </div>
+  </div>
+</section>
+}
+}
 
 <app-landing></app-landing>
-
-
-
-
-
-

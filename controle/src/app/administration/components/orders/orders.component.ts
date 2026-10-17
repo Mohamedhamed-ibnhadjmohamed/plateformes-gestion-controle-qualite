@@ -1,27 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Order } from '../../../models/Order';
+import { OrdersResponse } from '../../../models/api';
 import { OrdersService } from '../../../services/orders.service';
 import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-orders',
-  templateUrl: './orders.component.html',
-  styleUrl: '../../shared/styles/style.css',
+    selector: 'app-orders',
+    templateUrl: './orders.component.html',
+    styleUrl: '../../shared/styles/style.css',
+    standalone: false
 })
-export class OrdersComponent {
-  name: string = 'Order Fabrication';
+export class OrdersComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
+  name: string = 'Ordre de fabrication';
   orders: Order[] = [];
   order = new Order();
   isLoading = false;
   message: string = '';
 
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get ordersPage(): Order[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.orders.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
+
   ngOnInit(): void {
     this.reloadData();
-  }
-  alerthelle() {
-    console.log('hello from console')
-    alert('hello')
   }
   reloadData(): void {
     this.getAllordersFabrication();
@@ -34,18 +48,48 @@ export class OrdersComponent {
   confirmer(order: Order) {
     this.order = order;
   }
+
+  /** Sélectionne l'ordre et pré-remplit le formulaire de modification. */
+  ouvrirModifier(order: Order): void {
+    this.order = order;
+    this.orderForm.patchValue({
+      libelle_order: order.libelle_order ?? '',
+      designation_order: order.designation_order ?? '',
+      qte_demandee: order.qte_demandee ?? null,
+      date: this.versDateInput(order.date),
+      couleur: order.couleur ?? '',
+      taille: order.taille ?? '',
+      niveau: order.niveau ?? null,
+    } as any);
+  }
+
+  /** Convertit une date (Date ou chaîne) au format attendu par `<input type="date">`. */
+  private versDateInput(value: Date | string | undefined | null): string {
+    if (!value) {
+      return '';
+    }
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) {
+      return '';
+    }
+    const mois = String(d.getMonth() + 1).padStart(2, '0');
+    const jour = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mois}-${jour}`;
+  }
   getAllordersFabrication(): void {
-    this.orderservice.getAllordersFabrication().subscribe(
+    this.orderservice.getAllordersFabrication().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response.orders && Array.isArray(response.orders)) {
           this.orders = response.orders;
-          console.log('orders:', this.orders);
-          this.toastr.success('order de faboration récupérer avec succes');
+          this.page = 1;
+          this.toastr.success('Ordres de fabrication récupérés avec succès.');
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
-        this.toastr.error('Erreur lors de la récupération des orders');
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des ordres de fabrication.');
       }
     );
   }
@@ -93,13 +137,18 @@ export class OrdersComponent {
   }
 
   ajouterOrder() {
-    console.log(this.orderForm.value);
+    if (this.orderForm.invalid) {
+      this.toastr.error(
+        'Veuillez remplir correctement le formulaire.',
+        'Erreur de validation'
+      );
+      return;
+    }
 
-    this.orderservice.addorderFabrication(this.orderForm.value).subscribe(
-      (response: any) => {
-        this.orders.push(response);
-        console.log(this.orders.length);
-        console.log("L'élément a été ajouté avec succès :", response);
+    this.orderservice.addorderFabrication(this.orderForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      () => {
+        this.toastr.success("L'ordre de fabrication a été ajouté avec succès.");
+        this.resetForm();
         this.reloadData();
       },
       (error: any) => {
@@ -107,40 +156,46 @@ export class OrdersComponent {
           "Erreur lors de l'ajout de l'order de fabrication :",
           error
         );
-        this.toastr.error("Erreur lors de l'ajout de l'order de fabrication");
+        this.toastr.error("Erreur lors de l'ajout de l'ordre de fabrication.");
       }
     );
   }
   ModifierOrder() {
-    //? alert(JSON.stringify(this.order));
+    if (this.orderForm.invalid || this.order.id_order === undefined) {
+      this.toastr.error(
+        'Veuillez vérifier le formulaire avant de valider.',
+        'Erreur de validation'
+      );
+      return;
+    }
+
     this.orderservice
       .updateorderFabrication(this.order.id_order, this.orderForm.value)
-      .subscribe(
-        (response: any) => {
-          console.log("L'élément a été mis à jour avec succès :", response);
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success("L'ordre de fabrication a été mis à jour avec succès.");
           this.reloadData();
         },
         (error: any) => {
           console.error("Erreur lors de la mise à jour de l'élément :", error);
-          // Traiter les erreurs de mise à jour ici
+          this.toastr.error("Erreur lors de la mise à jour de l'ordre de fabrication.");
         }
       );
   }
 
   supprimer(order: Order) {
-    this.orderservice.deleteorderFabrication(order.id_order).subscribe(
+    this.orderservice.deleteorderFabrication(order.id_order).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         // Supprimer l'élément de la liste aqls une fois qu'il a été supprimé avec succès
         this.orders = this.orders.filter(
           (item) => item.id_order !== order.id_order
         );
-        console.log("L'élément a été supprimé avec succès :", response);
-        this.toastr.success("L'élément a été supprimé avec succès!");
+        this.toastr.success("L'ordre de fabrication a été supprimé avec succès.");
         this.reloadData();
       },
       (error: any) => {
-        console.error("Erreur lors de la suppression de l'élément :", error);
-        this.toastr.error("Erreur lors de la suppression de l'élément");
+        console.error("Erreur lors de la suppression de l'utilisateur.", error);
+        this.toastr.error("Erreur lors de la suppression de l'ordre de fabrication.");
       }
     );
   }
@@ -165,19 +220,20 @@ export class OrdersComponent {
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.orderservice.getOrderByLibelle(searchValue).subscribe(
-      (response: { orders: any[] }) => {
+    this.orderservice.getOrderByLibelle(searchValue).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: OrdersResponse) => {
         this.isLoading = false; // Fin du chargement
 
         this.orders = response.orders;
-        this.toastr.success('Orders trouvés avec succès!');
+        this.page = 1;
+        this.toastr.success('Ordres de fabrication trouvés avec succès !');
       },
       (error) => {
         this.isLoading = false; // Fin du chargement en cas d'erreur
         this.message =
           'Une erreur est survenue lors de la recherche. Veuillez réessayer plus tard.';
         this.toastr.error(this.message);
-        console.error("Erreur lors de la recherche d'orders:", error); // Log de l'erreur pour plus de détails
+        console.error("Erreur lors de la recherche des ordres de fabrication :", error); // Log de l'erreur pour plus de détails
       }
     );
   }

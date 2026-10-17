@@ -2,69 +2,52 @@
     display: flex;
     align-items: flex-start;
     gap: 30px;
-    color: #000;
+    color: var(--qm-ink);
     justify-content: flex-start;
     flex-wrap: wrap;
-    padding: 0 100px;
+    padding: 0 60px;
 }
 
 .title {
     display: flex;
     min-width: 240px;
     flex-direction: column;
-    font-size: 30px !important;
-    font-weight: 500;
+    font-size: 2rem !important;
+    font-weight: 700;
     justify-content: flex-start;
     margin: 0;
 }
 
 .highlight {
-    border-radius: 7px;
-    background-color: #b9ff66;
-    padding: 10px;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    padding: .2rem .6rem;
 }
 
 .description {
-    font-size: 18px;
+    font-size: 1.05rem;
     font-weight: 400;
-    width: 580px;
+    max-width: 580px;
+    width: 100%;
     margin: 0;
 }
 
-@media (max-width: 991px) {
-    .case-studies-header {
-        padding: 0 20px;
-    }
-
-    .description {
-        max-width: 100%;
-    }
-}
-
-
-/*nav barr*/
+/* Navigation */
 .navigation-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    padding: 0 100px 100px 100px;
-    gap: 40px 100px;
-    overflow: hidden;
-    position: relative;
+    gap: .5rem 1rem;
+    padding: .6rem 1.5rem;
+    background: var(--qm-surface);
+    box-shadow: var(--qm-shadow-sm);
 }
-
-@media (max-width: 991px) {
-    .navigation-bar {
-        padding: 0 20px;
-    }
-}
-
 
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: .35rem;
     list-style-type: none;
     padding: 0;
     margin: 0;
@@ -72,20 +55,40 @@
 }
 
 .nav-link {
-    color: #000;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--qm-ink);
     text-decoration: none;
-    font: 400 20px/1.4 'Space Grotesk', -apple-system, Roboto, Helvetica, sans-serif;
-}
-
-.nav-link:hover {
-    text-decoration: none;
-    color: #B9FF66;
+    font-size: .98rem;
     font-weight: 500;
+    padding: .5rem .85rem;
+    border-radius: var(--qm-radius-sm);
+    transition: background-color .15s ease, color .15s ease;
 }
 
-.nav-link:active {
-    text-decoration: none;
-    color: #B9FF66;
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--qm-primary);
+    background: var(--qm-primary-soft);
 }
 
+.nav-link.active {
+    color: #fff;
+    background: var(--qm-primary);
+}
 
+@media (max-width: 991px) {
+    .case-studies-header {
+        padding: 0 20px;
+    }
+
+    .navigation-bar {
+        padding: .6rem 1rem;
+    }
+
+    .nav-link {
+        padding: .45rem .6rem;
+        font-size: .92rem;
+    }
+}

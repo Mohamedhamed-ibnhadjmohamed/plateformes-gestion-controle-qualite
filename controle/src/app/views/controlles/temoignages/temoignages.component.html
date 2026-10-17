@@ -1,0 +1,29 @@
+<section class="qm-section qm-section--surface" id="temoignages">
+    <div class="qm-section__inner">
+        <header class="qm-section-head">
+            <h2 class="qm-section-title">
+                <span>Témoignages</span>
+            </h2>
+            <p class="qm-section-text">
+                Ce que disent les équipes qualité qui utilisent la plateforme au quotidien.
+            </p>
+        </header>
+
+        <div class="temoignages-grid">
+            <figure class="temoignage-card" *ngFor="let temoignage of temoignages">
+                <div class="temoignage-note" [attr.aria-label]="temoignage.note + ' sur 5'">
+                    <i class="fa-solid fa-star" [class.temoignage-star--vide]="n > temoignage.note"
+                        *ngFor="let n of [1, 2, 3, 4, 5]" aria-hidden="true"></i>
+                </div>
+                <blockquote class="temoignage-texte">« {{ temoignage.texte }} »</blockquote>
+                <figcaption class="temoignage-auteur">
+                    <span class="temoignage-avatar" aria-hidden="true">{{ temoignage.initiales }}</span>
+                    <span class="temoignage-infos">
+                        <strong>{{ temoignage.auteur }}</strong>
+                        <small>{{ temoignage.role }}</small>
+                    </span>
+                </figcaption>
+            </figure>
+        </div>
+    </div>
+</section>

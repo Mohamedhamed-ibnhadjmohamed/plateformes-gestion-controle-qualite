@@ -3,7 +3,7 @@
 
     <div *ngIf="inspections && inspections.length > 0; else noData" class="table-responsive">
         <h1 class="title">
-            <span class="highlight">lister les inspections</span>
+            <span class="highlight">Lister les inspections</span>
         </h1>
         <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
@@ -57,12 +57,12 @@
 
 
 <!-- Modal Supprimer  -->
-<div class="modal fade" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label" aria-hidden="true"
-    *ngIf=inspection! null>
+<div class="modal fade" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel" aria-hidden="true"
+    *ngIf="inspection">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -88,7 +88,7 @@
                                 </p>
                                 <p class="card-text"><strong>Identifiant Utilisateur :</strong> {{
                                     inspection.id_utilisateur }}</p>
-                                <p class="card-text"><strong>Resultat :</strong> {{
+                                <p class="card-text"><strong>Résultat :</strong> {{
                                     inspection.resultat }}</p>
                             </div>
                         </div>

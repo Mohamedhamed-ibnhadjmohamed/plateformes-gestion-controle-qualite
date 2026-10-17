@@ -1,32 +1,44 @@
+:host {
+    display: block;
+}
+
+.h-custom {
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.login-panel {
+    background: var(--qm-surface);
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-lg);
+    box-shadow: var(--qm-shadow-md);
+    padding: 2rem;
+}
+
 .divider:after,
 .divider:before {
     content: "";
     flex: 1;
     height: 1px;
-    background: #eee;
+    background: var(--qm-border);
 }
 
-.h-custom {
-    height: calc(100% - 73px);
+.divider p {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--qm-ink);
+}
+
+.card {
+    border-radius: var(--qm-radius-lg);
 }
 
 @media (max-width: 450px) {
     .h-custom {
-        height: 100%;
-    }
-}
-
-.card {
-    border-radius: 25px;
-}
-
-input {
-
-    &.ng-invalid.ng-touched {
-        border: 3px solid red;
+        min-height: 100%;
     }
 
-    &.ng-valid.ng-dirty {
-        border: 3px solid green;
+    .login-panel {
+        padding: 1.25rem;
     }
 }

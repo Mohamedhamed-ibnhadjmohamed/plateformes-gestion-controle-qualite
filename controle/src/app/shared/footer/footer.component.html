@@ -1,11 +1,50 @@
+<footer class="app-footer">
+    <div class="app-footer__haut">
+        <div class="app-footer__marque">
+            <span class="app-footer__logo">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i> QualityMaster
+            </span>
+            <p class="app-footer__baseline">
+                La plateforme de contrôle qualité qui garantit la conformité de vos produits, du contrôle
+                sous-chaîne jusqu'au rapport final.
+            </p>
+        </div>
 
-<footer class="bg-dark text-light py-4 mt-5 mb-0 " >
-    <div class="container text-center">
-        <p class="mb-1">QualityMaster - &copy; 2024 - Tous droits réservés.</p>
-        <p class="mb-0">
-            <a href="/home/accueil/#information" class="text-light mx-2">information</a> |
-            <a href="/home/accueil/#typecontrole" class="text-light mx-2">controller</a> |
-            <a href="/home/accueil/#contact" class="text-light mx-2">Contact</a>
-        </p>
+        <nav class="app-footer__colonne" aria-label="Navigation principale">
+            <h2 class="app-footer__titre">Navigation</h2>
+            <ul class="app-footer__liste">
+                <li><a [routerLink]="['/home/accueil']">Accueil</a></li>
+                <li><a [routerLink]="['/home/accueil']" fragment="typecontrole">Types de contrôle</a></li>
+                <li><a [routerLink]="['/home/analyses']">Analyses</a></li>
+                <li><a [routerLink]="['/home/consulter']">Rapports</a></li>
+            </ul>
+        </nav>
+
+        <nav class="app-footer__colonne" aria-label="Ressources">
+            <h2 class="app-footer__titre">Ressources</h2>
+            <ul class="app-footer__liste">
+                <li><a [routerLink]="['/home/accueil']" fragment="information">Étapes des contrôles</a></li>
+                <li><a [routerLink]="['/home/accueil']" fragment="faq">Questions fréquentes</a></li>
+                <li><a [routerLink]="['/home/accueil']" fragment="actualites">Actualités</a></li>
+                <li><a [routerLink]="['/home/accueil']" fragment="contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <div class="app-footer__colonne app-footer__colonne--cta">
+            <h2 class="app-footer__titre">Besoin d'aide ?</h2>
+            <p class="app-footer__texte">
+                Notre équipe vous accompagne dans la mise en place de vos contrôles qualité.
+            </p>
+            <a class="app-footer__bouton" [routerLink]="['/home/accueil']" fragment="contact">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i> Nous contacter
+            </a>
+        </div>
+    </div>
+
+    <div class="app-footer__bas">
+        <p class="app-footer__copie">&copy; {{ annee }} QualityMaster — Tous droits réservés.</p>
+        <button class="app-footer__remonter" type="button" (click)="remonter()">
+            <i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Haut de page
+        </button>
     </div>
 </footer>

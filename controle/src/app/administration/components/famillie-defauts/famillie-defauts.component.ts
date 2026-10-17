@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FamilleDefault } from '../../../models/FamillieDefaults';
+import { FamillesResponse } from '../../../models/api';
 import { FamilliedefaultService } from '../../../services/familliedefault.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-famillie-defauts',
-  templateUrl: './famillie-defauts.component.html',
-  styleUrls: ['../../shared/styles/style.css'], // Fixed styleUrls
+    selector: 'app-famillie-defauts',
+    templateUrl: './famillie-defauts.component.html',
+    styleUrls: ['../../shared/styles/style.css'],
+    standalone: false
 })
-export class FamillieDefautsComponent {
-  name: string = 'Famille Default';
+export class FamillieDefautsComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
+  name: string = 'Famille défaut';
   familledefaults: FamilleDefault[] = []; // Array of FamilleDefault objects (type safety)
   familledefault: FamilleDefault = new FamilleDefault(); // Selected FamilleDefault (optional, type safety)
 
@@ -28,19 +32,24 @@ export class FamillieDefautsComponent {
   }
 
   getAllfamilledefault(): void {
-    this.famillesdefaultservice.getAllfamilledefault().subscribe(
+    this.famillesdefaultservice.getAllfamilledefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response && response.familles && Array.isArray(response.familles)) {
           this.familledefaults = response.familles;
+          this.page = 1;
+          this.toastr.success('Familles défaut récupérées avec succès.');
         } else {
           console.error(
             'La réponse du service ne contient pas de tableau familledefaults valide :',
             response
           );
+          this.toastr.error('Données invalides reçues du service.');
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des données.', error);
         this.toastr.error('Erreur lors de la récupération des données.');
       }
     );
@@ -68,72 +77,95 @@ export class FamillieDefautsComponent {
   ajout(): void {
     this.famillesdefaultservice
       .createfamilledefault(this.familleForm.value)
-      .subscribe(
-        (response: any) => {
-          // Si la création réussit, ajouter la réponse à la liste des FamilleDefaults
-          this.familledefaults.push(response);
-          this.toastr.success('Famille Default ajoutée avec succès !');
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success('Famille défaut ajoutée avec succès.');
           this.familleForm.reset(); // Reset the form after successful submission
+          this.reloadData();
         },
         (error: any) => {
           // En cas d'erreur, afficher un message d'erreur dans la console
           console.error("Erreur lors de l'ajout du familledefault :", error);
-          this.toastr.error("Erreur lors de l'ajout du Famille Default.");
+          this.toastr.error("Erreur lors de l'ajout de la famille défaut.");
         }
       );
-    this.reloadData();
   }
 
   modifier() {
+    if (this.familleForm.invalid || this.familledefault.id_famille === undefined) {
+      this.toastr.error(
+        'Veuillez vérifier le formulaire avant de valider.',
+        'Erreur de validation'
+      );
+      return;
+    }
+
     this.famillesdefaultservice
       .updatefamilledefault(
         this.familledefault.id_famille,
         this.familleForm.value
       )
-      .subscribe(
-        (response: any) => {
-          console.log("L'élément a été mis à jour avec succès :", response);
-          this.toastr.success('Famille Default mise à jour avec succès !');
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success('Famille défaut mise à jour avec succès.');
+          this.reloadData();
         },
         (error: any) => {
           console.error("Erreur lors de la mise à jour de l'élément :", error);
           this.toastr.error(
-            'Erreur lors de la mise à jour de la Famille Default.'
+            'Erreur lors de la mise à jour de la famille défaut.'
           );
         }
       );
-
-    this.reloadData();
   }
 
   confirmer(a: FamilleDefault) {
     this.familledefault = a;
   }
 
+  /** Sélectionne la famille et pré-remplit le formulaire de modification. */
+  ouvrirModifier(a: FamilleDefault): void {
+    this.familledefault = a;
+    this.familleForm.patchValue({
+      code: a.code ?? '',
+      description: a.description ?? '',
+      nom: a.nom ?? '',
+    });
+  }
+
   supprimer(familledefault: FamilleDefault): void {
     this.famillesdefaultservice
       .deletefamilledefault(familledefault.id_famille)
-      .subscribe(
-        (response: any) => {
-          // Supprimer l'élément de la liste une fois qu'il a été supprimé avec succès
-          this.familledefaults = this.familledefaults.filter(
-            (item) => item.id_famille !== familledefault.id_famille
-          );
-          console.log("L'élément a été supprimé avec succès :", response);
-          this.toastr.success('Famille Default supprimée avec succès !');
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success('Famille défaut supprimée avec succès.');
+          this.reloadData();
         },
         (error: any) => {
-          console.error("Erreur lors de la suppression de l'élément :", error);
+          console.error("Erreur lors de la suppression de l'utilisateur.", error);
           this.toastr.error(
-            'Erreur lors de la suppression de la Famille Default.'
+            'Erreur lors de la suppression de la famille défaut.'
           );
         }
       );
-    this.reloadData();
   }
 
   isLoading = false;
   message: string = '';
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get familledefaultsPage(): FamilleDefault[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.familledefaults.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   searchForm = new FormGroup({
     rech: new FormControl('', Validators.required),
@@ -155,20 +187,21 @@ export class FamillieDefautsComponent {
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.famillesdefaultservice.rechercher(searchValue.trim()).subscribe(
-      (response: { familledefaults: any[] }) => {
+    this.famillesdefaultservice.rechercher(searchValue.trim()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: FamillesResponse) => {
         this.isLoading = false; // Fin du chargement
 
         if (
           response &&
-          response.familledefaults &&
-          response.familledefaults.length > 0
+          response.familles &&
+          response.familles.length > 0
         ) {
-          this.familledefaults = response.familledefaults;
-          this.toastr.success('Famille Defaults trouvés avec succès !');
+          this.familledefaults = response.familles;
+          this.page = 1;
+          this.toastr.success('Familles défaut trouvées avec succès !');
         } else {
           this.familledefaults = [];
-          this.message = 'Aucun Famille Default trouvé pour ce libellé.';
+          this.message = 'Aucune famille défaut trouvée pour ce libellé.';
           this.toastr.info(this.message);
         }
       },

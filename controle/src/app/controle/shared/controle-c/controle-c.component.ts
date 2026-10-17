@@ -8,13 +8,17 @@ import { DefautsService } from '../../../services/defauts.service';
 import { EmployeesService } from '../../../services/employees.service';
 import { FamilliedefaultService } from '../../../services/familliedefault.service';
 import { ToastrService } from 'ngx-toastr';
-import { Component, Input } from '@angular/core';
+import { Component, Input, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../environments/environment';
 @Component({
-  selector: 'app-controle-c',
-  templateUrl: './controle-c.component.html',
-  styleUrl: './controle-c.component.css',
+    selector: 'app-controle-c',
+    templateUrl: './controle-c.component.html',
+    styleUrl: './controle-c.component.css',
+    standalone: false
 })
 export class ControleCComponent {
+  protected readonly destroyRef = inject(DestroyRef);
   @Input() donnee: any;
 
   constructor(
@@ -30,9 +34,8 @@ export class ControleCComponent {
     });
   }
   ngOnInit(): void {
-    this.defaultservice.deletedefauts().subscribe(
+    this.defaultservice.deletedefauts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response) => {
-        console.log('Default supprimé avec succès', response);
       },
       (error) => {
         console.error('Erreur lors de la suppression du default', error);
@@ -49,14 +52,14 @@ export class ControleCComponent {
   resetForm() {
     this.defaultForm.reset();
   }
-  name: string = 'Default';
+  name: string = 'Défaut';
   default: Default = new Default();
   defaults: Default[] = [];
   employees: Employee[] = [];
   familledefaults: FamilleDefault[] = []; // Array of Aql objects (type safety)
   Inspections?: Inspection[] = [];
   selectedImage: File | null = null;
-  path = 'http://localhost:3000/upload/ ';
+  uploadUrl = environment.apiUrl + 'upload/';
   mineur: number = 0;
   majeur: number = 0;
   critique: number = 0;
@@ -92,10 +95,10 @@ export class ControleCComponent {
       ) {
         this.isButtonDisabled = true;
         this.toastr.info(
-          'Vous avez atteint le nombre de pièces à contrôler !!  Veuillez remplir le formulaire pour terminer le contrôle.'
+          'Vous avez atteint le nombre de pièces à contrôler. Veuillez remplir le formulaire pour terminer le contrôle.'
         );
         this.msg =
-          'Vous avez atteint le nombre de pièces à contrôler !!  Veuillez remplir le formulaire pour terminer le contrôle.';
+          'Vous avez atteint le nombre de pièces à contrôler. Veuillez remplir le formulaire pour terminer le contrôle.';
       } else {
         this.isButtonDisabled = false;
 
@@ -110,19 +113,16 @@ export class ControleCComponent {
       const formData = this.defaultForm.value;
       this.defaultservice
         .updatedefault(this.default.id_defaults, formData)
-        .subscribe(
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
           (response: any) => {
-            console.log(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour.`
-            );
             this.toastr.success(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour avec succès.`,
+              `Défaut avec l'ID ${this.default.id_defaults} a été mis à jour avec succès.`,
               'Succès'
             );
             this.reloadData();
           },
           (error: any) => {
-            console.error('Erreur lors de la mise à jour du défaut :', error);
+            console.error('Erreur lors de la mise à jour du défaut.', error);
             this.toastr.error(
               'Une erreur est survenue lors de la mise à jour du défaut.',
               'Erreur'
@@ -130,7 +130,6 @@ export class ControleCComponent {
           }
         );
     } else {
-      console.log('Form is invalid');
     }
   }
 
@@ -172,7 +171,7 @@ export class ControleCComponent {
       if (this.selectedImage !== null && this.selectedImage instanceof File) {
         // Si une image est sélectionnée, télécharger cette image
         return new Promise<string>((resolve, reject) => {
-          this.uploadImage(this.selectedImage!).subscribe(
+          this.uploadImage(this.selectedImage!).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
             (imageResponse: any) => {
               // Une fois l'image téléchargée, mettre à jour la valeur du champ "image" dans le formulaire
               const imagePath = imageResponse.path;
@@ -195,7 +194,7 @@ export class ControleCComponent {
     const formData = new FormData();
     formData.append('image', image);
 
-    return this.http.post<any>('defaults/upload', formData);
+    return this.http.post<any>(`${environment.apiUrl}defaults/upload`, formData);
   }
 
   get id_famille() {
@@ -218,31 +217,29 @@ export class ControleCComponent {
 
       const formData = this.defaultForm.value;
 
-      this.defaultservice.createdefault(formData).subscribe(
+      this.defaultservice.createdefault(formData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
           this.defaults.push(response);
-          this.toastr.success('ajouter reussit');
+          this.toastr.success('Défaut ajouté avec succès.');
           this.reloadData();
           this.resetForm();
         },
         (error: any) => {
-          console.error("Erreur lors de l'ajout de default :", error);
-          this.toastr.error("Erreur lors de l'ajout de default :");
+          console.error("Erreur lors de l'ajout du défaut.", error);
+          this.toastr.error("Erreur lors de l'ajout du défaut.");
         }
       );
     } else {
-      console.log('Form is invalid');
-      this.toastr.error('form vide');
+      this.toastr.error('Formulaire invalide.');
     }
   }
 
   getDefaultsByIdInspection(): void {
     const id = 1;
-    this.defaultservice.getDefaultsByIdInspection(id).subscribe(
+    this.defaultservice.getDefaultsByIdInspection(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && Array.isArray(response)) {
           this.defaults = response;
-          console.log('Defaults:', this.defaults);
           this.calculer(this.defaults);
         } else {
           console.error(
@@ -252,32 +249,31 @@ export class ControleCComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
 
   getAllEmployees(): void {
-    this.employeeservice.getAllEmployees().subscribe(
+    this.employeeservice.getAllEmployees().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
-        if (response.employés && Array.isArray(response.employés)) {
-          this.employees = response.employés;
-          console.log('Employés:', this.employees);
+        if (response.employees && Array.isArray(response.employees)) {
+          this.employees = response.employees;
         } else {
           console.error(
-            "La réponse du service ne contient pas de tableau 'employés' valide :",
+            "La réponse du service ne contient pas de tableau 'employees' valide :",
             response
           );
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
 
   getAllfamilledefault(): void {
-    this.familledeafultservice.getAllfamilledefault().subscribe(
+    this.familledeafultservice.getAllfamilledefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && response.familles && Array.isArray(response.familles)) {
           this.familledefaults = response.familles;
@@ -289,7 +285,7 @@ export class ControleCComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
@@ -299,20 +295,20 @@ export class ControleCComponent {
   }
 
   supprimer(def: Default) {
-    this.defaultservice.deletedefault(def.id_defaults).subscribe(
+    this.defaultservice.deletedefault(def.id_defaults).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.defaults = this.defaults.filter(
           (d) => d.id_defaults !== def.id_defaults
         );
         this.toastr.success(
-          `Default avec l'ID ${def.id_defaults} a été supprimé avec succès.`,
+          `Défaut avec l'ID ${def.id_defaults} a été supprimé avec succès.`,
           'Succès'
         );
         this.reloadData();
       },
       (error: any) => {
-        console.error('Erreur lors de la suppression du défaut :', error);
-        this.toastr.error('Erreur lors de la suppression du défaut :');
+        console.error('Erreur lors de la suppression du défaut.', error);
+        this.toastr.error('Erreur lors de la suppression du défaut.');
       }
     );
   }

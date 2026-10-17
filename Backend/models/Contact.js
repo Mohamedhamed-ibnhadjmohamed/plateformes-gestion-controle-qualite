@@ -1,21 +1,6 @@
 'use strict';
-const mysql = require('mysql');
 
-// Connexion à la base de données MySQL
-const dbConn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'pfe'
-});
-
-dbConn.connect((err) => {
-    if (err) {
-        console.error('Erreur de connexion à la base de données : ' + err.stack);
-        return;
-    }
-    console.log('Connecté à la base de données MySQL.');
-});
+const { pool: dbConn } = require('../config/database');
 
 // Constructeur contact
 var Contact = function (contact) {
@@ -61,7 +46,7 @@ Contact.update = function (id, contact, result) {
         function (err, res) {
             if (err) {
                 console.error("Erreur lors de la mise à jour du contact : ", err);
-                result(null, err);
+                result(err, null);
             } else if (res.affectedRows == 0) {
                 result({ kind: "not_found" }, null);
             } else {

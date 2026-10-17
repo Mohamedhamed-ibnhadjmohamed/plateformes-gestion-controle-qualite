@@ -1,23 +1,6 @@
 'use strict';
-// Assurez-vous d'importer correctement le module MySQL
-const mysql = require('mysql');
 
-// Assurez-vous que dbConn est initialisé avec une connexion MySQL valide
-const dbConn = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'pfe'
-});
-
-// Connectez-vous à la base de données
-dbConn.connect((err) => {
-  if (err) {
-    console.error('Erreur de connexion à la base de données : ' + err.stack);
-    return;
-  }
-  console.log('Connecté à la base de données MySQL.');
-});
+const { pool: dbConn } = require('../config/database');
 
 // Inspection object create
 var Inspection = function (inspection) {
@@ -60,7 +43,7 @@ Inspection.findAll = function (result) {
     dbConn.query("SELECT * FROM inspection WHERE id_inspection > 1 order by date desc; ", function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             console.log('inspections : ', res);
@@ -75,7 +58,7 @@ Inspection.update = function (id, inspection, result) {
     function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             result(null, res);
         }
@@ -86,7 +69,7 @@ Inspection.delete = function (id, result) {
     dbConn.query("DELETE FROM inspection WHERE id_inspection = ? ", id, function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             result(null, res);
@@ -139,7 +122,7 @@ Inspection.findconsultation = function (id_inspection, result) {
     `, [id_inspection], function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             console.log('inspections : ', res);
             result(null, res);

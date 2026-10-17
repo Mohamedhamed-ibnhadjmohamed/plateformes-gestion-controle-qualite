@@ -1,0 +1,155 @@
+@if (vue$ | async; as vue) {
+<div class="tb">
+  <header class="tb-entete">
+    <div class="tb-entete-texte">
+      <h1 class="tb-titre">Tableau de bord</h1>
+      <p class="tb-soustitre">
+        Les indicateurs sont calculés à partir des données de l'application et se
+        mettent à jour après chaque modification.
+      </p>
+    </div>
+
+    <div class="tb-actions">
+      <span class="tb-badge"><i class="fas fa-bolt"></i> Temps réel</span>
+      <button type="button" class="btn btn-outline-primary btn-sm tb-bouton" (click)="rafraichir()"
+        [disabled]="vue.chargement">
+        <i class="fas fa-rotate-right" [class.tb-tourne]="vue.chargement"></i>
+        Actualiser
+      </button>
+    </div>
+  </header>
+
+  @if (vue.erreur) {
+  <div class="alert alert-danger tb-alerte" role="alert">
+    <i class="fas fa-circle-exclamation"></i> {{ vue.erreur }}
+  </div>
+  } @else if (vue.echecs.length) {
+  <div class="alert alert-warning tb-alerte" role="alert">
+    <i class="fas fa-triangle-exclamation"></i>
+    Certaines données n'ont pas pu être chargées : {{ vue.echecs.join(', ') }}.
+  </div>
+  }
+
+  @if (vue.initial) {
+  <!-- Squelettes de chargement : évite le « saut » de mise en page. -->
+  <div class="tb-kpis">
+    @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+    <div class="tb-squelette"></div>
+    }
+  </div>
+  } @else if (vue.statistiques.aucuneDonnee && !vue.echecs.length) {
+  <div class="tb-vide">
+    <i class="fas fa-chart-pie tb-vide-icone"></i>
+    <h2>Aucune donnée à analyser</h2>
+    <p>
+      Enregistrez des produits, des ordres de fabrication ou des inspections pour
+      voir apparaître vos indicateurs de qualité.
+    </p>
+    <a class="btn btn-primary" routerLink="/home/parametre">
+      <i class="fas fa-plus"></i> Commencer la saisie
+    </a>
+  </div>
+  } @else {
+
+  <!-- ==================== Indicateurs clés ==================== -->
+  <section class="tb-kpis">
+    @for (carte of vue.statistiques.cartes; track carte.id) {
+    <app-stat-card class="tb-kpi" [carte]="carte"></app-stat-card>
+    }
+  </section>
+
+  <!-- ============ Évolution & répartition des défauts ============ -->
+  <div class="row g-3 tb-rangee">
+    <section class="col-xl-8">
+      <article class="tb-panneau">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Évolution des inspections</h2>
+            <p class="tb-panneau-texte">Nombre de contrôles réalisés par mois</p>
+          </div>
+          <div class="tb-segments">
+            <button type="button" class="tb-segment" [class.actif]="(periode$ | async) === 6"
+              (click)="choisirPeriode(6)">6 mois</button>
+            <button type="button" class="tb-segment" [class.actif]="(periode$ | async) === 12"
+              (click)="choisirPeriode(12)">12 mois</button>
+          </div>
+        </header>
+        <app-line-chart [points]="vue.statistiques.inspectionsParMois" suffixe=" inspections" couleur="#2864dc"
+          identifiant="inspections"></app-line-chart>
+      </article>
+    </section>
+
+    <section class="col-xl-4">
+      <article class="tb-panneau tb-panneau--centre">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Gravité des défauts</h2>
+            <p class="tb-panneau-texte">Pièces défectueuses par niveau</p>
+          </div>
+        </header>
+        <app-donut-chart [parts]="vue.statistiques.defautsParGravite" libelleCentre="Défauts">
+        </app-donut-chart>
+      </article>
+    </section>
+  </div>
+
+  <!-- ============ Chaînes de contrôle & évaluations ============ -->
+  <div class="row g-3 tb-rangee">
+    <section class="col-lg-7">
+      <article class="tb-panneau">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Inspections par chaîne</h2>
+            <p class="tb-panneau-texte">Répartition des contrôles et refus constatés</p>
+          </div>
+        </header>
+        <app-bar-chart [series]="vue.statistiques.inspectionsParCategorie" suffixe=" inspections"
+          couleur="#2864dc"></app-bar-chart>
+      </article>
+    </section>
+
+    <section class="col-lg-5">
+      <article class="tb-panneau">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Évaluations</h2>
+            <p class="tb-panneau-texte">Résultats saisis lors des inspections</p>
+          </div>
+        </header>
+        <app-bar-list [items]="vue.statistiques.resultatsInspection" [couleurs]="couleursEvaluations(vue.statistiques.resultatsInspection)" suffixe=" inspections">
+        </app-bar-list>
+      </article>
+    </section>
+  </div>
+
+  <!-- ============ Familles de défauts & ressources ============ -->
+  <div class="row g-3 tb-rangee">
+    <section class="col-lg-7">
+      <article class="tb-panneau">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Familles de défauts les plus fréquentes</h2>
+            <p class="tb-panneau-texte">Top 5 des pièces défectueuses constatées</p>
+          </div>
+        </header>
+        <app-bar-list [items]="vue.statistiques.topFamillesDefauts" suffixe=" pièces" couleur="#d92d20">
+        </app-bar-list>
+      </article>
+    </section>
+
+    <section class="col-lg-5">
+      <article class="tb-panneau">
+        <header class="tb-panneau-entete">
+          <div>
+            <h2 class="tb-panneau-titre">Données de référence</h2>
+            <p class="tb-panneau-texte">Volumétrie des collections gérées</p>
+          </div>
+        </header>
+        <app-bar-list [items]="vue.statistiques.ressources" suffixe=" éléments" couleur="#7c3aed">
+        </app-bar-list>
+      </article>
+    </section>
+  </div>
+  }
+</div>
+}

@@ -87,10 +87,14 @@ router.delete('/delete/:id', (req, res) => {
     });
 });
 
-// Configuration de multer pour le stockage des fichiers
+// Configuration de multer pour le stockage des fichiers.
+
+// Types d'images acceptés pour la photo d'un défaut.
+const IMAGE_MIME_TYPES = ['image/jpeg','image/jpg','image/pjpeg','image/png','image/gif','image/webp','image/bmp','image/x-ms-bmp','image/vnd.microsoft.icon','image/x-icon'];
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, path.resolve(__dirname, '../../backend/upload')); // Utiliser le chemin absolu pour le dossier de destination
+        cb(null, path.join(__dirname, '..', 'upload')); // Toujours « Backend/upload » (indépendant de la casse du système)
     },
     filename: function (req, file, cb) {
         // Ajouter la date au nom du fichier original
@@ -99,19 +103,34 @@ const storage = multer.diskStorage({
         cb(null, filename);
 }});
 
-const upload = multer({ storage: storage });
-
-// Configurer Express pour servir les fichiers statiques depuis le dossier upload
-
-router.post('/upload', upload.single('image'), (req, res) => {
-    // Si le fichier est téléchargé avec succès, renvoyer le nom du fichier dans la réponse
-    if (req.file) {
-        const filename = req.file.originalname;
-        res.json({ filename: filename });
-    } else {
-        // Si aucun fichier n'est téléchargé, renvoyer un message d'erreur
-        res.status(400).send('Aucun fichier téléchargé.');
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo maximum
+    fileFilter: function (req, file, cb) {
+        const mimetype = file.mimetype ? file.mimetype.toLowerCase() : '';
+        const ext = file.originalname ? require('path').extname(file.originalname).toLowerCase() : '';
+        const IMAGE_EXTENSIONS = ['.jpg','.jpeg','.png','.gif','.webp','.bmp','.ico'];
+        if (IMAGE_MIME_TYPES.includes(mimetype) || IMAGE_EXTENSIONS.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Seules les images (JPEG, PNG, GIF, WEBP, BMP) sont autorisées.'));
+        }
     }
+});
+
+router.post('/upload', (req, res) => {
+    upload.single('image')(req, res, (error) => {
+        if (error) {
+            const message = error.code === 'LIMIT_FILE_SIZE'
+                ? 'Le fichier dépasse la taille maximale autorisée (5 Mo).'
+                : error.message;
+            return res.status(400).json({ error: message });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'Aucun fichier téléchargé.' });
+        }
+        res.json({ filename: req.file.filename, path: req.file.filename });
+    });
 });
 
 router.get('/allidinspection/:id_inspection', (req, res) => {
@@ -172,3 +191,9 @@ router.get('/rechercher/:rech', (req, res) => {
 
 
 module.exports = router;
+
+
+
+
+
+

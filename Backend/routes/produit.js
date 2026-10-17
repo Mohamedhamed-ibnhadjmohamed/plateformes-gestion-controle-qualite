@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Produit = require('../models/produit');
+const { requireRole } = require('../middleware/auth');
 
 // Ajouter un produit
 router.post('/add', (req, res) => {
@@ -42,7 +43,7 @@ router.get('/all', (req, res) => {
 });
 
 // Mettre à jour un produit
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const produitId = req.params.id;
     const { code, designation, libelle_produit, niveau, quantite, id_aql, id_order } = req.body;
 
@@ -69,7 +70,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Supprimer un produit
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', requireRole('admin'), (req, res) => {
     const produitId = req.params.id;
 
     // Utiliser la méthode delete du modèle Produit pour supprimer le produit de la base de données
@@ -81,7 +82,8 @@ router.delete('/delete/:id', (req, res) => {
         // Si la suppression réussit, retourner une réponse avec un message de succès
         res.status(200).json({ message: 'Produit supprimé avec succès' });
     });
-}); 7
+});
+
 router.get('/getid/:id', (req, res) => {
     const id = req.params.id;
 

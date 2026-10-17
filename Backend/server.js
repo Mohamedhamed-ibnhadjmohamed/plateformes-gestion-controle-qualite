@@ -1,4 +1,13 @@
+'use strict';
+
+require('dotenv').config();
+
 const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
 const utilisateur = require('./routes/utilisateur');
 const employee = require('./routes/Employee');
 const familledefault = require('./routes/FamilleDefault');
@@ -8,37 +17,56 @@ const inspection = require('./routes/inspection');
 const defaults = require('./routes/Defaults');
 const order = require('./routes/order');
 const contact = require('./routes/Contact');
-const mysql = require('./config/connect');
-const path = require("path");
-const session = require('express-session');
+const { requireAuth } = require('./middleware/auth');
 
-const cors = require('cors');
+// Initialise la base de données (création des tables manquantes).
+require('./config/connect');
+
 const app = express();
-app.use(express.json());
-app.use(cors());
-//http://127.0.0.1:3000
+
+// En-têtes HTTP de sécurité (masque aussi « X-Powered-By »).
+// `crossOriginResourcePolicy` doit rester « cross-origin » : le front, servi
+// depuis un autre port, affiche les images hébergées dans /upload.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// Origines autorisées (séparées par des virgules dans CORS_ORIGIN).
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:4200')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(express.json({ limit: '1mb' }));
+app.use(cors({ origin: corsOrigins, credentials: true }));
+
+// Freine les attaques par force brute sur la connexion (10 essais / 15 min / IP).
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' },
+});
+app.use('/utilisateur/login', loginLimiter);
 
 app.use('/utilisateur', utilisateur);
-app.use('/employee', employee);
-app.use('/contact', contact);
-app.use('/familledefault', familledefault);
-app.use('/aql', aql);
-app.use('/produit', produit);
-app.use('/inspection', inspection);
-app.use('/defaults', defaults);
-app.use('/order', order);
+app.use('/employee', requireAuth, employee);
+app.use('/contact', requireAuth, contact);
+app.use('/familledefault', requireAuth, familledefault);
+app.use('/aql', requireAuth, aql);
+app.use('/produit', requireAuth, produit);
+app.use('/inspection', requireAuth, inspection);
+app.use('/defaults', requireAuth, defaults);
+app.use('/order', requireAuth, order);
 app.use('/upload', express.static(path.join(__dirname, 'upload')));
-app.use(session({
-    secret: 'secret-key',
-    resave: false,
-    saveUninitialized: true
-  }));
 
-
-
-
-
-app.listen(3000, () => {
-    console.log('Serveur démarré sur le port 3000');
+// Gestionnaire d'erreurs centralisé.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Erreur interne du serveur' });
 });
-    
+
+const PORT = Number(process.env.PORT) || 3000;
+app.listen(PORT, () => {
+  console.log(`Serveur démarré sur le port ${PORT}`);
+});

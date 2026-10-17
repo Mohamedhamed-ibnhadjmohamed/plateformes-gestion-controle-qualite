@@ -1,0 +1,180 @@
+/* ============================================================
+   Pied de page partagé — fond encre + accent vert.
+   Grille de 4 zones : marque, navigation, ressources, aide.
+   ============================================================ */
+
+.app-footer {
+    margin-top: 0;
+    padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.25rem, 5vw, 3.75rem) 1.5rem;
+    background-color: var(--qm-ink);
+    border-top: 3px solid var(--qm-accent);
+    color: #cbd5e1;
+    font-family: var(--qm-font);
+}
+
+.app-footer__haut {
+    display: grid;
+    grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(160px, 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------- Marque ---------- */
+.app-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.app-footer__logo i {
+    color: var(--qm-accent);
+    font-size: 1.15rem;
+}
+
+.app-footer__baseline {
+    margin: .9rem 0 0;
+    max-width: 34ch;
+    color: #64748b;
+    font-size: .92rem;
+    line-height: 1.6;
+}
+
+/* ---------- Colonnes ---------- */
+.app-footer__titre {
+    margin: 0 0 .9rem;
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.app-footer__liste {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.app-footer__liste a {
+    color: #cbd5e1;
+    font-size: .93rem;
+    transition: color .15s ease, padding-left .15s ease;
+}
+
+.app-footer__liste a:hover {
+    color: var(--qm-accent);
+    padding-left: .2rem;
+}
+
+/* ---------- Colonne d'aide ---------- */
+.app-footer__texte {
+    margin: 0 0 1rem;
+    color: #64748b;
+    font-size: .92rem;
+    line-height: 1.6;
+}
+
+.app-footer__bouton {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem 1.1rem;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    color: #14261c;
+    font-size: .92rem;
+    font-weight: 700;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+}
+
+.app-footer__bouton:hover {
+    background-color: #fff;
+    color: var(--qm-ink);
+    transform: translateY(-2px);
+}
+
+/* ---------- Barre inférieure ---------- */
+.app-footer__bas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: clamp(2rem, 4vw, 2.75rem) auto 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.app-footer__copie {
+    margin: 0;
+    color: #64748b;
+    font-size: .85rem;
+}
+
+.app-footer__remonter {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .45rem .85rem;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 999px;
+    background: none;
+    color: #cbd5e1;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.app-footer__remonter:hover {
+    background-color: rgba(255, 255, 255, .08);
+    border-color: var(--qm-accent);
+    color: #fff;
+}
+
+.app-footer__remonter:focus-visible {
+    outline: 3px solid rgba(185, 255, 102, .5);
+    outline-offset: 2px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991.98px) {
+    .app-footer__haut {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .app-footer__marque {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .app-footer__haut {
+        grid-template-columns: 1fr;
+    }
+
+    .app-footer__bas {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-footer__liste a:hover,
+    .app-footer__bouton:hover {
+        transform: none;
+        padding-left: 0;
+    }
+}

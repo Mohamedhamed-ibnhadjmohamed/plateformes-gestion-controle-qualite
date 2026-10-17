@@ -11,7 +11,7 @@
                             <div class="input-group">
                                 <input type="number" class="form-control" placeholder="Rechercher produit par code"
                                     formControlName="rech">
-                                <button class="btn btn-primary btn-lg" type="submit">
+                                <button class="btn btn-primary px-4" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -24,17 +24,22 @@
                 </div>
             </div>
 
+            <!-- Chargement initial des données -->
+            <div *ngIf="chargement" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Chargement des données...
+            </div>
+
             <!-- Indicateur de chargement -->
             <div *ngIf="isLoading" class="loading-indicator text-center my-3">
                 <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
             </div>
 
             <!-- Affichage des produits ou du message -->
-            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+            <div *ngIf="!chargement && !isLoading && message" class="alert alert-info text-center">
                 {{ message }}
             </div>
 
-            <table *ngIf="!isLoading && produits.length > 0" class="table table-striped">
+            <table *ngIf="!chargement && !isLoading && produits.length > 0" class="table table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">Code</th>
@@ -45,19 +50,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let produit of produits" class="align-middle">
-                        <td>{{ produit.code }}</td>
-                        <td>{{ produit.designation }}</td>
-                        <td>{{ produit.id_produit }}</td>
-                        <td>{{ produit.libelle_produit }}</td>
-                        <td>
+                    <tr *ngFor="let produit of produitsPage" class="align-middle">
+                        <td data-label="Code">{{ produit.code }}</td>
+                        <td data-label="Désignation">{{ produit.designation }}</td>
+                        <td data-label="Identifiant produit">{{ produit.id_produit }}</td>
+                        <td data-label="Libellé">{{ produit.libelle_produit }}</td>
+                        <td data-label="Options" class="actions">
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#ConsulterModal" (click)="confirmer(produit)">
                                     <i class="fas fa-eye"></i> Consulter
                                 </button>
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                    data-bs-target="#ModifierModal" (click)="confirmer(produit)">
+                                    data-bs-target="#ModifierModal" (click)="ouvrirModifier(produit)">
                                     <i class="fas fa-edit"></i> Modifier
                                 </button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal"
@@ -70,8 +75,12 @@
                 </tbody>
             </table>
 
+            <app-pagination [page]="page" [pageSize]="pageSize" [total]="produits.length"
+                (pageChange)="changerPage($event)"></app-pagination>
+
             <!-- Message en cas d'absence de résultats ou d'erreur -->
-            <div *ngIf="!isLoading && produits.length === 0 && !message" class="alert alert-warning text-center">
+            <div *ngIf="!chargement && !isLoading && produits.length === 0 && !message"
+                class="alert alert-warning text-center">
                 Aucun produit trouvé.
             </div>
         </div>
@@ -105,7 +114,7 @@
                                     <p class="card-text"><strong>Niveau:</strong> {{ produit.niveau }}</p>
                                     <p class="card-text"><strong>Quantité:</strong> {{ produit.quantite }}</p>
                                     <p class="card-text"><strong>Identifiant AQL:</strong> {{ produit.id_aql }}</p>
-                                    <p class="card-text"><strong>Identifiant Order:</strong> {{ produit.id_order }}</p>
+                                    <p class="card-text"><strong>Identifiant ordre :</strong> {{ produit.id_order }}</p>
                                 </div>
                             </div>
                         </div>
@@ -129,43 +138,43 @@
             <div class="modal-body">
                 <form [formGroup]="produitForm" (ngSubmit)="ajouter()">
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
-                            <div class="form-group">
-                                <label>Code</label>
-                                <input type="text" class="form-control" formControlName="code">
-                                <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="text-danger">
+                            <div class="mb-3">
+                                <label class="form-label">Code</label>
+                                <input type="text" class="form-control" formControlName="code" [class.is-invalid]="code?.invalid && (code?.dirty || code?.touched)">
+                                <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="invalid-feedback d-block">
                                     Code requis.
                                 </div>
                             </div>
                         </div>
                         <div class="col">
-                            <div class="form-group">
-                                <label>Désignation</label>
-                                <input type="text" class="form-control" formControlName="designation">
+                            <div class="mb-3">
+                                <label class="form-label">Désignation</label>
+                                <input type="text" class="form-control" formControlName="designation" [class.is-invalid]="designation?.invalid && (designation?.dirty || designation?.touched)">
                                 <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)"
-                                    class="text-danger">
+                                    class="invalid-feedback d-block">
                                     La désignation est requise et doit comporter au moins 3 caractères.
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
-                            <div class="form-group">
-                                <label>Libellé</label>
-                                <input type="text" class="form-control" formControlName="libelle_produit">
+                            <div class="mb-3">
+                                <label class="form-label">Libellé</label>
+                                <input type="text" class="form-control" formControlName="libelle_produit" [class.is-invalid]="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)">
                                 <div *ngIf="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)"
-                                    class="text-danger">
+                                    class="invalid-feedback d-block">
                                     Libellé requis.
                                 </div>
                             </div>
                         </div>
                         <div class="col">
-                            <div class="form-group">
-                                <label>Niveau</label>
-                                <input type="number" class="form-control" formControlName="niveau">
-                                <div *ngIf="niveau?.invalid && (niveau?.dirty || niveau?.touched)" class="text-danger">
+                            <div class="mb-3">
+                                <label class="form-label">Niveau</label>
+                                <input type="number" class="form-control" formControlName="niveau" [class.is-invalid]="niveau?.invalid && (niveau?.dirty || niveau?.touched)">
+                                <div *ngIf="niveau?.invalid && (niveau?.dirty || niveau?.touched)" class="invalid-feedback d-block">
                                     Le niveau doit être entre 1 et 5.
                                 </div>
                             </div>
@@ -173,50 +182,69 @@
                     </div>
 
 
-                    <div class="form-group">
-                        <label>Quantité</label>
-                        <input type="number" class="form-control" formControlName="quantite">
-                        <div *ngIf="quantite?.invalid && (quantite?.dirty || quantite?.touched)" class="text-danger">
+                    <div class="mb-3">
+                        <label class="form-label">Quantité</label>
+                        <input type="number" class="form-control" formControlName="quantite" [class.is-invalid]="quantite?.invalid && (quantite?.dirty || quantite?.touched)">
+                        <div *ngIf="quantite?.invalid && (quantite?.dirty || quantite?.touched)" class="invalid-feedback d-block">
                             Quantité minimale de 1 requise.
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
-                            <div class="form-group">
-                                <label for="id_aql">Identifiant AQL :</label>
-                                <select id="id_aql" class="form-select" formControlName="id_aql">
+                            <div class="mb-3">
+                                <label class="form-label" for="id_aql">Identifiant AQL :</label>
+                                <select id="id_aql" class="form-select" formControlName="id_aql" [class.is-invalid]="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)">
                                     <option value="" disabled selected>Sélectionnez une option</option>
                                     <option *ngFor="let aql of aqls" [value]="aql.id_aql">{{ aql.nom }}</option>
                                 </select>
-                                <div *ngIf="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)" class="text-danger">
+                                <div *ngIf="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)" class="invalid-feedback d-block">
                                     Sélectionnez un AQL.
                                 </div>
                             </div>
                         </div>
                         <div class="col">
-                            <div class="form-group">
-                                <label for="id_order">Identifiant Order :</label>
-                                <select id="id_order" class="form-select" formControlName="id_order">
+                            <div class="mb-3">
+                                <label class="form-label" for="id_order">Identifiant ordre :</label>
+                                <select id="id_order" class="form-select" formControlName="id_order"
+                                    (change)="verifierSuiviQuantite()"
+                                    [class.is-invalid]="id_order?.invalid && (id_order?.dirty || id_order?.touched)">
                                     <option value="" disabled selected>Sélectionnez une option</option>
                                     <option *ngFor="let order of orders" [value]="order.id_order">{{ order.libelle_order
                                         }}
                                     </option>
                                 </select>
                                 <div *ngIf="id_order?.invalid && (id_order?.dirty || id_order?.touched)"
-                                    class="text-danger">
-                                    Sélectionnez un Order.
+                                    class="invalid-feedback d-block">
+                                    Sélectionnez un ordre de fabrication.
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Contrôle à la saisie : quantité commandée vs enregistrée -->
+                    <div *ngIf="suiviQuantite" class="alert"
+                        [ngClass]="depassementQuantite ? 'alert-warning' : 'alert-info py-2'">
+                        <i class="fa-solid"
+                            [ngClass]="depassementQuantite ? 'fa-triangle-exclamation' : 'fa-circle-info'"></i>
+                        @if (depassementQuantite) {
+                        <strong> dépassement de quantité — </strong>
+                        Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+                        déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+                        restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+                        Votre saisie ({{ formatNbre(quantiteSaisie) }} pcs) dépasse le restant.
+                        } @else {
+                        Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+                        déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+                        restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+                        }
+                    </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" (click)="resetForm()" data-bs-dismiss="modal">
                             Annuler
                         </button>
-                        <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal"
                             [disabled]="produitForm.invalid">
                             Ajouter
                         </button>
@@ -239,106 +267,118 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="modal-body " *ngIf="produit!null">
+                <div *ngIf="produit">
                     <form [formGroup]="produitForm" (ngSubmit)="modifier()">
 
 
-                        <div class="row">
+                        <div class="row g-3">
                             <div class="col">
-                                <div class="form-group">
-                                    <label>Code</label>
-                                    <input type="text" class="form-control" formControlName="code"
-                                        [value]="produit.code">
-                                    <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="text-danger">
+                                <div class="mb-3">
+                                    <label class="form-label">Code</label>
+                                    <input type="text" class="form-control" formControlName="code" [class.is-invalid]="code?.invalid && (code?.dirty || code?.touched)">
+                                    <div *ngIf="code?.invalid && (code?.dirty || code?.touched)" class="invalid-feedback d-block">
                                         Code requis.
                                     </div>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group">
-                                    <label>Désignation</label>
-                                    <input type="text" class="form-control" formControlName="designation"
-                                        [value]="produit.designation">
+                                <div class="mb-3">
+                                    <label class="form-label">Désignation</label>
+                                    <input type="text" class="form-control" formControlName="designation" [class.is-invalid]="designation?.invalid && (designation?.dirty || designation?.touched)">
                                     <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)"
-                                        class="text-danger">
+                                        class="invalid-feedback d-block">
                                         La désignation est requise et doit comporter au moins 3 caractères.
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row g-3">
                             <div class="col">
 
-                                <div class="form-group">
-                                    <label>Libellé</label>
-                                    <input type="text" class="form-control" formControlName="libelle_produit"
-                                        [value]="produit.libelle_produit">
+                                <div class="mb-3">
+                                    <label class="form-label">Libellé</label>
+                                    <input type="text" class="form-control" formControlName="libelle_produit" [class.is-invalid]="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)">
                                     <div *ngIf="libelle_produit?.invalid && (libelle_produit?.dirty || libelle_produit?.touched)"
-                                        class="text-danger">
+                                        class="invalid-feedback d-block">
                                         Libellé requis.
                                     </div>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group">
-                                    <label>Niveau</label>
-                                    <input type="number" class="form-control" formControlName="niveau"
-                                        [value]="produit.niveau">
+                                <div class="mb-3">
+                                    <label class="form-label">Niveau</label>
+                                    <input type="number" class="form-control" formControlName="niveau" [class.is-invalid]="niveau?.invalid && (niveau?.dirty || niveau?.touched)">
                                     <div *ngIf="niveau?.invalid && (niveau?.dirty || niveau?.touched)"
-                                        class="text-danger">
+                                        class="invalid-feedback d-block">
                                         Le niveau doit être entre 1 et 5.
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Quantité</label>
-                            <input type="number" class="form-control" formControlName="quantite"
-                                [value]="produit.quantite">
+                        <div class="mb-3">
+                            <label class="form-label">Quantité</label>
+                            <input type="number" class="form-control" formControlName="quantite" [class.is-invalid]="quantite?.invalid && (quantite?.dirty || quantite?.touched)">
                             <div *ngIf="quantite?.invalid && (quantite?.dirty || quantite?.touched)"
-                                class="text-danger">
+                                class="invalid-feedback d-block">
                                 Quantité minimale de 1 requise.
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row g-3">
                             <div class="col">
-                                <div class="form-group">
-                                    <label for="id_aql">Identifiant AQL :</label>
-                                    <select id="id_aql" class="form-select" formControlName="id_aql"
-                                        [value]="produit.id_aql">
+                                <div class="mb-3">
+                                    <label class="form-label" for="id_aql">Identifiant AQL :</label>
+                                    <select id="id_aql" class="form-select" formControlName="id_aql" [class.is-invalid]="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)">
                                         <option value="" disabled selected>Sélectionnez une option</option>
                                         <option *ngFor="let aql of aqls" [value]="aql.id_aql">{{ aql.nom }}</option>
                                     </select>
                                     <div *ngIf="id_aql?.invalid && (id_aql?.dirty || id_aql?.touched)"
-                                        class="text-danger">
+                                        class="invalid-feedback d-block">
                                         Sélectionnez un AQL.
                                     </div>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group">
-                                    <label for="id_order">Identifiant Order :</label>
+                                <div class="mb-3">
+                                    <label class="form-label" for="id_order">Identifiant ordre :</label>
                                     <select id="id_order" class="form-select" formControlName="id_order"
-                                        [value]="produit.id_order">
+                                        (change)="verifierSuiviQuantite()"
+                                        [class.is-invalid]="id_order?.invalid && (id_order?.dirty || id_order?.touched)">
                                         <option value="" disabled selected>Sélectionnez une option</option>
                                         <option *ngFor="let order of orders" [value]="order.id_order">{{
                                             order.libelle_order }}
                                         </option>
                                     </select>
                                     <div *ngIf="id_order?.invalid && (id_order?.dirty || id_order?.touched)"
-                                        class="text-danger">
-                                        Sélectionnez un Order.
+                                        class="invalid-feedback d-block">
+                                        Sélectionnez un ordre de fabrication.
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end">
-                            <input type="reset" class="btn btn-danger  m-2 p-3" (click)="resetForm()" value="Annuler">
-                            <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
-                                [disabled]="produitForm.invalid" value="Modifier">
+                        <!-- Contrôle à la saisie : quantité commandée vs enregistrée -->
+                        <div *ngIf="suiviQuantite" class="alert"
+                            [ngClass]="depassementQuantite ? 'alert-warning' : 'alert-info py-2'">
+                            <i class="fa-solid"
+                                [ngClass]="depassementQuantite ? 'fa-triangle-exclamation' : 'fa-circle-info'"></i>
+                            @if (depassementQuantite) {
+                            <strong> dépassement de quantité — </strong>
+                            Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+                            déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+                            restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+                            Votre saisie ({{ formatNbre(quantiteSaisie) }} pcs) dépasse le restant.
+                            } @else {
+                            Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+                            déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+                            restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                            <button type="reset" class="btn btn-secondary px-4" (click)="resetForm()" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal" [disabled]="produitForm.invalid">Modifier</button>
                         </div>
                     </form>
                 </div>
@@ -350,12 +390,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
-    aria-hidden="true" *ngIf=produit! null>
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
+    aria-hidden="true" *ngIf="produit">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

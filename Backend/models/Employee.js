@@ -1,20 +1,6 @@
 'use strict';
-const mysql = require('mysql');
 
-const dbConn = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'pfe'
-});
-
-dbConn.connect((err) => {
-  if (err) {
-    console.error('Erreur de connexion à la base de données : ' + err.stack);
-    return;
-  }
-  console.log('Connecté à la base de données MySQL.');
-});
+const { pool: dbConn } = require('../config/database');
 
 var Employee = function (employee) {
     this.matricule = employee.matricule;
@@ -52,7 +38,7 @@ Employee.findAll = function (result) {
     dbConn.query("SELECT * FROM employee", function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             console.log('employees : ', res);
@@ -66,7 +52,7 @@ Employee.update = function (id, employee, result) {
     [employee.matricule, employee.nom, employee.prenom, employee.notes, id], function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             result(null, res);
         }
@@ -77,7 +63,7 @@ Employee.delete = function (id, result) {
     dbConn.query("DELETE FROM employee WHERE id_employee = ?", [id], function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             result(null, res);

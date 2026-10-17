@@ -1,0 +1,47 @@
+<div class="courbe" [style.aspect-ratio]="'520 / 230'">
+  @if (serie.length) {
+  <svg class="courbe-svg" viewBox="0 0 520 230" role="img" aria-label="Évolution des inspections">
+    <defs>
+      <linearGradient [attr.id]="'degrade-' + identifiant" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" [attr.stop-color]="couleur" stop-opacity=".28" />
+        <stop offset="100%" [attr.stop-color]="couleur" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    @for (graduation of graduations; track graduation.valeur) {
+    <line class="courbe-grille" [attr.x1]="34" [attr.x2]="506" [attr.y1]="graduation.y" [attr.y2]="graduation.y" />
+    <text class="courbe-graduation" [attr.x]="30" [attr.y]="graduation.y + 3.5">{{ graduation.valeur | number }}</text>
+    }
+
+    <path class="courbe-aire" [attr.d]="cheminAire" [attr.fill]="'url(#degrade-' + identifiant + ')'" />
+    <path class="courbe-ligne" [attr.d]="cheminLigne" [attr.stroke]="couleur" />
+
+    @for (point of serie; track $index; let index = $index) {
+    <circle class="courbe-point" [attr.cx]="point.x" [attr.cy]="point.y" [attr.r]="actif === index ? 5 : 3"
+      [class.est-actif]="actif === index" [attr.fill]="couleur" />
+    <circle class="courbe-survol" [attr.cx]="point.x" [attr.cy]="point.y" r="14" (mouseenter)="survoler(index)"
+      (mouseleave)="survoler(null)" />
+    }
+
+    @if (actif !== null) {
+    <line class="courbe-repere" [attr.x1]="serie[actif].x" [attr.x2]="serie[actif].x" [attr.y1]="22"
+      [attr.y2]="200" [attr.stroke]="couleur" />
+    }
+  </svg>
+
+  <div class="courbe-etiquettes">
+    <span *ngFor="let point of points; let index = index" class="courbe-etiquette"
+      [class.est-active]="actif === index">{{ point.libelle }}</span>
+  </div>
+
+  @if (actif !== null) {
+  <div class="courbe-infobulle" [style.left.%]="(serie[actif].x / 520) * 100"
+    [style.top.%]="(serie[actif].y / 230) * 100">
+    <strong>{{ serie[actif].valeur | number }}{{ suffixe }}</strong>
+    <span>{{ serie[actif].libelle }}</span>
+  </div>
+  }
+  } @else {
+  <p class="courbe-vide">Pas encore assez de données pour tracer une évolution.</p>
+  }
+</div>

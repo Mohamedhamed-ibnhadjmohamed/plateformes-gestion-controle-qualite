@@ -1,0 +1,30 @@
+<section class="qm-section qm-section--surface" id="faq">
+    <div class="qm-section__inner">
+        <header class="qm-section-head">
+            <h2 class="qm-section-title">
+                <span>FAQ</span>
+            </h2>
+            <p class="qm-section-text">
+                Les réponses aux questions les plus fréquentes sur le contrôle qualité et l'utilisation de la
+                plateforme.
+            </p>
+        </header>
+
+        <div class="faq-list">
+            <article class="faq-item" *ngFor="let question of questions; let i = index" [class.faq-item--ouvert]="question.ouvert">
+                <h3 class="faq-question-titre">
+                    <button type="button" class="faq-question" (click)="basculer(question)"
+                        [attr.aria-expanded]="question.ouvert" [attr.aria-controls]="'faq-reponse-' + i">
+                        <span>{{ question.question }}</span>
+                        <span class="faq-chevron" aria-hidden="true">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </span>
+                    </button>
+                </h3>
+                <div class="faq-reponse" *ngIf="question.ouvert" [id]="'faq-reponse-' + i">
+                    <p>{{ question.reponse }}</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>

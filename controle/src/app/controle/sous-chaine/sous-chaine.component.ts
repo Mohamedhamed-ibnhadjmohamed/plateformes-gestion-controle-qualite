@@ -1,4 +1,4 @@
-import { Component, Output } from '@angular/core';
+import { Component, Output, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AQL } from '../../models/AQL';
 import { Produit } from '../../models/Produit';
@@ -9,14 +9,17 @@ import { AllProduit } from '../../models/AllProduit';
 import { ToastrService } from 'ngx-toastr';
 import { Default } from '../../models/Default';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/login/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-sous-chaine',
-
-  templateUrl: './sous-chaine.component.html',
-  styleUrl: '../shared/style/style.css',
+    selector: 'app-sous-chaine',
+    templateUrl: './sous-chaine.component.html',
+    styleUrl: '../shared/style/style.css',
+    standalone: false
 })
 export class SousChaineComponent {
+  protected readonly destroyRef = inject(DestroyRef);
   produitVisible = false;
   DefaultVisible = false;
   formVisible = true;
@@ -27,7 +30,6 @@ export class SousChaineComponent {
   allproduit: any;
   idUtilisateur: any;
   email = '';
-  motDePasse = '';
   nom = '';
   prenom = '';
   currentDate = new Date();
@@ -54,19 +56,18 @@ export class SousChaineComponent {
     private inspectionService: InspectionsService,
     private defautsService: DefautsService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.getAllProduits();
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser).utilisateur;
+    const user = this.authService.getUser();
+    if (user) {
       this.idUtilisateur = user.id_utilisateur;
-      this.email = user.email;
-      this.motDePasse = user.mot_de_passe;
-      this.nom = user.nom;
-      this.prenom = user.prenom;
+      this.email = user.email ?? '';
+      this.nom = user.nom ?? '';
+      this.prenom = user.prenom ?? '';
     } else {
       this.redirectToLogin();
     }
@@ -93,7 +94,7 @@ export class SousChaineComponent {
   }
 
   getAllProduits(): void {
-    this.produitService.getAllProduits().subscribe(
+    this.produitService.getAllProduits().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.produits && Array.isArray(response.produits)) {
           this.produits = response.produits;
@@ -105,7 +106,7 @@ export class SousChaineComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
@@ -114,7 +115,7 @@ export class SousChaineComponent {
     this.produitVisible = true;
     this.DefaultVisible = true;
     this.formVisible = false;
-    this.produitService.getAllById(this.idForm.value.idproduit).subscribe(
+    this.produitService.getAllById(this.idForm.value.idproduit).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: AllProduit[]) => {
         this.allproduit = response;
       },
@@ -134,22 +135,21 @@ export class SousChaineComponent {
     if (this.inspectionForm.valid) {
       this.inspectionService
         .createinspection(this.inspectionForm.value)
-        .subscribe(
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
           (response) => {
-            this.toastr.success('Inspection créée avec succès');
-            this.defautsService.updateIdInspection().subscribe(
+            this.toastr.success('Inspection créée avec succès.');
+            this.defautsService.updateIdInspection().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
               (updateResponse) => {
-                console.log('Mise à jour réussie', updateResponse);
                 this.router.navigate(['/home/consulter']);
               },
               (updateError) => {
-                console.error('Erreur lors de la mise à jour', updateError);
+                console.error("Erreur lors de la mise à jour de l'employé.", updateError);
               }
             );
           },
           (error) => {
-            console.error("Erreur lors de la création de l'inspection", error);
-            this.toastr.error("Erreur lors de la création de l'inspection");
+            console.error("Erreur lors de la création de l'inspection.", error);
+            this.toastr.error("Erreur lors de la création de l'inspection.");
           }
         );
     } else {

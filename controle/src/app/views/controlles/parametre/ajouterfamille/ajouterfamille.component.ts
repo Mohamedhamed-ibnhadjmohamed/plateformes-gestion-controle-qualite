@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { FamilleDefault } from '../../../../models/FamillieDefaults';
 import { FamilliedefaultService } from '../../../../services/familliedefault.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-ajouterfamille',
-  templateUrl: './ajouterfamille.component.html',
-  styleUrl: './ajouterfamille.component.css'
+    selector: 'app-ajouterfamille',
+    templateUrl: './ajouterfamille.component.html',
+    styleUrl: './ajouterfamille.component.css',
+    standalone: false
 })
 export class AjouterfamilleComponent implements OnInit {
-  name: string = 'Famille Default';
+  protected readonly destroyRef = inject(DestroyRef);
+  name: string = 'Famille défaut';
   familledefaults: FamilleDefault[] = []; // Array of FamilleDefault objects (type safety)
   familledefault: FamilleDefault = new FamilleDefault(); // Selected FamilleDefault (optional, type safety)
 
@@ -28,7 +31,7 @@ export class AjouterfamilleComponent implements OnInit {
   }
 
   getAllfamilledefault(): void {
-    this.famillesdefaultservice.getAllfamilledefault().subscribe(
+    this.famillesdefaultservice.getAllfamilledefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && response.familles && Array.isArray(response.familles)) {
           this.familledefaults = response.familles;
@@ -40,7 +43,7 @@ export class AjouterfamilleComponent implements OnInit {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         this.toastr.error('Erreur lors de la récupération des données.');
       }
     );
@@ -68,17 +71,17 @@ export class AjouterfamilleComponent implements OnInit {
   ajout(): void {
     this.famillesdefaultservice
       .createfamilledefault(this.familleForm.value)
-      .subscribe(
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
           // Si la création réussit, ajouter la réponse à la liste des FamilleDefaults
           this.familledefaults.push(response);
-          this.toastr.success('Famille Default ajoutée avec succès !');
+          this.toastr.success('Famille défaut ajoutée avec succès.');
           this.familleForm.reset(); // Reset the form after successful submission
         },
         (error: any) => {
           // En cas d'erreur, afficher un message d'erreur dans la console
           console.error("Erreur lors de l'ajout du familledefault :", error);
-          this.toastr.error("Erreur lors de l'ajout du Famille Default.");
+          this.toastr.error("Erreur lors de l'ajout de la famille défaut.");
         }
       );
     this.reloadData();

@@ -1,0 +1,85 @@
+:host {
+  display: block;
+}
+
+.qm-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--qm-border);
+}
+
+.qm-pagination-info {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--qm-muted);
+}
+
+.qm-pagination-info strong {
+  color: var(--qm-ink);
+}
+
+.qm-pagination-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qm-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--qm-ink);
+  background: var(--qm-surface);
+  border: 1px solid var(--qm-border);
+  border-radius: var(--qm-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.qm-page:hover:not(:disabled):not(.qm-page--ellipse) {
+  border-color: var(--qm-primary);
+  color: var(--qm-primary);
+}
+
+.qm-page:focus-visible {
+  outline: 2px solid var(--qm-primary);
+  outline-offset: 2px;
+}
+
+.qm-page.actif {
+  color: #fff;
+  background: var(--qm-primary);
+  border-color: var(--qm-primary);
+}
+
+.qm-page:disabled {
+  color: var(--qm-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.qm-page--ellipse {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+
+@media (max-width: 576px) {
+  .qm-pagination {
+    justify-content: center;
+  }
+}

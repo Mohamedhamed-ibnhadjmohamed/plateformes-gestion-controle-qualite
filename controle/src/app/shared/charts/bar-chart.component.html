@@ -1,0 +1,35 @@
+<div class="barres" [style.aspect-ratio]="'340 / 190'">
+  @if (barres.length) {
+  <svg class="barres-svg" viewBox="0 0 340 190" role="img" aria-label="Graphique en barres">
+    @for (graduation of graduations; track graduation.valeur) {
+    <line class="barres-grille" [attr.x1]="30" [attr.x2]="332" [attr.y1]="graduation.y" [attr.y2]="graduation.y" />
+    <text class="barres-graduation" [attr.x]="26" [attr.y]="graduation.y + 3.5">{{ graduation.valeur | number }}</text>
+    }
+
+    @for (barre of barres; track $index; let index = $index) {
+    <rect class="barres-barre" [attr.x]="barre.x" [attr.y]="barre.y" [attr.width]="barre.largeur"
+      [attr.height]="barre.hauteur" [attr.fill]="couleur" [class.est-actif]="actif === index" [style.--index]="index"
+      [attr.rx]="4" />
+    <text class="barres-valeur" [attr.x]="barre.centreX" [attr.y]="barre.y - 7">{{ barre.valeur | number }}</text>
+    <text class="barres-libelle" [attr.x]="barre.centreX" [attr.y]="174">{{ barre.libelle }}</text>
+    <rect class="barres-zone" [attr.x]="barre.zoneX" [attr.y]="0" [attr.width]="barre.zoneLargeur"
+      [attr.height]="190" (mouseenter)="survoler(index)" (mouseleave)="survoler(null)" />
+    }
+
+    <line class="barres-axe" [attr.x1]="30" [attr.x2]="332" [attr.y1]="170" [attr.y2]="170" />
+  </svg>
+
+  @if (actif !== null) {
+  <div class="barres-infobulle" [style.left.%]="(barres[actif].centreX / 340) * 100"
+    [style.top.%]="(barres[actif].y / 190) * 100">
+    <strong>{{ barres[actif].valeur | number }}{{ suffixe }}</strong>
+    <span>{{ barres[actif].libelle }}</span>
+    @if (barres[actif].info) {
+    <em>{{ barres[actif].info }}</em>
+    }
+  </div>
+  }
+  } @else {
+  <p class="barres-vide">Aucune donnée à représenter.</p>
+  }
+</div>

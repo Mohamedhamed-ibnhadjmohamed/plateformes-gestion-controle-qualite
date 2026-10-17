@@ -1,0 +1,63 @@
+/* ============================================================
+   Section « Partenaires » — bandeau de références.
+   ============================================================ */
+
+.partenaires {
+    padding: clamp(2rem, 4vw, 3rem) clamp(1.25rem, 5vw, 3.75rem);
+    background-color: var(--qm-surface);
+    font-family: var(--qm-font);
+}
+
+.partenaires__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.partenaires__intro {
+    margin: 0;
+    color: var(--qm-muted);
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.partenaires__liste {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 4vw, 3rem);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.partenaire {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: #64748b;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    filter: grayscale(1);
+    opacity: .85;
+    transition: color .2s ease, filter .2s ease, opacity .2s ease;
+}
+
+.partenaire i {
+    font-size: 1.35rem;
+}
+
+.partenaire:hover {
+    color: var(--qm-ink);
+    filter: grayscale(0);
+    opacity: 1;
+}

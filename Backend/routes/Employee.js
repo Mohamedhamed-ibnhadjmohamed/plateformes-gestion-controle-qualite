@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Employee = require('../models/Employee');
+const { requireRole } = require('../middleware/auth');
 
 // Ajouter un employé
 router.post('/add', (req, res) => {
@@ -34,12 +35,12 @@ router.get('/all', (req, res) => {
             return res.status(500).json({ error: 'Erreur interne du serveur' });
         }
         // Si la récupération réussit, retournez une réponse avec la liste des employés
-        res.status(200).json({ employés: employees });
+        res.status(200).json({ employees: employees });
     });
 });
 
 // Mettre à jour un employé
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const employeeId = req.params.id;
     const { matricule, nom, prenom, notes } = req.body;
 
@@ -63,7 +64,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Supprimer un employé
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', requireRole('admin'), (req, res) => {
     const employeeId = req.params.id;
 
     // Utiliser la méthode delete du modèle Employee pour supprimer l'employé de la base de données

@@ -69,23 +69,41 @@
             </div>
             <div class="col">
                 <div class="form-group">
-                    <label for="id_order">Identifiant Order :</label>
-                    <select id="id_order" class="form-select" formControlName="id_order">
+                    <label for="id_order">Identifiant ordre :</label>
+                    <select id="id_order" class="form-select" formControlName="id_order"
+                        (change)="verifierSuiviQuantite()">
                         <option value="" disabled selected>Sélectionnez une option</option>
                         <option *ngFor="let order of orders" [value]="order.id_order">{{ order.libelle_order
                             }}
                         </option>
                     </select>
                     <div *ngIf="id_order?.invalid && (id_order?.dirty || id_order?.touched)" class="text-danger">
-                        Sélectionnez un Order.
+                        Sélectionnez un ordre de fabrication.
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Contrôle à la saisie : quantité commandée vs enregistrée -->
+        <div *ngIf="suiviQuantite" class="alert mt-3"
+            [ngClass]="depassementQuantite ? 'alert-warning' : 'alert-info py-2'">
+            <i class="fa-solid" [ngClass]="depassementQuantite ? 'fa-triangle-exclamation' : 'fa-circle-info'"></i>
+            @if (depassementQuantite) {
+            <strong> dépassement de quantité — </strong>
+            Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+            déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+            restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+            Votre saisie ({{ formatNbre(quantiteSaisie) }} pcs) dépasse le restant.
+            } @else {
+            Commandé : {{ formatNbre(suiviQuantite.qte_demandee) }} pcs ·
+            déjà enregistré : {{ formatNbre(suiviQuantite.qte_enregistree) }} pcs ·
+            restant : {{ formatNbre(suiviQuantite.qte_restante) }} pcs.
+            }
+        </div>
+
 
         <div class="d-flex justify-content-end">
-            <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+            <button type="reset" class="btn btn-secondary m-2 p-3" (click)="resetForm()" data-bs-dismiss="modal">
                 Annuler
             </button>
             <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"

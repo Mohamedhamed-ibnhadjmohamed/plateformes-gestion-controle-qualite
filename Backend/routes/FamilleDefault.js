@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const FamilleDefault = require('../models/FamilleDefault');
+const { requireRole } = require('../middleware/auth');
 
 // Ajouter une famille par défaut
 router.post('/add', (req, res) => {
@@ -36,7 +37,7 @@ router.get('/all', (req, res) => {
     });
 });
 // Mettre à jour une famille par défaut
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const familleId = req.params.id;
     const { code, description, nom } = req.body;
 
@@ -59,7 +60,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Supprimer une famille par défaut
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', requireRole('admin'), (req, res) => {
     const familleId = req.params.id;
 
     // Utiliser la méthode delete du modèle FamilleDefault pour supprimer la famille par défaut de la base de données

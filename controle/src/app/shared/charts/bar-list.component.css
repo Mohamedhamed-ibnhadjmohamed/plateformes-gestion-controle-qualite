@@ -1,0 +1,67 @@
+.classement {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+
+.classement li {
+  animation: classement-apparition .4s ease both;
+  animation-delay: calc(var(--index, 0) * 60ms);
+}
+
+.classement-entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .3rem;
+}
+
+.classement-libelle {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--qm-ink);
+}
+
+.classement-valeur {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--qm-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.classement-piste {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--qm-border);
+  overflow: hidden;
+}
+
+.classement-barre {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width .55s cubic-bezier(.4, 0, .2, 1);
+}
+
+.classement-info {
+  display: block;
+  margin-top: .25rem;
+  font-size: .78rem;
+  color: var(--qm-muted);
+}
+
+.classement-vide {
+  padding: 1.5rem 0;
+  font-size: .88rem;
+  color: var(--qm-muted);
+  text-align: center;
+}
+
+@keyframes classement-apparition {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}

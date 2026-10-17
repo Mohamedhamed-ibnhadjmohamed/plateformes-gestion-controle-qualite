@@ -9,9 +9,9 @@
                     <div class="col-sm-6 d-flex justify-content-end align-items-center">
                         <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Rechercher par prenom"
+                                <input type="text" class="form-control" placeholder="Rechercher par prénom"
                                     formControlName="rech">
-                                <button class="btn btn-primary btn-lg" type="submit">
+                                <button class="btn btn-primary px-4" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -24,41 +24,46 @@
                 </div>
             </div>
 
+            <!-- Chargement initial des données -->
+            <div *ngIf="chargement" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Chargement des données...
+            </div>
+
             <!-- Indicateur de chargement -->
             <div *ngIf="isLoading" class="loading-indicator text-center my-3">
                 <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
             </div>
 
-            <!-- Affichage des produits ou du message -->
-            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+            <!-- Affichage des employés ou du message -->
+            <div *ngIf="!chargement && !isLoading && message" class="alert alert-info text-center">
                 {{ message }}
             </div>
 
-            <table *ngIf="!isLoading && employees.length > 0" class="table table-striped">
+            <table *ngIf="!chargement && !isLoading && employees.length > 0" class="table table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">Identifiant employee</th>
                         <th scope="col">Matricule</th>
                         <th scope="col">Nom</th>
-                        <th scope="col">Prenom</th>
+                        <th scope="col">Prénom</th>
                         <th scope="col"> Option </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let employee of employees" class="align-middle">
-                        <td>{{ employee.id_employee }}</td>
-                        <td>{{ employee.matricule }}</td>
-                        <td>{{ employee.nom }}</td>
-                        <td>{{ employee.prenom }}</td>
+                    <tr *ngFor="let employee of employeesPage" class="align-middle">
+                        <td data-label="Identifiant employé">{{ employee.id_employee }}</td>
+                        <td data-label="Matricule">{{ employee.matricule }}</td>
+                        <td data-label="Nom">{{ employee.nom }}</td>
+                        <td data-label="Prénom">{{ employee.prenom }}</td>
 
-                        <td>
+                        <td data-label="Options" class="actions">
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#ConsulterModal" (click)="confirmer(employee)">
                                     <i class="fas fa-eye"></i> Consulter
                                 </button>
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                    data-bs-target="#ModifierModal" (click)="confirmer(employee)">
+                                    data-bs-target="#ModifierModal" (click)="ouvrirModifier(employee)">
                                     <i class="fas fa-edit"></i> Modifier
                                 </button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal"
@@ -72,24 +77,28 @@
                 </tbody>
             </table>
 
+            <app-pagination [page]="page" [pageSize]="pageSize" [total]="employees.length"
+                (pageChange)="changerPage($event)"></app-pagination>
+
             <!-- Message en cas d'absence de résultats ou d'erreur -->
-            <div *ngIf="!isLoading && employees.length === 0 && !message" class="alert alert-warning text-center">
-                Aucun produit trouvé.
+            <div *ngIf="!chargement && !isLoading && employees.length === 0 && !message"
+                class="alert alert-warning text-center">
+                Aucun employé trouvé.
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Consulter -->
-<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf=employee! null>
+            <div class="modal-body" *ngIf="employee">
                 <div class="container mt-5">
                     <div class="row">
                         <div class="col">
@@ -98,11 +107,11 @@
                                     <h5 class="card-title"> {{name}} </h5>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Identifiant Employee:</strong> {{ employee.id_employee
+                                    <p class="card-text"><strong>Identifiant employé :</strong> {{ employee.id_employee
                                         }}</p>
                                     <p class="card-text"><strong>Matricule:</strong> {{ employee.matricule }}</p>
                                     <p class="card-text"><strong>Nom:</strong> {{ employee.nom }}</p>
-                                    <p class="card-text"><strong>prenom:</strong> {{ employee.prenom }}</p>
+                                    <p class="card-text"><strong>prénom :</strong> {{ employee.prenom }}</p>
                                     <p class="card-text"><strong>Notes:</strong> {{ employee.notes }}</p>
                                 </div>
                             </div>
@@ -126,44 +135,43 @@
             </div>
             <div class="modal-body">
 
-                <form [formGroup]="employeeForm" (ngSubmit)="ajouter()" class="">
-                    <div class="form-group">
+                <form [formGroup]="employeeForm" (ngSubmit)="ajouter()">
+                    <div class="mb-3">
                         <label for="matricule" class="form-label">Matricule</label>
-                        <input type="text" class="form-control" id="matricule" formControlName="matricule" required>
+                        <input type="text" class="form-control" id="matricule" formControlName="matricule" required [class.is-invalid]="matricule?.invalid && (matricule?.dirty || matricule?.touched)">
                         <!-- Optionnel: Affichage d'un message d'erreur si le champ est requis -->
-                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="text-danger">
+                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="invalid-feedback d-block">
                             Le matricule est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="nom" formControlName="nom" required>
-                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                        <input type="text" class="form-control" id="nom" formControlName="nom" required [class.is-invalid]="nom?.invalid && (nom?.dirty || nom?.touched)">
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="invalid-feedback d-block">
                             Le nom est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="prenom" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="prenom" formControlName="prenom" required>
-                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger">
+                        <input type="text" class="form-control" id="prenom" formControlName="prenom" required [class.is-invalid]="prenom?.invalid && (prenom?.dirty || prenom?.touched)">
+                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="invalid-feedback d-block">
                             Le prénom est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="notes" class="form-label">Notes</label>
-                        <input type="number" class="form-control" id="notes" formControlName="notes" required>
-                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="text-danger">
+                        <input type="number" class="form-control" id="notes" formControlName="notes" required [class.is-invalid]="notes?.invalid && (notes?.dirty || notes?.touched)">
+                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="invalid-feedback d-block">
                             Les notes doivent être comprises entre 0 et 20.
                         </div>
                     </div>
                     <br>
-                    <div class="d-flex justify-content-end">
-                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
-                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
-                            [disabled]="employeeForm.invalid" value="Ajouter">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal" [disabled]="employeeForm.invalid">Ajouter</button>
                     </div>
                 </form>
 
@@ -185,51 +193,46 @@
                 <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf=employee! null>
+            <div class="modal-body" *ngIf="employee">
 
-                <form [formGroup]="employeeForm" (ngSubmit)="modifier()" class="">
-                    <div class="form-group">
+                <form [formGroup]="employeeForm" (ngSubmit)="modifier()">
+                    <div class="mb-3">
                         <label for="matricule" class="form-label">Matricule</label>
-                        <input type="text" class="form-control" id="matricule" formControlName="matricule"
-                            [value]="employee.matricule" required>
+                        <input type="text" class="form-control" id="matricule" formControlName="matricule" required [class.is-invalid]="matricule?.invalid && (matricule?.dirty || matricule?.touched)">
                         <!-- Optionnel: Affichage d'un message d'erreur si le champ est requis -->
-                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="text-danger">
+                        <div *ngIf="matricule?.invalid && (matricule?.dirty || matricule?.touched)" class="invalid-feedback d-block">
                             Le matricule est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="nom" formControlName="nom" [value]="employee.nom"
-                            required>
-                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="text-danger">
+                        <input type="text" class="form-control" id="nom" formControlName="nom" required [class.is-invalid]="nom?.invalid && (nom?.dirty || nom?.touched)">
+                        <div *ngIf="nom?.invalid && (nom?.dirty || nom?.touched)" class="invalid-feedback d-block">
                             Le nom est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="prenom" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="prenom" formControlName="prenom"
-                            [value]="employee.prenom" required>
-                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="text-danger">
+                        <input type="text" class="form-control" id="prenom" formControlName="prenom" required [class.is-invalid]="prenom?.invalid && (prenom?.dirty || prenom?.touched)">
+                        <div *ngIf="prenom?.invalid && (prenom?.dirty || prenom?.touched)" class="invalid-feedback d-block">
                             Le prénom est requis.
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="notes" class="form-label">Notes</label>
-                        <input type="number" class="form-control" id="notes" formControlName="notes"
-                            [value]="employee.notes" required>
-                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="text-danger">
+                        <input type="number" class="form-control" id="notes" formControlName="notes" required [class.is-invalid]="notes?.invalid && (notes?.dirty || notes?.touched)">
+                        <div *ngIf="notes?.invalid && (notes?.dirty || notes?.touched)" class="invalid-feedback d-block">
                             Les notes doivent être comprises entre 0 et 20.
                         </div>
                     </div>
                     <br>
 
-                    <div class="d-flex justify-content-end">
-                        <input type="reset" class="btn btn-danger m-2 p-3" value="Annuler">
-                        <input type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
-                            [disabled]="employeeForm.invalid" value="Ajouter">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal" [disabled]="employeeForm.invalid">Modifier</button>
                     </div>
                 </form>
 
@@ -240,12 +243,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
-    aria-hidden="true" *ngIf=employee! null>
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
+    aria-hidden="true" *ngIf="employee">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -262,11 +265,11 @@
                                 </div>
 
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Identifiant Employee:</strong> {{ employee.id_employee
+                                    <p class="card-text"><strong>Identifiant employé :</strong> {{ employee.id_employee
                                         }}</p>
                                     <p class="card-text"><strong>Matricule:</strong> {{ employee.matricule }}</p>
                                     <p class="card-text"><strong>Nom:</strong> {{ employee.nom }}</p>
-                                    <p class="card-text"><strong>prenom:</strong> {{ employee.prenom }}</p>
+                                    <p class="card-text"><strong>prénom :</strong> {{ employee.prenom }}</p>
                                     <p class="card-text"><strong>Notes:</strong> {{ employee.notes }}</p>
                                 </div>
                             </div>

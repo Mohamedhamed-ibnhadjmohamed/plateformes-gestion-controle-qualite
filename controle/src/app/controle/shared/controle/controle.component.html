@@ -29,7 +29,7 @@
 <div class="table-responsive">
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#AjouterModal">
-            <i class="fa-solid fa-plus"></i> Ajouter un defaut
+            <i class="fa-solid fa-plus"></i> Ajouter un défaut
         </button>
     </div>
     <table *ngIf="defaults && defaults.length > 0; else noData" class="table table-striped table-bordered">
@@ -46,7 +46,7 @@
                 <td>{{ default.description }}</td>
                 <td>
                     <img *ngIf="default.image"
-                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)" alt="img"
+                        [src]="uploadUrl + extraireNomFichier(default.image)" alt="img"
                         class="img-thumbnail" width="100">
                 </td>
                 <td>{{ default.type }}</td>
@@ -75,14 +75,14 @@
 </ng-template>
 
 <!-- Modal Consulter -->
-<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label" aria-hidden="true">
+<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf=default!null>
+            <div class="modal-body" *ngIf="default">
                 <div class="container mt-5">
                     <div class="row">
                         <div class="col">
@@ -91,14 +91,14 @@
                                     <h5 class="card-title"> {{name}} </h5>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                    <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults}}
                                     </p>
                                     <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
                                     <p class="card-text"><strong>Image:</strong>
                                         <br>
                                         <img *ngIf="default.image"
                                             style="width: 400px !important; height: 200px !important"
-                                            [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                            [src]="uploadUrl + extraireNomFichier(default.image)"
                                             alt="img">
                                     </p>
                                     <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>
@@ -192,7 +192,7 @@
                         </div>
                     </div>
 
-                    <button type="reset" class="btn btn-danger" (click)="resetForm()">Annuler</button>
+                    <button type="reset" class="btn btn-secondary" (click)="resetForm()" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary" [disabled]="!defaultForm.valid">Ajouter</button>
                 </form>
 
@@ -216,7 +216,7 @@
                 <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf="default!null">
+            <div class="modal-body" *ngIf="default">
                 <form [formGroup]="defaultForm" (ngSubmit)="modifierDefault()">
                     <div class="form-group">
                         <label for="qte_min">Description :</label>
@@ -230,7 +230,7 @@
                     </div>
                     <div class="form-group">
                         <label for="qte_max">Image :</label>
-                        <input type="file" class="form-control" (change)="($event)" id="image" formControlName="image"
+                        <input type="file" class="form-control" id="image" formControlName="image"
                             value="{{default.image}}">
                     </div>
                     <div class="form-group">
@@ -274,7 +274,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
                         [disabled]="!defaultForm.valid">Modifier</button>
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+                    <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
 
                 </form>
             </div>
@@ -284,12 +284,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog" *ngIf="default!null">
+    <div class="modal-dialog" *ngIf="default">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -300,13 +300,13 @@
                                 Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
                             </div>
                             <div class="card-body">
-                                <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults}}
                                 </p>
                                 <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
                                 <p class="card-text"><strong>Image:</strong>
                                     <br>
                                     <img *ngIf="default.image" style="width: 400px !important; height: 200px !important"
-                                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                        [src]="uploadUrl + extraireNomFichier(default.image)"
                                         alt="img">
                                 </p>
                                 <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>

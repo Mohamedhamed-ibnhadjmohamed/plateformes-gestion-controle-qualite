@@ -1,69 +1,74 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { Default } from '../models/Default';
+import {
+  DefaultsResponse,
+  MessageResponse,
+  UploadResponse,
+} from '../models/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DefautsService {
-  static updateIdInspection(idInspection: any, updatedData: any) {
-    throw new Error('Method not implemented.');
-  }
   constructor(private http: HttpClient) {}
 
-  // Consider environment variable for flexibility
-  private baseUrl: string = 'http://127.0.0.1:3000/'; // Or use a process.env variable
+  private baseUrl: string = environment.apiUrl;
 
-  getAlldefault(): Observable<any> {
-    // Type any can be refined based on API response
+  getAlldefault(): Observable<DefaultsResponse> {
     const url = this.baseUrl + 'defaults/all';
-    return this.http.get<any>(url); // Specify response type for type safety
+    return this.http.get<DefaultsResponse>(url);
   }
 
-  getDefaultsByIdInspection(id_inspection: number): Observable<any> {
+  getDefaultsByIdInspection(id_inspection: number): Observable<Default[]> {
     const url = `${this.baseUrl}defaults/allidinspection/${id_inspection}`;
-    return this.http.get<any>(url);
+    return this.http.get<Default[]>(url);
   }
 
-  getById(id: any): Observable<any> {
+  getById(id: any): Observable<DefaultsResponse> {
     const url = `${this.baseUrl}defaults/${id}`;
-    return this.http.get<any>(url);
+    return this.http.get<DefaultsResponse>(url);
   }
 
-  createdefault(data: any): Observable<any> {
+  createdefault(data: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}defaults/add`;
-    return this.http.post<any>(url, data);
+    return this.http.post<MessageResponse>(url, data);
   }
-  updatedefault(id: any, newData: any): Observable<any> {
+
+  updatedefault(id: any, newData: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}defaults/update/${id}`;
-    return this.http.put<any>(url, newData);
+    return this.http.put<MessageResponse>(url, newData);
   }
 
-  deletedefault(id: any): Observable<any> {
+  deletedefault(id: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}defaults/delete/${id}`;
-    return this.http.delete<any>(url);
+    return this.http.delete<MessageResponse>(url);
   }
 
-  uploadImage(image: File) {
+  uploadImage(image: File): Observable<UploadResponse> {
     const formData = new FormData();
     formData.append('image', image);
 
-    return this.http.post<any>('defaults/upload', formData);
+    return this.http.post<UploadResponse>(`${this.baseUrl}defaults/upload`, formData);
   }
 
-  updateIdInspection(): Observable<any> {
+  updateIdInspection(): Observable<MessageResponse> {
     const url = `${this.baseUrl}defaults/update-id-inspection`;
-    return this.http.put<any>(url, {});
+    return this.http.put<MessageResponse>(url, {});
   }
 
-  deletedefauts(): Observable<any> {
+  deletedefauts(): Observable<MessageResponse> {
     const url = `${this.baseUrl}defaults/deletedefauts`;
-    return this.http.delete<any>(url);
+    return this.http.delete<MessageResponse>(url);
   }
 
-  rechercher(id: string): Observable<any> {
+  rechercher(id: string): Observable<DefaultsResponse> {
     const url = `${this.baseUrl}defaults/rechercher/${id}`;
-    return this.http.get<any>(url).pipe(catchError(this.handleError));
+    return this.http
+      .get<DefaultsResponse>(url)
+      .pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -78,5 +83,3 @@ export class DefautsService {
     return throwError(() => new Error(errorMessage));
   }
 }
-
-

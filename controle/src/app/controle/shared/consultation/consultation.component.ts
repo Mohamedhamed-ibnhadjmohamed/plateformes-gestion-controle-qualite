@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { Inspection } from '../../../models/Inspection';
 import { InspectionsService } from '../../../services/inspections.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/login/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-consultation',
-  templateUrl: './consultation.component.html',
-  styleUrls: ['./consultation.component.css'],
+    selector: 'app-consultation',
+    templateUrl: './consultation.component.html',
+    styleUrls: ['./consultation.component.css'],
+    standalone: false
 })
 export class ConsultationComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   name: string = 'Inspection';
   inspection: Inspection = new Inspection();
   inspections: Inspection[] = [];
@@ -17,7 +21,8 @@ export class ConsultationComponent implements OnInit {
 
   constructor(
     private inspectionService: InspectionsService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -25,20 +30,21 @@ export class ConsultationComponent implements OnInit {
   }
 
   loadUserAndInspections(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser).utilisateur;
-      this.idUtilisateur = user.id_utilisateur;
+    const user = this.authService.getUser();
+    if (user) {
+      this.idUtilisateur = user.id_utilisateur ?? null;
       this.getAllInspections();
     } else {
       this.redirectToLogin();
     }
   }
 
-  redirectToLogin(): void {}
+  redirectToLogin(): void {
+    this.router.navigate(['/login']);
+  }
 
   getAllInspections(): void {
-    this.inspectionService.getAllinspection().subscribe(
+    this.inspectionService.getAllinspection().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.inspections && Array.isArray(response.inspections)) {
           this.inspections = response.inspections;
@@ -50,7 +56,7 @@ export class ConsultationComponent implements OnInit {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
@@ -60,15 +66,14 @@ export class ConsultationComponent implements OnInit {
   }
 
   supprimer(inspection: Inspection): void {
-    this.inspectionService.deleteinspection(inspection.id_inspection).subscribe(
+    this.inspectionService.deleteinspection(inspection.id_inspection).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.inspections = this.inspections.filter(
           (item) => item.id_inspection !== inspection.id_inspection
         );
-        console.log("L'élément a été supprimé avec succès :", response);
       },
       (error: any) => {
-        console.error("Erreur lors de la suppression de l'élément :", error);
+        console.error("Erreur lors de la suppression de l'utilisateur.", error);
       }
     );
   }

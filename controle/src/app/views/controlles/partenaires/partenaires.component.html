@@ -1,0 +1,11 @@
+<section class="partenaires" id="partenaires">
+    <div class="partenaires__inner">
+        <p class="partenaires__intro">Ils nous font confiance dans des secteurs exigeants</p>
+        <ul class="partenaires__liste">
+            <li class="partenaire" *ngFor="let partenaire of partenaires">
+                <i [class]="partenaire.icone" aria-hidden="true"></i>
+                <span>{{ partenaire.nom }}</span>
+            </li>
+        </ul>
+    </div>
+</section>

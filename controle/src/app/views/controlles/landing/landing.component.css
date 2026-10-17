@@ -1,78 +1,93 @@
+/* ============================================================
+   Bandeau d'accroche (hero) de la page d'accueil.
+   Structure : texte à gauche, illustration à droite.
+   ============================================================ */
+
 .hero-section {
-    height: 80vh;
     display: flex;
-    align-items: flex-start;
-    gap: 40px 100px;
-    overflow: hidden;
-    justify-content: space-between;
     flex-wrap: wrap;
-    padding: 0 100px;
-    font: 400 20px Space Grotesk, -apple-system, Roboto, Helvetica, sans-serif;
-    background: #fff;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding: clamp(2.5rem, 7vw, 5rem) clamp(1.25rem, 5vw, 3.75rem);
+    font-family: var(--qm-font);
+    background: linear-gradient(135deg, var(--qm-surface) 0%, var(--qm-primary-soft) 100%);
 }
 
 .hero-content {
     display: flex;
+    flex: 1 1 420px;
+    max-width: 620px;
     flex-direction: column;
-    justify-content: flex-start;
-    width: 600px;
-    min-width: 240px;
+    align-items: flex-start;
 }
 
 .hero-title {
-    color: #000;
-    font-size: 60px;
-    font-weight: 500;
     margin: 0;
-    color: #b9ff66;
+    color: var(--qm-ink);
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    text-wrap: balance;
 }
 
 .hero-description {
-    color: #000;
-    line-height: 28px;
-    margin-top: 35px;
-    font-family: 'Times New Roman', Times, serif;
+    margin: 1.5rem 0 0;
+    max-width: 54ch;
+    color: var(--qm-muted);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    line-height: 1.7;
 }
 
+/* Bouton d'appel à l'action du bandeau. */
 .cta-button {
-    border-radius: 14px;
-    background-color: #191a23;
-    align-self: flex-start;
-    margin-top: 35px;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 2rem;
+    padding: .9rem 1.9rem;
+    border: none;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-ink);
     color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
     text-align: center;
     line-height: 1.4;
-    padding: 20px 35px;
-    border: none;
     cursor: pointer;
+    box-shadow: var(--qm-shadow-sm);
+    transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.cta-button:hover {
+    background-color: var(--qm-primary);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: var(--qm-shadow-md);
 }
 
 .hero-image {
+    flex: 1 1 340px;
+    max-width: 560px;
+    height: auto;
     object-fit: contain;
     object-position: center;
-    width: 600px;
-    min-width: 240px;
 }
 
-@media (max-width: 991px) {
-    .hero-section {
-        padding: 0 20px;
-    }
-
+@media (max-width: 991.98px) {
     .hero-content {
-        max-width: 100%;
-    }
-
-    .hero-title {
-        font-size: 40px;
-    }
-
-    .hero-description,
-    .cta-button {
         max-width: 100%;
     }
 
     .hero-image {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .cta-button {
+        width: 100%;
+        justify-content: center;
     }
 }

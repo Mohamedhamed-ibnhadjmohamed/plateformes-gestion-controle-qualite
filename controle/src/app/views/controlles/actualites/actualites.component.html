@@ -1,0 +1,35 @@
+<section class="qm-section" id="actualites">
+    <div class="qm-section__inner">
+        <header class="qm-section-head">
+            <h2 class="qm-section-title">
+                <span>Actualités</span>
+            </h2>
+            <p class="qm-section-text">
+                Conseils, méthodes et nouveautés pour tirer le meilleur du contrôle qualité.
+            </p>
+        </header>
+
+        <div class="articles-grid">
+            <article class="article-card" *ngFor="let article of articles">
+                <div class="article-entete">
+                    <span class="article-icone">
+                        <i [class]="article.icone" aria-hidden="true"></i>
+                    </span>
+                    <span class="article-categorie">{{ article.categorie }}</span>
+                </div>
+                <h3 class="article-titre">{{ article.titre }}</h3>
+                <p class="article-extrait">{{ article.extrait }}</p>
+                <div class="article-pied">
+                    <span class="article-meta">
+                        <i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ article.date }}
+                        <span class="article-sep">•</span>
+                        <i class="fa-regular fa-clock" aria-hidden="true"></i> {{ article.lecture }}
+                    </span>
+                    <a class="article-lien" [routerLink]="article.lien">
+                        Lire la suite <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>

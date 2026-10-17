@@ -1,4 +1,242 @@
-.nav{
-  margin-left: -50px;
-  position: fixed;
+/* ============================================================
+   Barre supérieure de l'administration.
+   Bouton de menu, titre de page, liens rapides, menu utilisateur.
+   ============================================================ */
+
+.admin-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 68px;
+    padding: .5rem 1.5rem;
+    background: var(--qm-surface);
+    border-bottom: 1px solid var(--qm-border);
+    box-shadow: var(--qm-shadow-sm);
+}
+
+/* ---------- Bouton de menu ---------- */
+.admin-navbar__menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-sm);
+    background: var(--qm-surface);
+    color: var(--qm-ink);
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.admin-navbar__menu:hover,
+.admin-navbar__menu:focus-visible {
+    background: var(--qm-primary-soft);
+    border-color: var(--qm-primary);
+    color: var(--qm-primary);
+}
+
+.admin-navbar__menu:focus-visible {
+    outline: 3px solid rgba(40, 100, 220, .35);
+    outline-offset: 1px;
+}
+
+/* ---------- Titre de page ---------- */
+.admin-navbar__titre {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-navbar__eyebrow {
+    color: var(--qm-muted);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-navbar__page {
+    overflow: hidden;
+    color: var(--qm-ink);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- Liens rapides ---------- */
+.admin-navbar__liens {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin-left: auto;
+}
+
+.admin-navbar__lien {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .5rem .8rem;
+    border-radius: var(--qm-radius-sm);
+    color: var(--qm-ink);
+    font-size: .92rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.admin-navbar__lien:hover,
+.admin-navbar__lien:focus {
+    background: var(--qm-primary-soft);
+    color: var(--qm-primary);
+}
+
+/* ---------- Menu utilisateur ---------- */
+.admin-navbar__utilisateur {
+    flex: none;
+}
+
+.admin-navbar__profil {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .35rem .6rem .35rem .35rem;
+    border: 1px solid var(--qm-border);
+    border-radius: 999px;
+    color: var(--qm-ink);
+    text-decoration: none;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+.admin-navbar__profil:hover,
+.admin-navbar__profil:focus {
+    background: var(--qm-primary-soft);
+    border-color: var(--qm-primary);
+}
+
+.admin-navbar__profil::after {
+    margin-left: .1rem;
+}
+
+.admin-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--qm-primary);
+    color: #fff;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.admin-profil {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.admin-profil__nom {
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.admin-profil__role {
+    color: var(--qm-muted);
+    font-size: .72rem;
+}
+
+.admin-navbar .dropdown-menu {
+    min-width: 220px;
+    padding: .35rem;
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-sm);
+    box-shadow: var(--qm-shadow-md);
+}
+
+.admin-navbar .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem .65rem;
+    border-radius: 6px;
+    color: var(--qm-ink);
+    font-size: .92rem;
+}
+
+.admin-navbar .dropdown-item i {
+    width: 1rem;
+    text-align: center;
+    color: var(--qm-muted);
+}
+
+.admin-navbar .dropdown-item:hover,
+.admin-navbar .dropdown-item:focus {
+    background: var(--qm-primary-soft);
+    color: var(--qm-primary);
+}
+
+.admin-navbar .dropdown-item:hover i,
+.admin-navbar .dropdown-item:focus i {
+    color: var(--qm-primary);
+}
+
+.admin-navbar__deconnexion {
+    width: 100%;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-menu-entete {
+    display: flex;
+    flex-direction: column;
+    padding: .5rem .65rem;
+}
+
+.admin-menu-entete__nom {
+    color: var(--qm-ink);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.admin-menu-entete__email {
+    overflow: hidden;
+    color: var(--qm-muted);
+    font-size: .78rem;
+    text-overflow: ellipsis;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991.98px) {
+    .admin-navbar {
+        gap: .6rem;
+        padding: .5rem .75rem;
+    }
+
+    .admin-navbar__liens {
+        display: none;
+    }
+
+    .admin-profil__role {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .admin-profil {
+        display: none;
+    }
 }

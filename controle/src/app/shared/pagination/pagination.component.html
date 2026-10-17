@@ -1,0 +1,31 @@
+<nav class="qm-pagination" *ngIf="total > 0" aria-label="Pagination des résultats">
+  <p class="qm-pagination-info">
+    <strong>{{ debut }}</strong>–<strong>{{ fin }}</strong> sur <strong>{{ total }}</strong>
+  </p>
+
+  <ul class="qm-pagination-liste">
+    <li>
+      <button type="button" class="qm-page" aria-label="Page précédente" [disabled]="page <= 1"
+        (click)="precedente()">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+    </li>
+
+    <li *ngFor="let p of pages">
+      <button type="button" class="qm-page" *ngIf="p !== '…'; else ellipsis" [class.actif]="p === page"
+        [attr.aria-current]="p === page ? 'page' : null" (click)="aller(p)">
+        {{ p }}
+      </button>
+      <ng-template #ellipsis>
+        <span class="qm-page qm-page--ellipse">…</span>
+      </ng-template>
+    </li>
+
+    <li>
+      <button type="button" class="qm-page" aria-label="Page suivante" [disabled]="page >= totalPages"
+        (click)="suivante()">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </li>
+  </ul>
+</nav>

@@ -1,9 +1,9 @@
 <header class="case-studies-header">
   <h1 class="title">
-    <span class="highlight">Controle Fin de chaîne</span>
+    <span class="highlight">Contrôle fin de chaîne</span>
   </h1>
   <p class="description">
-    Le Controle fin de chaîne implique une vérification complète des produits finis en utilisant l'AQL
+    Le Contrôle fin de chaîne implique une vérification complète des produits finis en utilisant l'AQL
     (Acceptable Quality Limit) pour s'assurer que seuls les produits conformes sont livrés. Elle permet d'identifier les
     produits non conformes avant la livraison, évitant ainsi la non-conformité auprès des clients. </p>
 </header>
@@ -15,7 +15,7 @@
 
     <header class="case-studies-header">
       <h1 class="title">
-        <span class="highlight">choisir le produit à contrôler </span>
+        <span class="highlight">Choisir le produit à contrôler </span>
       </h1>
     </header>
 
@@ -41,7 +41,7 @@
 <div class="container-fluat m-5" [ngClass]="{'d-none': !produitVisible}">
   <h3 class="mb-0  ">
     <h1 class="title">
-      <span class="highlight"><i class="fas fa-box"></i> Produits à Contrôler avec niveau de qualité acceptable (AQL
+      <span class="highlight"><i class="fas fa-box"></i> Produits à contrôler avec niveau de qualité acceptable (AQL
         )</span>
     </h1>
   </h3>
@@ -98,7 +98,7 @@
   <div class=" card-body">
     <header class="case-studies-header">
       <h1 class="title">
-        <span class="highlight">Ajouter defaut </span>
+        <span class="highlight">Ajouter défaut </span>
       </h1>
       <p class="description">
         Utilisez ce formulaire pour saisir les défauts que vous avez détectés dans le produit et les comparer aux
@@ -119,7 +119,7 @@
 <div class="container-fluat m-5 p-4  bg-body-tertiary Inspectation" [ngClass]="{'d-none': !DefaultVisible}">
   <header class="case-studies-header">
     <h1 class="title">
-      <span class="highlight">observation </span>
+      <span class="highlight">Observation</span>
     </h1>
     <p class="description">
       Merci de bien vouloir compléter le formulaire ci-dessous afin de finaliser le processus de contrôle. Votre
@@ -136,7 +136,7 @@
       <input type="text" class="form-control" id="observation" name="observation" formControlName="observations">
       <div *ngIf="observations?.invalid && (observations?.dirty || observations?.touched)">
         <div *ngIf="observations?.errors?.['required']" class="text-danger">
-          Veuillez saisir une Observation valide !
+          Veuillez saisir une observation valide.
         </div>
       </div>
     </div>
@@ -146,28 +146,28 @@
         <input type="text" class="form-control" id="designation" name="designation" formControlName="designation">
         <div *ngIf="designation?.invalid && (designation?.dirty || designation?.touched)">
           <div *ngIf="designation?.errors?.['required']" class="text-danger">
-            Veuillez saisir une Description valide !
+            Veuillez saisir une description valide.
           </div>
         </div>
       </div>
       <div class="col-md-6 mb-3">
         <label for="evaluation" class="form-label">Évaluation</label>
         <select class="form-select" id="evaluation" name="evaluation" formControlName="resultat">
-          <option disabled>choisir une evaluation</option>
+          <option disabled>Choisir une évaluation</option>
           <option value="passable">Passable</option>
           <option value="acceptable">Acceptable</option>
           <option value="refusee">Refusée</option>
         </select>
         @if (resultat?.invalid && (resultat?.dirty || resultat?.touched)) {
         @if(resultat?.errors?.['required']){
-        <span class="text-danger">Veuillez saisir une Évaluation valide !</span>
+        <span class="text-danger">Veuillez saisir une évaluation valide.</span>
         }
         }
       </div>
     </div>
 
 
-    <button type="reset" class="btn btn-danger m-3">Annuler</button>
+    <button type="reset" class="btn btn-secondary m-3" data-bs-dismiss="modal">Annuler</button>
     <button type="submit" class="btn btn-success text-dark " [disabled]="!inspectionForm.valid">Enregistrer</button>
   </form>
 

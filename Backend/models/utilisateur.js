@@ -1,27 +1,8 @@
 'use strict';
-const fs = require('fs');
-const bcrypt = require('bcryptjs');
 
+const bcrypt = require('bcrypt');
 
-// Assurez-vous d'importer correctement le module MySQL
-const mysql = require('mysql');
-
-// Assurez-vous que dbConn est initialisé avec une connexion MySQL valide
-const dbConn = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'pfe'
-});
-
-// Connectez-vous à la base de données
-dbConn.connect((err) => {
-  if (err) {
-    console.error('Erreur de connexion à la base de données : ' + err.stack);
-    return;
-  }
-  console.log('Connecté à la base de données MySQL.');
-});
+const { pool: dbConn } = require('../config/database');
 
 // Utilisateur object create
 var Utilisateur = function (utilisateur) {
@@ -29,17 +10,16 @@ var Utilisateur = function (utilisateur) {
     this.mot_de_passe = utilisateur.mot_de_passe;
     this.nom = utilisateur.nom;
     this.prenom = utilisateur.prenom;
-
+    this.role = utilisateur.role || 'user';
 };
 //ajouter un novel utilisateur
 Utilisateur.Ajouter = function (newUser, result) {
     dbConn.query("INSERT INTO utilisateur set ?", newUser, function (err, res) {
         if (err) {
-            console.log("error: ", err);
+            console.error("error: ", err);
             result(err, null);
         }
         else {
-            console.log(res.insertId);
             result(null, res.insertId);
         }
     });
@@ -47,7 +27,7 @@ Utilisateur.Ajouter = function (newUser, result) {
 Utilisateur.findByEmailAndPassword = function (email, mot_de_passe, result) {
     dbConn.query("SELECT * FROM utilisateur WHERE email = ? LIMIT 1", [email], async function (err, res) {
         if (err) {
-            console.log("error: ", err);
+            console.error("error: ", err);
             result(err, null);
         } else {
             if (res.length > 0) {
@@ -68,9 +48,9 @@ Utilisateur.findByEmailAndPassword = function (email, mot_de_passe, result) {
 
 //
 Utilisateur.findById = function (id, result) {
-    dbConn.query("SELECT * FROM utilisateur WHERE id_utilisateur = ?", [id], function (err, res) {
+    dbConn.query("SELECT id_utilisateur, email, nom, prenom, role FROM utilisateur WHERE id_utilisateur = ?", [id], function (err, res) {
         if (err) {
-            console.log("error: ", err);
+            console.error("error: ", err);
             result(err, null);
         }
         else {
@@ -84,22 +64,24 @@ Utilisateur.findById = function (id, result) {
 
 
 Utilisateur.findAll = function (result) {
-    dbConn.query("Select * from utilisateur ", function (err, res) {
+    dbConn.query("SELECT id_utilisateur, email, nom, prenom, role FROM utilisateur ", function (err, res) {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.error("error: ", err);
+            result(err, null);
         }
         else {
-            console.log('utilisateurs : ', res);
             result(null, res);
         }
     });
 };
 Utilisateur.update = function (id, utilisateur, result) {
-    dbConn.query("UPDATE utilisateur SET email=?,mot_de_passe=?,nom=?,prenom=? WHERE id_utilisateur = ?", [utilisateur.email, utilisateur.mot_de_passe, utilisateur.nom, utilisateur.prenom, id], function (err, res) {
+    dbConn.query(
+        "UPDATE utilisateur SET email=?, mot_de_passe=COALESCE(?, mot_de_passe), nom=?, prenom=? WHERE id_utilisateur = ?",
+        [utilisateur.email, utilisateur.mot_de_passe ?? null, utilisateur.nom, utilisateur.prenom, id],
+        function (err, res) {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.error("error: ", err);
+            result(err, null);
         } else {
             result(null, res);
         }
@@ -108,8 +90,8 @@ Utilisateur.update = function (id, utilisateur, result) {
 Utilisateur.delete = function (id, result) {
     dbConn.query("DELETE FROM utilisateur WHERE id_utilisateur = ?", [id], function (err, res) {
         if (err) {
-            console.log("error: ", err);
-            result(null, err);
+            console.error("error: ", err);
+            result(err, null);
         }
         else {
             result(null, res);
@@ -118,12 +100,26 @@ Utilisateur.delete = function (id, result) {
 };
 
 Utilisateur.recherche = function (rech, result) {
-    const query = "SELECT * FROM utilisateur WHERE email LIKE ?";
+    const query = "SELECT id_utilisateur, email, nom, prenom, role FROM utilisateur WHERE email LIKE ?";
     const formattedrecherche = `%${rech}%`;
 
     dbConn.query(query, [formattedrecherche], function (err, res) {
         if (err) {
-            console.log("error: ", err);
+            console.error("error: ", err);
+            result(err, null);
+        } else {
+            result(null, res);
+        }
+    });
+};
+
+Utilisateur.findByName = function (nom, result) {
+    const query = "SELECT id_utilisateur, email, nom, prenom, role FROM utilisateur WHERE nom LIKE ?";
+    const formattedNom = `%${nom}%`;
+
+    dbConn.query(query, [formattedNom], function (err, res) {
+        if (err) {
+            console.error("error: ", err);
             result(err, null);
         } else {
             result(null, res);

@@ -1,20 +1,6 @@
 'use strict';
-const mysql = require('mysql');
 
-const dbConn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'pfe'
-});
-
-dbConn.connect((err) => {
-    if (err) {
-        console.error('Erreur de connexion à la base de données : ' + err.stack);
-        return;
-    }
-    console.log('Connecté à la base de données MySQL.');
-});
+const { pool: dbConn } = require('../config/database');
 
 var Defaults = function (defaults) {
     this.description = defaults.description;
@@ -55,7 +41,7 @@ Defaults.findAll = function (result) {
     dbConn.query("SELECT * FROM defaults", function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             console.log('Defaults : ', res);
@@ -69,7 +55,7 @@ Defaults.update = function (id, defaults, result) {
         [defaults.description, defaults.image, defaults.nombre, defaults.id_famille, defaults.id_inspection, defaults.type, defaults.id_employee, id], function (err, res) {
             if (err) {
                 console.log("error: ", err);
-                result(null, err);
+                result(err, null);
             } else {
                 result(null, res);
             }
@@ -80,7 +66,7 @@ Defaults.delete = function (id, result) {
     dbConn.query("DELETE FROM defaults WHERE id_defaults = ?", [id], function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         }
         else {
             result(null, res);
@@ -110,7 +96,7 @@ Defaults.updateIdInspection = function (result) {
     dbConn.query(query, function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             result(null, res);
         }
@@ -121,7 +107,7 @@ Defaults.deleteInspection = function (result) {
     dbConn.query("DELETE FROM defaults WHERE id_inspection = 1", function (err, res) {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
         } else {
             result(null, res);
         }

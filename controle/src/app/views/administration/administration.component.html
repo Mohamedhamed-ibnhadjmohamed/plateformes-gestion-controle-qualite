@@ -1,22 +1,13 @@
-<div class="container-fluid">
-  <div class="row ml-0" >
-    <div class="col-2 col1">
-      <app-sidebarr-admin></app-sidebarr-admin>
-    </div>
-    <div class="col-10">
-      <div class="row">
-        <div class="col">
-          <app-navbar-admin></app-navbar-admin>
-        </div>
-      </div>
-      <div class="row aaa ">
-        <div class="col">
-          <router-outlet></router-outlet>
-        </div>
-      </div>
-    </div>
-    
-  </div>
+<div class="admin-shell" [class.admin-shell--reduit]="reduit$ | async"
+    [class.admin-shell--menu-ouvert]="mobileOuvert$ | async">
+    <app-sidebarr-admin></app-sidebarr-admin>
 
+    <div class="admin-shell__backdrop" (click)="fermerMenu()" aria-hidden="true"></div>
+
+    <div class="admin-principal">
+        <app-navbar-admin></app-navbar-admin>
+        <main class="admin-contenu">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
 </div>
-

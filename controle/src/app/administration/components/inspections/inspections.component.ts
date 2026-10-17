@@ -2,19 +2,24 @@ import { Component } from "@angular/core";
 import { Inspection } from "../../../models/Inspection";
 import { Produit } from "../../../models/Produit";
 import { Utilisateur } from "../../../models/Utilisateur";
+import { InspectionsResponse } from '../../../models/api';
 import { InspectionsService } from "../../../services/inspections.service";
 import { ProduitsService } from "../../../services/produits.service";
 import { UtilisateursService } from "../../../services/utilisateurs.service";
-import { Toast, ToastrService } from "ngx-toastr";
+import { ToastrService } from "ngx-toastr";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DestroyRef, OnInit, inject } from '@angular/core';
 
 
 @Component({
-  selector: 'app-inspections',
-  templateUrl: './inspections.component.html',
-  styleUrl: '../../shared/styles/style.css',
+    selector: 'app-inspections',
+    templateUrl: './inspections.component.html',
+    styleUrl: '../../shared/styles/style.css',
+    standalone: false
 })
-export class InspectionsComponent {
+export class InspectionsComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   name: string = 'Inspection';
   inspection: Inspection = new Inspection();
 
@@ -40,46 +45,51 @@ export class InspectionsComponent {
     this.getAllProduits();
   }
   getAllinspection(): void {
-    this.inspectionservice.getAllinspection().subscribe(
+    this.inspectionservice.getAllinspection().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response.inspections && Array.isArray(response.inspections)) {
           // Vérifier si la réponse contient la clé 'aqls' et si elle est un tableau
           this.Inspections = response.inspections;
+          this.page = 1;
+          this.toastr.success('Inspections récupérées avec succès.');
         } else {
           console.error(
             "La réponse du service ne contient pas de tableau 'inspection' valide :",
             response
           );
+          this.toastr.error('Données invalides reçues du service.');
           // Traiter les cas d'erreur appropriés ici
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des inspections.');
         // Traiter les erreurs de requête ici
       }
     );
   }
 
   getAllUtilisateurs(): void {
-    this.utilisateurservice.getAllUtilisateurs().subscribe(
+    this.utilisateurservice.getAllUtilisateurs().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.utilisateurs && Array.isArray(response.utilisateurs)) {
           this.utilisateurs = response.utilisateurs;
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         // Traiter les erreurs de requête ici
       }
     );
   }
 
   getAllProduits(): void {
-    this.produitservice.getAllProduits().subscribe(
+    this.produitservice.getAllProduits().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.produits && Array.isArray(response.produits)) {
           this.produits = response.produits;
-          console.log('Produits:', this.produits);
         } else {
           console.error(
             "La réponse du service ne contient pas de tableau 'produits' valide :",
@@ -89,7 +99,7 @@ export class InspectionsComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         // Traiter les erreurs de requête ici
       }
     );
@@ -142,35 +152,48 @@ export class InspectionsComponent {
   }
 
   ajout(): void {
+    if (this.inspectionForm.invalid) {
+      this.toastr.error(
+        'Veuillez remplir correctement le formulaire.',
+        'Erreur de validation'
+      );
+      return;
+    }
 
-    // Appeler la méthode createAql du service pour ajouter le nouvel AQL
-    this.inspectionservice.createinspection(this.inspectionForm.value).subscribe(
-      (response: any) => {
-        // Si la création réussit, ajouter la réponse à la liste des AQL
-        this.Inspections.push(response);
-        this.toastr.success('Ajouter inspection avec success');
+    // Appeler la méthode createinspection du service pour ajouter la nouvelle inspection
+    this.inspectionservice.createinspection(this.inspectionForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      () => {
+        this.toastr.success('Inspection ajoutée avec succès.');
+        this.resetForm();
         this.reloadData();
       },
       (error: any) => {
         // En cas d'erreur, afficher un message d'erreur dans la console
-        console.error("Erreur lors de l'ajout d inspection :", error);
-        this.toastr.error("Erreur lors de l'ajout d inspection :");
+        console.error("Erreur lors de l'ajout de l'inspection.", error);
+        this.toastr.error("Erreur lors de l'ajout de l'inspection.");
       }
     );
   }
 
   modifier() {
+    if (this.inspectionForm.invalid || this.inspection.id_inspection === undefined) {
+      this.toastr.error(
+        'Veuillez vérifier le formulaire avant de valider.',
+        'Erreur de validation'
+      );
+      return;
+    }
+
     this.inspectionservice
       .updateinspection(this.inspection.id_inspection, this.inspectionForm.value)
-      .subscribe(
-        (response: any) => {
-          console.log("L'élément a été mis à jour avec succès :", response);
-          this.toastr.success('Mise à jour inspection avec success');
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+        () => {
+          this.toastr.success('Inspection mise à jour avec succès.');
           this.reloadData();
         },
         (error: any) => {
           console.error("Erreur lors de la mise à jour de l'élément :", error);
-          this.toastr.error("Erreur lors de la mise à jour de l'inspection :");
+          this.toastr.error("Erreur lors de la mise à jour de l'inspection.");
           // Traiter les erreurs de mise à jour ici
         }
       );
@@ -178,20 +201,47 @@ export class InspectionsComponent {
   confirmer(inspection: Inspection) {
     this.inspection = inspection;
   }
+
+  /** Sélectionne l'inspection et pré-remplit le formulaire de modification. */
+  ouvrirModifier(inspection: Inspection): void {
+    this.inspection = inspection;
+    this.inspectionForm.patchValue({
+      date: this.versDateInput(inspection.date),
+      observations: inspection.observations ?? '',
+      type_categorie: inspection.type_categorie ?? '',
+      designation: inspection.designation ?? '',
+      id_produit: inspection.id_produit != null ? String(inspection.id_produit) : null,
+      id_utilisateur: inspection.id_utilisateur != null ? String(inspection.id_utilisateur) : null,
+      resultat: inspection.resultat ?? '',
+    } as any);
+  }
+
+  /** Convertit une date (Date ou chaîne) au format attendu par `<input type="date">`. */
+  private versDateInput(value: Date | string | undefined | null): string {
+    if (!value) {
+      return '';
+    }
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) {
+      return '';
+    }
+    const mois = String(d.getMonth() + 1).padStart(2, '0');
+    const jour = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mois}-${jour}`;
+  }
   supprimer(inspection: Inspection): void {
-    this.inspectionservice.deleteinspection(inspection.id_inspection).subscribe(
+    this.inspectionservice.deleteinspection(inspection.id_inspection).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         // Supprimer l'élément de la liste aqls une fois qu'il a été supprimé avec succès
         this.Inspections = this.Inspections.filter(
           (item) => item.id_inspection !== inspection.id_inspection
         );
-        console.log("L'élément a été supprimé avec succès :", response);
-        this.toastr.success('Suppression inspection avec success');
+        this.toastr.success('Inspection supprimée avec succès.');
         this.reloadData();
       },
       (error: any) => {
-        console.error("Erreur lors de la suppression de l'élément :", error);
-        this.toastr.error("Erreur lors de la suppression de l'inspection :");
+        console.error("Erreur lors de la suppression de l'utilisateur.", error);
+        this.toastr.error("Erreur lors de la suppression de l'inspection.");
         // Traiter les erreurs de suppression ici
       }
     );
@@ -199,6 +249,20 @@ export class InspectionsComponent {
 
   isLoading = false;
   message: string = '';
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get inspectionsPage(): Inspection[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.Inspections.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   searchForm = new FormGroup({
     rech: new FormControl('', Validators.required),
@@ -220,20 +284,21 @@ export class InspectionsComponent {
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.inspectionservice.rechercher(searchValue.trim()).subscribe(
-      (response: { Inspections: any[] }) => {
+    this.inspectionservice.rechercher(searchValue.trim()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: InspectionsResponse) => {
         this.isLoading = false; // Fin du chargement
 
         if (
           response &&
-          response.Inspections &&
-          response.Inspections.length > 0
+          response.inspections &&
+          response.inspections.length > 0
         ) {
-          this.Inspections = response.Inspections;
-          this.toastr.success('Inspections trouvés avec succès!');
+          this.Inspections = response.inspections;
+          this.page = 1;
+          this.toastr.success('Inspections trouvées avec succès !');
         } else {
           this.Inspections = [];
-          this.message = 'Aucun order trouvé pour ce libellé.';
+          this.message = 'Aucune inspection trouvée pour ce libellé.';
           this.toastr.info(this.message);
         }
       },

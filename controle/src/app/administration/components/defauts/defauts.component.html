@@ -9,9 +9,9 @@
                     <div class="col-sm-6 d-flex justify-content-end align-items-center">
                         <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Rechercher  par description "
+                                <input type="text" class="form-control" placeholder="Rechercher par description"
                                     formControlName="rech">
-                                <button class="btn btn-primary btn-lg" type="submit">
+                                <button class="btn btn-primary px-4" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -24,18 +24,23 @@
                 </div>
             </div>
 
+            <!-- Chargement initial des données -->
+            <div *ngIf="chargement" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Chargement des données...
+            </div>
+
             <!-- Indicateur de chargement -->
             <div *ngIf="isLoading" class="loading-indicator text-center my-3">
                 <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
             </div>
 
-            <!-- Affichage des produits ou du message -->
-            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+            <!-- Affichage des défauts ou du message -->
+            <div *ngIf="!chargement && !isLoading && message" class="alert alert-info text-center">
                 {{ message }}
             </div>
 
 
-            <div *ngIf="defaults && defaults.length > 0; else noData" class="table-responsive">
+            <div *ngIf="!chargement && defaults && defaults.length > 0; else noData" class="table-responsive">
                 <table class="table table-striped ">
                 <thead class="table-dark">
                         <tr>
@@ -47,25 +52,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let default of defaults">
-                            <td>{{ default.id_defaults }}</td>
-                            <td>{{ default.description}}</td>
+                        <tr *ngFor="let default of defaultsPage">
+                            <td data-label="ID défaut">{{ default.id_defaults }}</td>
+                            <td data-label="Description">{{ default.description}}</td>
 
-                            <td>
+                            <td data-label="Image">
                                 <img *ngIf="default.image"
-                                    [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
-                                    alt="img">
+                                    [src]="uploadUrl + extraireNomFichier(default.image)"
+                                    alt="Image du défaut" width="80" height="60" loading="lazy" decoding="async"
+                                    class="img-apercu">
                             </td>
 
-                            <td>{{ default.id_famille}}</td>
-                            <td>
+                            <td data-label="ID famille">{{ default.id_famille}}</td>
+                            <td data-label="Options" class="actions">
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#ConsulterModal" (click)="confirmer(default)">
                                         <i class="fas fa-eye"></i> Consulter
                                     </button>
                                     <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                        data-bs-target="#ModifierModal" (click)="confirmer(this.default)">
+                                        data-bs-target="#ModifierModal" (click)="ouvrirModifier(default)">
                                         <i class="fas fa-edit"></i> Modifier
                                     </button>
                                     <button type="button" class="btn btn-danger" data-bs-toggle="modal"
@@ -83,9 +89,12 @@
             <p>Aucun élément à afficher</p>
         </ng-template>
 
+        <app-pagination *ngIf="!chargement && defaults.length > 0" [page]="page" [pageSize]="pageSize"
+            [total]="defaults.length" (pageChange)="changerPage($event)"></app-pagination>
+
         <!-- Message en cas d'absence de résultats ou d'erreur -->
-        <div *ngIf="!isLoading && defaults.length === 0 && !message" class="alert alert-warning text-center">
-            Aucun Defaut trouvé.
+        <div *ngIf="!chargement && !isLoading && defaults.length === 0 && !message" class="alert alert-warning text-center">
+            Aucun défaut trouvé.
         </div>
     </div>
 </div>
@@ -93,14 +102,14 @@
 
 
 <!-- Modal Consulter -->
-<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label" aria-hidden="true">
+<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf=default!null>
+            <div class="modal-body" *ngIf="default">
                 <div class="container mt-5">
                     <div class="row">
                         <div class="col">
@@ -109,15 +118,15 @@
                                     <h5 class="card-title"> {{name}} </h5>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                    <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults}}
                                     </p>
                                     <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
                                     <p class="card-text"><strong>Image:</strong>
                                         <br>
                                         <img *ngIf="default.image"
                                             style="width: 400px !important; height: 200px !important"
-                                            [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
-                                            alt="img">
+                                            [src]="uploadUrl + extraireNomFichier(default.image)"
+                                            alt="Image du défaut" loading="lazy" decoding="async">
                                     </p>
                                     <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>
                                     <p class="card-text"><strong>ID inspection:</strong> {{ default.id_inspection }}</p>
@@ -148,85 +157,92 @@
             <div class="modal-body">
 
                 <form [formGroup]="defaultForm" (ngSubmit)="ajoutDefault()">
-                    <div class="form-group">
-                        <label for="description">Description :</label>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Description :</label>
                         <input type="text" class="form-control" id="description" formControlName="description"
-                            placeholder="Description">
-                        <div *ngIf="description?.invalid && description?.touched" class="text-danger">
+                            placeholder="Description" [class.is-invalid]="description?.invalid && (description?.dirty || description?.touched)">
+                        <div *ngIf="description?.invalid && description?.touched" class="invalid-feedback d-block">
                             <small *ngIf="description?.errors?.['required']">La description est requise.</small>
-                            <small *ngIf="description?.errors?.['maxLength']">La description ne peut pas dépasser 255
+                            <small *ngIf="description?.errors?.['maxlength']">La description ne peut pas dépasser 255
                                 caractères.</small>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="image">Image :</label>
-                        <input type="file" class="form-control" id="image" formControlName="image">
-
+                    <div class="mb-3">
+                        <label class="form-label" for="imageAjout">Image :</label>
+                        <input type="file" class="form-control" id="imageAjout" accept="image/*"
+                            #imageAjoutInput (change)="onFileSelected($event)">
+                        <div class="form-text" *ngIf="nomFichierSelectionne">
+                            {{ nomFichierSelectionne }}
+                            <button type="button" class="btn btn-link btn-sm p-0 align-baseline ms-1"
+                                (click)="effacerImage(imageAjoutInput)">Retirer</button>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_famille">ID famille :</label>
-                        <select class="form-control" id="id_famille" formControlName="id_famille">
+                    <div class="mb-3">
+                        <label class="form-label" for="id_famille">ID famille :</label>
+                        <select class="form-select" id="id_famille" formControlName="id_famille" [class.is-invalid]="id_famille?.invalid && (id_famille?.dirty || id_famille?.touched)">
                             <option *ngFor="let familledefault of familledefaults" [value]="familledefault.id_famille">
                                 {{familledefault.nom}}
                             </option>
                         </select>
-                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="text-danger">
+                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="invalid-feedback d-block">
                             <small *ngIf="id_famille?.errors?.['required']">L'ID famille est requis.</small>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_inspection">ID inspection :</label>
-                        <select class="form-control" id="id_inspection" formControlName="id_inspection">
+                    <div class="mb-3">
+                        <label class="form-label" for="id_inspection">ID inspection :</label>
+                        <select class="form-select" id="id_inspection" formControlName="id_inspection" [class.is-invalid]="id_inspection?.invalid && (id_inspection?.dirty || id_inspection?.touched)">
                             <option *ngFor="let inspection of Inspections" [value]="inspection.id_inspection">
                                 {{inspection.designation}}
                             </option>
                         </select>
-                        <div *ngIf="id_inspection?.invalid && id_inspection?.touched" class="text-danger">
+                        <div *ngIf="id_inspection?.invalid && id_inspection?.touched" class="invalid-feedback d-block">
                             <small *ngIf="id_inspection?.errors?.['required']">L'ID inspection est requis.</small>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="nombre">Nombre :</label>
-                        <input type="number" class="form-control" id="nombre" formControlName="nombre">
-                        <div *ngIf="nombre?.invalid && nombre?.touched" class="text-danger">
+                    <div class="mb-3">
+                        <label class="form-label" for="nombre">Nombre :</label>
+                        <input type="number" class="form-control" id="nombre" formControlName="nombre" [class.is-invalid]="nombre?.invalid && (nombre?.dirty || nombre?.touched)">
+                        <div *ngIf="nombre?.invalid && nombre?.touched" class="invalid-feedback d-block">
                             <small *ngIf="nombre?.errors?.['required']">Le nombre est requis.</small>
                             <small *ngIf="nombre?.errors?.['min']">Le nombre doit être supérieur ou égal à 1.</small>
                             <small *ngIf="nombre?.errors?.['max']">Le nombre ne peut pas dépasser 100.</small>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="Type">Type :</label>
-                        <select class="form-control" id="Type" formControlName="type">
+                    <div class="mb-3">
+                        <label class="form-label" for="Type">Type :</label>
+                        <select class="form-select" id="Type" formControlName="type" [class.is-invalid]="type?.invalid && (type?.dirty || type?.touched)">
                             <option value="mineur">Mineur</option>
                             <option value="majeur">Majeur</option>
                             <option value="critique">Critique</option>
                         </select>
-                        <div *ngIf="type?.invalid && type?.touched" class="text-danger">
+                        <div *ngIf="type?.invalid && type?.touched" class="invalid-feedback d-block">
                             <small *ngIf="type?.errors?.['required']">Le type est requis.</small>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_employe">ID employee :</label>
-                        <select class="form-control" id="id_employe" formControlName="id_employee">
+                    <div class="mb-3">
+                        <label class="form-label" for="id_employe">ID employee :</label>
+                        <select class="form-select" id="id_employe" formControlName="id_employee" [class.is-invalid]="id_employee?.invalid && (id_employee?.dirty || id_employee?.touched)">
                             <option *ngFor="let employee of employees" [value]="employee.id_employee">
                                 {{employee.nom}} {{employee.prenom}}
 
                             </option>
                         </select>
-                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="text-danger">
-                            <small *ngIf="id_employee?.errors?.[required]">L'ID employé est requis.</small>
+                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="invalid-feedback d-block">
+                            <small *ngIf="id_employee?.errors?.['required']">L'ID employé est requis.</small>
                         </div>
                     </div>
 
-                    <button type="reset" class="btn btn-danger" (click)="resetForm()">Annuler</button>
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
-                        [disabled]="!defaultForm.valid">Ajouter</button>
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" (click)="resetForm()" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal"
+                            [disabled]="!defaultForm.valid">Ajouter</button>
+                    </div>
                 </form>
 
 
@@ -248,70 +264,77 @@
                 <h1 class="modal-title fs-5" id="ModifierModalLabel">Modifier {{name}} </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" *ngIf="default!null">
+            <div class="modal-body" *ngIf="default">
                 <form [formGroup]="defaultForm" (ngSubmit)="modifierDefault()">
-                    <div class="form-group">
-                        <label for="qte_min">Description :</label>
+                    <div class="mb-3">
+                        <label class="form-label" for="qte_min">Description :</label>
                         <input type="text" class="form-control" id="descrption" formControlName="description"
-                            placeholder="Description" value="{{default.description}}">
-                        <div *ngIf="description?.invalid && description?.touched" class="text-danger">
+                            placeholder="Description" [class.is-invalid]="description?.invalid && (description?.dirty || description?.touched)">
+                        <div *ngIf="description?.invalid && description?.touched" class="invalid-feedback d-block">
                             <small *ngIf="description?.errors?.['required']">La description est requise.</small>
-                            <small *ngIf="description?.errors?.['maxLength']">La description ne peut pas dépasser 255
+                            <small *ngIf="description?.errors?.['maxlength']">La description ne peut pas dépasser 255
                                 caractères.</small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="qte_max">Image :</label>
-                        <input type="file" class="form-control" (change)="($event)" id="image" formControlName="image"
-                            value="{{default.image}}">
+                    <div class="mb-3">
+                        <label class="form-label" for="imageModif">Image :</label>
+                        <input type="file" class="form-control" id="imageModif" accept="image/*"
+                            #imageModifInput (change)="onFileSelected($event)">
+                        <div class="form-text" *ngIf="nomFichierSelectionne">
+                            {{ nomFichierSelectionne }}
+                            <button type="button" class="btn btn-link btn-sm p-0 align-baseline ms-1"
+                                (click)="effacerImage(imageModifInput)">Retirer</button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="id_famille">ID famille :</label>
-                        <select class="form-select" id="id_famille" formControlName="id_famille">
+                    <div class="mb-3">
+                        <label class="form-label" for="id_famille">ID famille :</label>
+                        <select class="form-select" id="id_famille" formControlName="id_famille" [class.is-invalid]="id_famille?.invalid && (id_famille?.dirty || id_famille?.touched)">
                             <option *ngFor="let familledefault of familledefaults" [value]="familledefault.id_famille">
                                 {{familledefault.id_famille}}</option>
                         </select>
-                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="text-danger">
+                        <div *ngIf="id_famille?.invalid && id_famille?.touched" class="invalid-feedback d-block">
                             <small *ngIf="id_famille?.errors?.['required']">L'ID famille est requis.</small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="qte_mineure">ID inspection :</label>
-                        <select class="form-select" id="id_inspection" formControlName="id_inspection">
+                    <div class="mb-3">
+                        <label class="form-label" for="qte_mineure">ID inspection :</label>
+                        <select class="form-select" id="id_inspection" formControlName="id_inspection" [class.is-invalid]="id_inspection?.invalid && (id_inspection?.dirty || id_inspection?.touched)">
                             <option *ngFor="let inspection of Inspections" [value]="inspection.id_inspection">
                                 {{inspection.id_inspection}}</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="qte_min">Nombre :</label>
-                        <input type="text" class="form-control" id="nombre" formControlName="nombre"
-                            value="{{default.nombre}}">
-                        <div *ngIf="nombre?.invalid && nombre?.touched" class="text-danger">
+                    <div class="mb-3">
+                        <label class="form-label" for="qte_min">Nombre :</label>
+                        <input type="number" class="form-control" id="nombre" formControlName="nombre" [class.is-invalid]="nombre?.invalid && (nombre?.dirty || nombre?.touched)">
+                        <div *ngIf="nombre?.invalid && nombre?.touched" class="invalid-feedback d-block">
                             <small *ngIf="nombre?.errors?.['required']">Le nombre est requis.</small>
                             <small *ngIf="nombre?.errors?.['min']">Le nombre doit être supérieur ou égal à 1.</small>
                             <small *ngIf="nombre?.errors?.['max']">Le nombre ne peut pas dépasser 100.</small>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="Type">Type :</label>
-                        <select class="form-select" id="Type" formControlName="type">
+                    <div class="mb-3">
+                        <label class="form-label" for="Type">Type :</label>
+                        <select class="form-select" id="Type" formControlName="type" [class.is-invalid]="type?.invalid && (type?.dirty || type?.touched)">
                             <option value="mineur">Mineur</option>
                             <option value="majeur">Majeur</option>
                             <option value="critique">Critique</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="qte_majeure">ID employee :</label>
-                        <select class="form-select" id="id_employe" formControlName="id_employee">
+                    <div class="mb-3">
+                        <label class="form-label" for="qte_majeure">ID employee :</label>
+                        <select class="form-select" id="id_employe" formControlName="id_employee" [class.is-invalid]="id_employee?.invalid && (id_employee?.dirty || id_employee?.touched)">
                             <option *ngFor="let employee of employees" [value]="employee.id_employee">
                                 {{employee.nom}}</option>
                         </select>
-                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="text-danger">
-                            <small *ngIf="id_employee?.errors?.[required]">L'ID employé est requis.</small>
+                        <div *ngIf="id_employee?.invalid && id_employee?.touched" class="invalid-feedback d-block">
+                            <small *ngIf="id_employee?.errors?.['required']">L'ID employé est requis.</small>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Modifier</button>
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal"
+                            [disabled]="!defaultForm.valid">Modifier</button>
+                    </div>
 
                 </form>
             </div>
@@ -321,12 +344,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog" *ngIf="default!null">
+    <div class="modal-dialog" *ngIf="default">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -337,14 +360,14 @@
                                 Êtes-vous sûr de vouloir supprimer l'élément "<strong>{{name}}</strong>" ?
                             </div>
                             <div class="card-body">
-                                <p class="card-text"><strong>Identifiant Deafult:</strong> {{ default.id_defaults}}
+                                <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults}}
                                 </p>
                                 <p class="card-text"><strong>Description:</strong> {{ default.description }}</p>
                                 <p class="card-text"><strong>Image:</strong>
                                     <br>
                                     <img *ngIf="default.image" style="width: 400px !important; height: 200px !important"
-                                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
-                                        alt="img">
+                                        [src]="uploadUrl + extraireNomFichier(default.image)"
+                                        alt="Image du défaut" loading="lazy" decoding="async">
                                 </p>
                                 <p class="card-text"><strong>ID famille:</strong> {{ default.id_famille }}</p>
                                 <p class="card-text"><strong>ID inspection:</strong> {{ default.id_inspection }}</p>
@@ -358,8 +381,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                    data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <button type="button" class="btn btn-danger" (click)="supprimer(default)" data-bs-dismiss="modal">
                     <i class="fas fa-trash-alt"></i> Supprimer
                 </button>

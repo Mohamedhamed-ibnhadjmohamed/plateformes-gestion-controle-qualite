@@ -1,18 +1,25 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { AllProduit } from '../models/AllProduit';
+import { Produit } from '../models/Produit';
+import {
+  MessageResponse,
+  ProduitsResponse,
+} from '../models/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProduitsService {
-  private baseUrl: string = 'http://127.0.0.1:3000/';
+  private baseUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  getAllProduits(): Observable<any[]> {
+  getAllProduits(): Observable<ProduitsResponse> {
     const url = this.baseUrl + 'produit/all';
-    return this.http.get<any[]>(url).pipe(
+    return this.http.get<ProduitsResponse>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la récupération des produit :",
@@ -23,9 +30,9 @@ export class ProduitsService {
     );
   }
 
-  getById(id: any): Observable<any> {
+  getById(id: any): Observable<Produit> {
     const url = `${this.baseUrl}produit/getid/${id}`;
-    return this.http.get<any>(url).pipe(
+    return this.http.get<Produit>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la récupération de produit :",
@@ -36,9 +43,9 @@ export class ProduitsService {
     );
   }
 
-  createProduit(data: any): Observable<any> {
+  createProduit(data: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}produit/add`;
-    return this.http.post<any>(url, data).pipe(
+    return this.http.post<MessageResponse>(url, data).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la création de produit :",
@@ -49,9 +56,9 @@ export class ProduitsService {
     );
   }
 
-  updateProduit(id: any, newData: any): Observable<any> {
+  updateProduit(id: any, newData: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}produit/update/${id}`;
-    return this.http.put<any>(url, newData).pipe(
+    return this.http.put<MessageResponse>(url, newData).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la mise à jour de l'employé :",
@@ -62,9 +69,9 @@ export class ProduitsService {
     );
   }
 
-  deleteProduit(id: any): Observable<any> {
+  deleteProduit(id: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}produit/delete/${id}`;
-    return this.http.delete<any>(url).pipe(
+    return this.http.delete<MessageResponse>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la suppression de l'employé :",
@@ -75,9 +82,9 @@ export class ProduitsService {
     );
   }
 
-  getAllById(id: any): Observable<any> {
+  getAllById(id: any): Observable<AllProduit[]> {
     const url = `${this.baseUrl}produit/getallid/${id}`;
-    return this.http.get<any>(url).pipe(
+    return this.http.get<AllProduit[]>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la récupération de produit :",
@@ -88,21 +95,17 @@ export class ProduitsService {
     );
   }
 
-  getByCode(code: number): Observable<any> {
+  getByCode(code: number): Observable<ProduitsResponse> {
     // Construction correcte de l'URL avec les backticks pour les templates strings
     const url = `${this.baseUrl}produit/getbycode/${code}`;
 
-    // Affichage de l'URL pour le débogage (peut être supprimé après vérification)
-
-
-    return this.http.get<any>(url).pipe(
+    return this.http.get<ProduitsResponse>(url).pipe(
       catchError((error) => {
-        // Affichage de l'URL pour le débogage en cas d'erreur (peut être supprimé après vérification)
         console.error(
           "Une erreur s'est produite lors de la récupération du produit :",
           error
         );
-      
+
         return throwError(
           () => new Error('Erreur lors de la récupération du produit.')
         );

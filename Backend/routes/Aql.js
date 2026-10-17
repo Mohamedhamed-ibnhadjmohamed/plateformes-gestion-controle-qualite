@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Aql = require('../models/Aql');
+const { requireRole } = require('../middleware/auth');
 
 // Ajouter un critère AQL
 router.post('/add', (req, res) => {
@@ -43,7 +44,7 @@ router.get('/all', (req, res) => {
 });
 
 // Mettre à jour un critère AQL
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const aqlId = req.params.id;
     const { nom, description, id_detail_aql, qte_min, qte_max, qte_critique, qte_mineure, qte_majeure } = req.body;
 
@@ -71,7 +72,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Supprimer un critère AQL
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', requireRole('admin'), (req, res) => {
     const aqlId = req.params.id;
 
     // Utiliser la méthode delete du modèle Aql pour supprimer le critère AQL de la base de données

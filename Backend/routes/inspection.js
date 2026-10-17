@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Inspection = require('../models/inspection');
+const { requireRole } = require('../middleware/auth');
 
 // Ajouter une inspection
 router.post('/add', (req, res) => {
@@ -45,7 +46,7 @@ router.get('/all', (req, res) => {
 });
 
 // Mettre à jour une inspection
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', requireRole('admin'), (req, res) => {
     const inspectionId = req.params.id;
     const {date, observations, type_categorie, designation, id_produit, id_utilisateur, resultat } = req.body;
 

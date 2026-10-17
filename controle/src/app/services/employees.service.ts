@@ -1,18 +1,20 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { EmployeesResponse, MessageResponse } from '../models/api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EmployeesService {
-  private baseUrl: string = 'http://127.0.0.1:3000/';
+  private baseUrl: string = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  getAllEmployees(): Observable<any[]> {
+  getAllEmployees(): Observable<EmployeesResponse> {
     const url = this.baseUrl + 'employee/all';
-    return this.http.get<any[]>(url).pipe(
+    return this.http.get<EmployeesResponse>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la récupération des employés :",
@@ -23,9 +25,9 @@ export class EmployeesService {
     );
   }
 
-  getById(id: any): Observable<any> {
+  getById(id: any): Observable<EmployeesResponse> {
     const url = `${this.baseUrl}employee/${id}`;
-    return this.http.get<any>(url).pipe(
+    return this.http.get<EmployeesResponse>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la récupération de l'employé :",
@@ -36,9 +38,9 @@ export class EmployeesService {
     );
   }
 
-  createEmployee(data: any): Observable<any> {
+  createEmployee(data: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}employee/add`;
-    return this.http.post<any>(url, data).pipe(
+    return this.http.post<MessageResponse>(url, data).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la création de l'employé :",
@@ -49,9 +51,9 @@ export class EmployeesService {
     );
   }
 
-  updateEmployee(id: any, newData: any): Observable<any> {
+  updateEmployee(id: any, newData: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}employee/update/${id}`;
-    return this.http.put<any>(url, newData).pipe(
+    return this.http.put<MessageResponse>(url, newData).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la mise à jour de l'employé :",
@@ -62,9 +64,9 @@ export class EmployeesService {
     );
   }
 
-  deleteEmployee(id: any): Observable<any> {
+  deleteEmployee(id: any): Observable<MessageResponse> {
     const url = `${this.baseUrl}employee/delete/${id}`;
-    return this.http.delete<any>(url).pipe(
+    return this.http.delete<MessageResponse>(url).pipe(
       catchError((error) => {
         console.error(
           "Une erreur s'est produite lors de la suppression de l'employé :",
@@ -75,11 +77,13 @@ export class EmployeesService {
     );
   }
 
-  rechercher(id: string): Observable<any> {
-    // Remplacez 'any' par le bon type si possible
+  rechercher(id: string): Observable<EmployeesResponse> {
     const url = `${this.baseUrl}employee/rechercher/${id}`;
-    return this.http.get<any>(url).pipe(catchError(this.handleError));
+    return this.http
+      .get<EmployeesResponse>(url)
+      .pipe(catchError(this.handleError));
   }
+
   private handleError(error: HttpErrorResponse) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

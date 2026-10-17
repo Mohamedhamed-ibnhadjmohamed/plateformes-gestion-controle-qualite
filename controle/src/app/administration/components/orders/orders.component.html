@@ -9,9 +9,9 @@
                     <div class="col-sm-6 d-flex justify-content-end align-items-center">
                         <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Rechercher order par code"
+                                <input type="text" class="form-control" placeholder="Rechercher une commande par code"
                                     formControlName="rech">
-                                <button class="btn btn-primary btn-lg" type="submit">
+                                <button class="btn btn-primary px-4" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -24,41 +24,46 @@
                 </div>
             </div>
 
+            <!-- Chargement initial des données -->
+            <div *ngIf="chargement" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Chargement des données...
+            </div>
+
             <!-- Indicateur de chargement -->
             <div *ngIf="isLoading" class="loading-indicator text-center my-3">
                 <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
             </div>
 
             <!-- Affichage des orders ou du message -->
-            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+            <div *ngIf="!chargement && !isLoading && message" class="alert alert-info text-center">
                 {{ message }}
             </div>
 
-            <table *ngIf="!isLoading && orders.length > 0" class="table table-striped">
+            <table *ngIf="!chargement && !isLoading && orders.length > 0" class="table table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">ID</th>
-                        <th scope="col">Libelle</th>
-                        <th scope="col">Designation</th>
-                        <th scope="col">Quantite demandee</th>
+                        <th scope="col">Libellé</th>
+                        <th scope="col">Désignation</th>
+                        <th scope="col">Quantité demandée</th>
                         <th scope="col">Option</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let order of orders">
+                    <tr *ngFor="let order of ordersPage">
 
-                        <td>{{order.id_order}}</td>
-                        <td>{{order.libelle_order}}</td>
-                        <td>{{ order.designation_order}}</td>
-                        <td>{{ order.qte_demandee }}</td>
-                        <td>
+                        <td data-label="ID">{{order.id_order}}</td>
+                        <td data-label="Libellé">{{order.libelle_order}}</td>
+                        <td data-label="Désignation">{{ order.designation_order}}</td>
+                        <td data-label="Quantité demandée">{{ order.qte_demandee }}</td>
+                        <td data-label="Options" class="actions">
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#ConsulterModal" (click)="confirmer(order)">
                                     <i class="fas fa-eye"></i> Consulter
                                 </button>
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                    data-bs-target="#ModifierModal" (click)="confirmer(order)">
+                                    data-bs-target="#ModifierModal" (click)="ouvrirModifier(order)">
                                     <i class="fas fa-edit"></i> Modifier
                                 </button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal"
@@ -71,10 +76,14 @@
                 </tbody>
             </table>
 
+            <app-pagination [page]="page" [pageSize]="pageSize" [total]="orders.length"
+                (pageChange)="changerPage($event)"></app-pagination>
+
 
             <!-- Message en cas d'absence de résultats ou d'erreur -->
-            <div *ngIf="!isLoading && orders.length === 0 && !message" class="alert alert-warning text-center">
-                Aucun order trouvé.
+            <div *ngIf="!chargement && !isLoading && orders.length === 0 && !message"
+                class="alert alert-warning text-center">
+                Aucune commande trouvée.
             </div>
         </div>
     </div>
@@ -82,12 +91,12 @@
 
 
 <!-- Modal Consulter -->
-<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -98,12 +107,12 @@
                                 <div class="card-header">
                                     <h5 class="card-title"> {{name}} </h5>
                                 </div>
-                                <div class="card-bodaql p-5" *ngIf=order!null>
-                                    <p class="card-text"><strong>Identifiant Order :</strong>{{order.id_order}}</p>
-                                    <p class="card-text"><strong>Libelle :</strong> {{ order.libelle_order }}</p>
-                                    <p class="card-text"><strong>Designation :</strong> {{ order.designation_order }}
+                                <div class="card-bodaql p-5" *ngIf="order">
+                                    <p class="card-text"><strong>Identifiant ordre :</strong>{{order.id_order}}</p>
+                                    <p class="card-text"><strong>Libellé :</strong> {{ order.libelle_order }}</p>
+                                    <p class="card-text"><strong>Désignation :</strong> {{ order.designation_order }}
                                     </p>
-                                    <p class="card-text"><strong>Quantite Demandee :</strong> {{ order.qte_demandee }}
+                                    <p class="card-text"><strong>Quantité demandée :</strong> {{ order.qte_demandee }}
                                     </p>
                                     <p class="card-text"><strong>Date :</strong> {{ order.date }}</p>
                                     <p class="card-text"><strong>Couleur :</strong> {{ order.couleur }}</p>
@@ -134,14 +143,14 @@
 
                 <form [formGroup]="orderForm" (ngSubmit)="ajouterOrder()">
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="libelle" class="form-label">Libellé</label>
-                                <input type="text" class="form-control" id="libelle" formControlName="libelle_order">
+                                <input type="text" class="form-control" id="libelle" formControlName="libelle_order" [class.is-invalid]="libelle_order?.invalid && (libelle_order?.dirty || libelle_order?.touched)">
                                 @if(libelle_order?.invalid && (libelle_order?.dirty || libelle_order?.touched)) {
                                 @if(libelle_order?.errors?.['required']){
-                                <span class=" text-danger"> libellé est obligatoir</span>
+                                <span class="invalid-feedback d-block"> Le libellé est obligatoire.</span>
                                 }
                                 }
                             </div>
@@ -150,56 +159,56 @@
                             <div class="mb-3">
                                 <label for="designation" class="form-label">Désignation</label>
                                 <input type="text" class="form-control" id="designation"
-                                    formControlName="designation_order">
+                                    formControlName="designation_order" [class.is-invalid]="designation_order?.invalid && (designation_order?.dirty || designation_order?.touched)">
                                 @if(designation_order?.invalid && (designation_order?.dirty ||
                                 designation_order?.touched)){
                                 @if(designation_order?.errors?.['required']){
-                                <span class=" text-danger"> La désignation est obligatoire </span>
+                                <span class="invalid-feedback d-block"> La désignation est obligatoire.</span>
                                 }
                                 @if(designation_order?.errors?.['minlength']){
-                                <span class="text-danger"> La désignation doit contenir au moins 8 caractères. </span>
+                                <span class="invalid-feedback d-block"> La désignation doit contenir au moins 8 caractères. </span>
                                 }
                                 @if(designation_order?.errors?.['maxlength']){
-                                <span class=" text-danger"> La désignation doit contenir au maximum 50
+                                <span class="invalid-feedback d-block"> La désignation doit contenir au maximum 50
                                     caractères. </span>
                                 }
                                 }
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="qte_demandee" class="form-label">Quantité demandée</label>
                                 <input type="number" class="form-control" id="qte_demandee"
-                                    formControlName="qte_demandee">
+                                    formControlName="qte_demandee" [class.is-invalid]="qte_demandee?.invalid && (qte_demandee?.dirty || qte_demandee?.touched)">
                                 @if(qte_demandee?.invalid && (qte_demandee?.dirty || qte_demandee?.touched)){
                                 @if(qte_demandee?.errors?.['required']) {
-                                <span class=" text-danger"> La quantité demandée est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La quantité demandée est obligatoire.</span>
                                 }
                                 }
                             </div>
                         </div>
                         <div class="col">
-                            <div>
+                            <div class="mb-3">
                                 <label for="date" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date" formControlName="date">
+                                <input type="date" class="form-control" id="date" formControlName="date" [class.is-invalid]="date?.invalid && (date?.dirty || date?.touched)">
                                 @if(date?.invalid && (date?.dirty || date?.touched)){
                                 @if(date?.errors?.['required']) {
-                                <span class=" text-danger"> La date demandée est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La date demandée est obligatoire.</span>
                                 }
                                 }
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="couleur" class="form-label">Couleur</label>
-                                <input type="text" class="form-control" id="couleur" formControlName="couleur">
+                                <input type="text" class="form-control" id="couleur" formControlName="couleur" [class.is-invalid]="couleur?.invalid && (couleur?.dirty || couleur?.touched)">
                                 @if(couleur?.invalid && (couleur?.dirty || couleur?.touched)){
                                 @if(couleur?.errors?.['required']) {
-                                <span class="text-danger"> Le couleur est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La couleur est obligatoire.</span>
                                 }
                                 }
                             </div>
@@ -207,10 +216,10 @@
                         <div class="col">
                             <div class="mb-3">
                                 <label for="taille" class="form-label">Taille</label>
-                                <input type="text" class="form-control" id="taille" formControlName="taille">
+                                <input type="text" class="form-control" id="taille" formControlName="taille" [class.is-invalid]="taille?.invalid && (taille?.dirty || taille?.touched)">
                                 @if(taille?.invalid && (taille?.dirty || taille?.touched)){
                                 @if(taille?.errors?.['required']) {
-                                <span class="text-danger"> La taille est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La taille est obligatoire.</span>
                                 }
                                 }
                             </div>
@@ -222,19 +231,19 @@
 
                     <div class="mb-3">
                         <label for="niveau" class="form-label">Niveau</label>
-                        <input type="text" class="form-control" id="niveau" formControlName="niveau">
+                        <input type="text" class="form-control" id="niveau" formControlName="niveau" [class.is-invalid]="niveau?.invalid && (niveau?.dirty || niveau?.touched)">
                         @if(niveau?.invalid && (niveau?.dirty || niveau?.touched)){
                         @if(niveau?.errors?.['required']) {
-                        <span class="text-danger"> Niveau est obligatoire</span>
+                        <span class="invalid-feedback d-block"> Le niveau est obligatoire.</span>
                         }
                         }
                     </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" (click)="resetForm()" data-bs-dismiss="modal">
                             Annuler
                         </button>
-                        <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal"
                             [disabled]="orderForm.invalid">
                             Ajouter
                         </button>
@@ -266,16 +275,16 @@
 
                 <form *ngIf="order != null" [formGroup]="orderForm" (ngSubmit)="ModifierOrder()">
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="mlibelle" class="form-label">Libellé</label>
-                                <input type="text" class="form-control" id="mlibelle" [value]="order.libelle_order"
-                                    formControlName="libelle_order">
+                                <input type="text" class="form-control" id="mlibelle"
+                                    formControlName="libelle_order" [class.is-invalid]="libelle_order?.invalid && (libelle_order?.dirty || libelle_order?.touched)">
 
                                 @if(libelle_order?.invalid && (libelle_order?.dirty || libelle_order?.touched)) {
                                 @if(libelle_order?.errors?.['required']){
-                                <span class=" text-danger"> libellé est obligatoir</span>
+                                <span class="invalid-feedback d-block"> Le libellé est obligatoire.</span>
                                 }
                                 }
 
@@ -285,17 +294,17 @@
                             <div class="mb-3">
                                 <label for="designation" class="form-label">Désignation</label>
                                 <input type="text" class="form-control" id="designation"
-                                    value="{{order.designation_order}}" formControlName="designation_order">
+                                    formControlName="designation_order" [class.is-invalid]="designation_order?.invalid && (designation_order?.dirty || designation_order?.touched)">
                                 @if(designation_order?.invalid && (designation_order?.dirty ||
                                 designation_order?.touched)){
                                 @if(designation_order?.errors?.['required']){
-                                <span class=" text-danger"> La désignation est obligatoire </span>
+                                <span class="invalid-feedback d-block"> La désignation est obligatoire.</span>
                                 }
                                 @if(designation_order?.errors?.['minlength']){
-                                <span class="text-danger"> La désignation doit contenir au moins 8 caractères. </span>
+                                <span class="invalid-feedback d-block"> La désignation doit contenir au moins 8 caractères. </span>
                                 }
                                 @if(designation_order?.errors?.['maxlength']){
-                                <span class=" text-danger"> La désignation doit contenir au maximum 50
+                                <span class="invalid-feedback d-block"> La désignation doit contenir au maximum 50
                                     caractères. </span>
                                 }
                                 }
@@ -303,15 +312,15 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="qte_demandee" class="form-label">Quantité demandée</label>
                                 <input type="number" class="form-control" id="qte_demandee"
-                                    value="{{order.qte_demandee}}" formControlName="qte_demandee">
+                                    formControlName="qte_demandee" [class.is-invalid]="qte_demandee?.invalid && (qte_demandee?.dirty || qte_demandee?.touched)">
                                 @if(qte_demandee?.invalid && (qte_demandee?.dirty || qte_demandee?.touched)){
                                 @if(qte_demandee?.errors?.['required']) {
-                                <span class=" text-danger"> La quantité demandée est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La quantité demandée est obligatoire.</span>
                                 }
                                 }
 
@@ -319,28 +328,28 @@
                         </div>
                         <div class="col">
 
-                            <div>
+                            <div class="mb-3">
                                 <label for="date" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date" value="{{order.date}}"
-                                    formControlName="date">
+                                <input type="date" class="form-control" id="date"
+                                    formControlName="date" [class.is-invalid]="date?.invalid && (date?.dirty || date?.touched)">
                                 @if(date?.invalid && (date?.dirty || date?.touched)){
                                 @if(date?.errors?.['required']) {
-                                <span class=" text-danger"> La date demandée est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La date demandée est obligatoire.</span>
                                 }
                                 }
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col">
                             <div class="mb-3">
                                 <label for="couleur" class="form-label">Couleur</label>
-                                <input type="text" class="form-control" id="couleur" value="{{order.couleur}}"
-                                    formControlName="couleur">
+                                <input type="text" class="form-control" id="couleur"
+                                    formControlName="couleur" [class.is-invalid]="couleur?.invalid && (couleur?.dirty || couleur?.touched)">
                                 @if(couleur?.invalid && (couleur?.dirty || couleur?.touched)){
                                 @if(couleur?.errors?.['required']) {
-                                <span class="text-danger"> Le couleur est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La couleur est obligatoire.</span>
                                 }
                                 }
                             </div>
@@ -348,11 +357,11 @@
                         <div class="col">
                             <div class="mb-3">
                                 <label for="taille" class="form-label">Taille</label>
-                                <input type="text" class="form-control" id="taille" value="{{order.taille}}"
-                                    formControlName="taille">
+                                <input type="text" class="form-control" id="taille"
+                                    formControlName="taille" [class.is-invalid]="taille?.invalid && (taille?.dirty || taille?.touched)">
                                 @if(taille?.invalid && (taille?.dirty || taille?.touched)){
                                 @if(taille?.errors?.['required']) {
-                                <span class="text-danger"> La taille est obligatoire</span>
+                                <span class="invalid-feedback d-block"> La taille est obligatoire.</span>
                                 }
                                 }
                             </div>
@@ -361,21 +370,21 @@
 
                     <div class="mb-3">
                         <label for="niveau" class="form-label">Niveau</label>
-                        <input type="text" class="form-control" id="niveau" value="{{order.niveau}}"
-                            formControlName="niveau">
+                        <input type="text" class="form-control" id="niveau"
+                            formControlName="niveau" [class.is-invalid]="niveau?.invalid && (niveau?.dirty || niveau?.touched)">
                         @if(niveau?.invalid && (niveau?.dirty || niveau?.touched)){
                         @if(niveau?.errors?.['required']) {
-                        <span class="text-danger"> Niveau est obligatoire</span>
+                        <span class="invalid-feedback d-block"> Le niveau est obligatoire.</span>
                         }
                         }
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="reset" class="btn btn-danger m-2 p-3" (click)="resetForm()">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" (click)="resetForm()" data-bs-dismiss="modal">
                             Annuler
                         </button>
-                        <button type="submit" class="btn btn-primary m-2 p-3" data-bs-dismiss="modal"
+                        <button type="submit" class="btn btn-primary px-4" data-bs-dismiss="modal"
                             [disabled]="orderForm.invalid">
-                            Ajouter
+                            Modifier
                         </button>
                     </div>
                 </form>
@@ -387,12 +396,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label"
-    aria-hidden="true" *ngIf=order!null>
+<div class="modal fade modal-xl" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel"
+    aria-hidden="true" *ngIf="order">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -408,11 +417,11 @@
                                     <h5 class="card-title">{{name}} </h5>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text"><strong>Identifiant Order :</strong>{{order.id_order}}</p>
-                                    <p class="card-text"><strong>Libelle :</strong> {{ order.libelle_order }}</p>
-                                    <p class="card-text"><strong>Designation :</strong> {{ order.designation_order }}
+                                    <p class="card-text"><strong>Identifiant ordre :</strong>{{order.id_order}}</p>
+                                    <p class="card-text"><strong>Libellé :</strong> {{ order.libelle_order }}</p>
+                                    <p class="card-text"><strong>Désignation :</strong> {{ order.designation_order }}
                                     </p>
-                                    <p class="card-text"><strong>Quantite Demandee :</strong> {{ order.qte_demandee }}
+                                    <p class="card-text"><strong>Quantité demandée :</strong> {{ order.qte_demandee }}
                                     </p>
                                     <p class="card-text"><strong>Date :</strong> {{ order.date }}</p>
                                     <p class="card-text"><strong>Couleur :</strong> {{ order.couleur }}</p>

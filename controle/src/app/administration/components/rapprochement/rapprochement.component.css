@@ -1,0 +1,209 @@
+/* Rapport de rapprochement des quantités (admin). */
+
+.rap {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.rap__entete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.rap__titre {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--qm-text, #172b4d);
+    margin: 0 0 0.25rem;
+}
+
+.rap__sous-titre {
+    color: var(--qm-text-secondary, #64748b);
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 46rem;
+}
+
+/* Indicateurs synthétiques */
+.rap__kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.rap__kpi-carte {
+    background: var(--qm-surface, #fff);
+    border: 1px solid var(--qm-border, #dce4ef);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.rap__kpi-carte--danger {
+    border-color: color-mix(in srgb, var(--qm-danger, #d92d20) 35%, transparent);
+    background: color-mix(in srgb, var(--qm-danger, #d92d20) 5%, #fff);
+}
+
+.rap__kpi-valeur {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--qm-text, #172b4d);
+    font-variant-numeric: tabular-nums;
+}
+
+.rap__kpi-libelle {
+    font-size: 0.8rem;
+    color: var(--qm-text-secondary, #64748b);
+}
+
+.rap__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Filtres */
+.rap__filtres {
+    display: inline-flex;
+    gap: 0.25rem;
+    background: var(--qm-surface, #fff);
+    border: 1px solid var(--qm-border, #dce4ef);
+    border-radius: 8px;
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.rap__filtre {
+    border: none;
+    background: transparent;
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--qm-text-secondary, #64748b);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.rap__filtre:hover {
+    color: var(--qm-primary, #2864dc);
+}
+
+.rap__filtre--actif {
+    background: var(--qm-primary-soft, #eaf1ff);
+    color: var(--qm-primary, #2864dc);
+    font-weight: 600;
+}
+
+/* Chargement / état vide */
+.rap__chargement,
+.rap__vide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    color: var(--qm-text-secondary, #64748b);
+    background: var(--qm-surface, #fff);
+    border: 1px solid var(--qm-border, #dce4ef);
+    border-radius: 12px;
+}
+
+.rap__vide i {
+    font-size: 2rem;
+    color: var(--qm-success, #159a68);
+}
+
+/* Tableau */
+.rap__tableau {
+    background: var(--qm-surface, #fff);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.rap__tableau thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--qm-text-secondary, #64748b);
+    border-bottom: 1px solid var(--qm-border, #dce4ef);
+    white-space: nowrap;
+}
+
+.rap__tableau tbody td {
+    vertical-align: middle;
+}
+
+.rap__of-libelle {
+    display: block;
+    font-weight: 600;
+    color: var(--qm-text, #172b4d);
+}
+
+.rap__of-designation {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--qm-text-secondary, #64748b);
+}
+
+.rap__ecart {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--qm-text, #172b4d);
+}
+
+.rap__ecart--positif {
+    color: var(--qm-warning, #c77708);
+}
+
+.rap__ecart--negatif {
+    color: var(--qm-danger, #d92d20);
+}
+
+/* Badges de statut */
+.rap__badge {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rap__badge--conforme {
+    background: color-mix(in srgb, var(--qm-success, #159a68) 12%, #fff);
+    color: var(--qm-success, #159a68);
+}
+
+.rap__badge--sous-quantite {
+    background: color-mix(in srgb, var(--qm-warning, #c77708) 12%, #fff);
+    color: var(--qm-warning, #c77708);
+}
+
+.rap__badge--sur-enregistrement {
+    background: color-mix(in srgb, var(--qm-danger, #d92d20) 10%, #fff);
+    color: var(--qm-danger, #d92d20);
+}
+
+.rap__badge--non-controle {
+    background: color-mix(in srgb, var(--qm-neutral-status, #64748b) 12%, #fff);
+    color: var(--qm-neutral-status, #64748b);
+}
+
+@media (max-width: 767px) {
+    .rap {
+        padding: 1rem;
+    }
+
+    .rap__kpi {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

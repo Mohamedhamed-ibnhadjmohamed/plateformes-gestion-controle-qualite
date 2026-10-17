@@ -1,0 +1,125 @@
+/* ============================================================
+   Bandeau d'appel à l'action (CTA) — fond accentué + boutons.
+   ============================================================ */
+
+.cta-banner {
+    margin: clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 5vw, 3.75rem);
+    padding: clamp(2rem, 5vw, 3rem);
+    border-radius: var(--qm-radius-lg);
+    background-color: var(--qm-ink);
+    background-image:
+        radial-gradient(circle at 88% 20%, rgba(185, 255, 102, .16), transparent 42%),
+        radial-gradient(circle at 6% 90%, rgba(40, 100, 220, .2), transparent 45%);
+    color: #e2e8f0;
+    font-family: var(--qm-font);
+    overflow: hidden;
+}
+
+.cta-banner__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cta-banner__texte {
+    flex: 1 1 420px;
+    min-width: 0;
+}
+
+.cta-banner__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    background-color: var(--qm-accent);
+    color: #14261c;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+}
+
+.cta-banner__titre {
+    margin: 1rem 0 .6rem;
+    color: #fff;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+}
+
+.cta-banner__description {
+    margin: 0;
+    max-width: 60ch;
+    color: #cbd5e1;
+    font-size: 1.02rem;
+    line-height: 1.65;
+}
+
+.cta-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .85rem;
+}
+
+.cta-banner__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .85rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--qm-radius-sm);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.cta-banner__btn--primaire {
+    background-color: var(--qm-accent);
+    border-color: var(--qm-accent);
+    color: #14261c;
+}
+
+.cta-banner__btn--primaire:hover {
+    background-color: #fff;
+    border-color: #fff;
+    color: var(--qm-ink);
+    transform: translateY(-2px);
+}
+
+.cta-banner__btn--secondaire {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, .35);
+    color: #fff;
+}
+
+.cta-banner__btn--secondaire:hover {
+    border-color: #fff;
+    background-color: rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+@media (max-width: 575.98px) {
+    .cta-banner__actions {
+        width: 100%;
+    }
+
+    .cta-banner__btn {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .cta-banner__btn--primaire:hover {
+        transform: none;
+    }
+}

@@ -1,0 +1,108 @@
+<div class="rap">
+    <header class="rap__entete">
+        <div>
+            <h1 class="rap__titre">Rapprochement des quantités</h1>
+            <p class="rap__sous-titre">
+                Compare la quantité commandée sur chaque ordre de fabrication à la quantité
+                réellement enregistrée sur ses produits.
+            </p>
+        </div>
+        <!-- Actions -->
+        <div class="rap__actions">
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exporterCsv()"
+                [disabled]="chargement || lignesFiltrees.length === 0">
+                <i class="fas fa-file-csv"></i> Exporter CSV
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="charger()"
+                [disabled]="chargement">
+                <i class="fas fa-rotate-right" [class.fa-spin]="chargement"></i> Actualiser
+            </button>
+        </div>
+    </header>
+
+    <!-- Indicateurs synthétiques -->
+    <div class="rap__kpi">
+        <div class="rap__kpi-carte">
+            <span class="rap__kpi-valeur">{{ lignes.length }}</span>
+            <span class="rap__kpi-libelle">Ordres de fabrication</span>
+        </div>
+        <div class="rap__kpi-carte" [class.rap__kpi-carte--danger]="nbEcarts > 0">
+            <span class="rap__kpi-valeur">{{ nbEcarts }}</span>
+            <span class="rap__kpi-libelle">OF en écart</span>
+        </div>
+        <div class="rap__kpi-carte">
+            <span class="rap__kpi-valeur">{{ tauxConformite === null ? '—' : tauxConformite + ' %' }}</span>
+            <span class="rap__kpi-libelle">Taux de conformité</span>
+        </div>
+        <div class="rap__kpi-carte">
+            <span class="rap__kpi-valeur">{{ formatNbre(sommeEcarts) }}</span>
+            <span class="rap__kpi-libelle">Pièces en écart (cumul)</span>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="rap__filtres" role="group" aria-label="Filtrer par statut">
+        <button type="button" class="rap__filtre" [class.rap__filtre--actif]="filtre === 'tous'"
+            (click)="filtre = 'tous'">Tous</button>
+        <button type="button" class="rap__filtre" [class.rap__filtre--actif]="filtre === 'ecarts'"
+            (click)="filtre = 'ecarts'">Écarts uniquement</button>
+        <button type="button" class="rap__filtre" [class.rap__filtre--actif]="filtre === 'conformes'"
+            (click)="filtre = 'conformes'">Conformes</button>
+    </div>
+
+    <!-- Chargement -->
+    @if (chargement) {
+    <div class="rap__chargement" role="status">
+        <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+        <span>Analyse des ordres de fabrication…</span>
+    </div>
+    } @else if (lignesFiltrees.length === 0) {
+    <div class="rap__vide">
+        <i class="fa-solid fa-circle-check"></i>
+        <p>Aucun ordre de fabrication pour ce filtre.</p>
+    </div>
+    } @else {
+    <div class="table-responsive">
+        <table class="table tab-securities rap__tableau">
+            <thead>
+                <tr>
+                    <th scope="col">OF</th>
+                    <th scope="col" class="text-end">Qté commandée</th>
+                    <th scope="col" class="text-end">Qté enregistrée</th>
+                    <th scope="col" class="text-end">Écart</th>
+                    <th scope="col" class="text-end">Produits</th>
+                    <th scope="col" class="text-end">Inspections</th>
+                    <th scope="col" class="text-end">Défauts</th>
+                    <th scope="col">Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (ligne of lignesFiltrees; track ligne.id_order) {
+                <tr>
+                    <td>
+                        <span class="rap__of-libelle">{{ ligne.libelle_order }}</span>
+                        <span class="rap__of-designation">{{ ligne.designation_order }}</span>
+                    </td>
+                    <td class="text-end">{{ formatNbre(ligne.qte_demandee) }}</td>
+                    <td class="text-end">{{ formatNbre(ligne.qte_enregistree) }}</td>
+                    <td class="text-end rap__ecart" [class.rap__ecart--positif]="ligne.ecart > 0"
+                        [class.rap__ecart--negatif]="ligne.ecart < 0">
+                        @if (ligne.ecart > 0) { +{{ formatNbre(ligne.ecart) }}
+                        } @else if (ligne.ecart < 0) { {{ formatNbre(ligne.ecart) }}
+                        } @else { 0 }
+                    </td>
+                    <td class="text-end">{{ formatNbre(ligne.nb_produits) }}</td>
+                    <td class="text-end">{{ formatNbre(ligne.nb_inspections) }}</td>
+                    <td class="text-end">{{ formatNbre(ligne.nb_defauts) }}</td>
+                    <td>
+                        <span class="rap__badge" [ngClass]="'rap__badge--' + statut(ligne)">
+                            {{ libelleStatut(ligne) }}
+                        </span>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { AqlResponse, AqlsResponse, MessageResponse } from '../models/api';
 
 @Injectable({
   providedIn: 'root',
@@ -8,35 +10,32 @@ import { Observable } from 'rxjs';
 export class AqlsService {
   constructor(private http: HttpClient) {}
 
-  // Consider environment variable for flexibility
-  private baseUrl: string = 'http://127.0.0.1:3000/'; // Or use a process.env variable
+  private baseUrl: string = environment.apiUrl;
 
-  getAllAql(): Observable<any> {
-    // Type any can be refined based on API response
-    const url = this.baseUrl + 'aql/all';
-    return this.http.get<any>(url); // Specify response type for type safety
-  }
-  getById(id: any): Observable<any> {
-    const url = `${this.baseUrl}aql/getid/${id}`; // Utiliser la bonne URL
-    return this.http.get<any>(url);
+  getAllAql(): Observable<AqlsResponse> {
+    return this.http.get<AqlsResponse>(`${this.baseUrl}aql/all`);
   }
 
-  createAql(data: any): Observable<any> {
-    const url = `${this.baseUrl}aql/add`;
-    return this.http.post<any>(url, data);
-  }
-  updateAql(id: any, newData: any): Observable<any> {
-    const url = `${this.baseUrl}aql/update/${id}`;
-    return this.http.put<any>(url, newData);
+  getById(id: any): Observable<AqlResponse> {
+    return this.http.get<AqlResponse>(`${this.baseUrl}aql/getid/${id}`);
   }
 
-  deleteAql(id: any): Observable<any> {
-    const url = `${this.baseUrl}aql/delete/${id}`;
-    return this.http.delete<any>(url);
+  createAql(data: any): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}aql/add`, data);
   }
 
-  getByNom(nom: any): Observable<any> {
-    const url = `${this.baseUrl}aql/getbynom/${nom}`; // Utiliser la bonne URL
-     return this.http.get<any>(url);
+  updateAql(id: any, newData: any): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(
+      `${this.baseUrl}aql/update/${id}`,
+      newData
+    );
+  }
+
+  deleteAql(id: any): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.baseUrl}aql/delete/${id}`);
+  }
+
+  getByNom(nom: any): Observable<AqlsResponse> {
+    return this.http.get<AqlsResponse>(`${this.baseUrl}aql/getbynom/${nom}`);
   }
 }

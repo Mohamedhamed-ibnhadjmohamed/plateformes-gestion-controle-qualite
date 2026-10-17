@@ -1,20 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Utilisateur } from '../../models/Utilisateur';
 import { UtilisateursService } from '../../services/utilisateurs.service';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr'; // Importer ToastrService
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthService } from '../../services/login/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+    selector: 'app-register',
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.css'],
+    standalone: false
 })
 export class RegisterComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   ngOnInit(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    if (this.authService.getUser()) {
       this.router.navigate(['/home']);
     }
   }
@@ -56,7 +59,8 @@ export class RegisterComponent implements OnInit {
   constructor(
     private toastr: ToastrService,
     private utilisateurService: UtilisateursService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   // Méthode d'inscription
@@ -73,18 +77,20 @@ export class RegisterComponent implements OnInit {
 
     this.utilisateurService
       .createUtilisateur(this.registerForm.value)
-      .subscribe(
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response) => {
           this.success();
-          console.log("L'utilisateur a été ajouté avec succès :", response);
           this.isLoading = false;
           this.router.navigate(['/login']);
         },
-        (error) => {
+        (error: HttpErrorResponse) => {
           console.error("Erreur lors de l'inscription:", error);
-          if (error.status === 400) {
+          if (error.status === 409) {
             this.errorMessage =
-              "Les données fournies sont invalides ou l'adresse e-mail est déjà utilisée.";
+              error.error?.error ?? 'Cette adresse e-mail est déjà utilisée.';
+          } else if (error.status === 400) {
+            this.errorMessage =
+              error.error?.error ?? 'Les données fournies sont invalides.';
           } else {
             this.errorMessage =
               "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";

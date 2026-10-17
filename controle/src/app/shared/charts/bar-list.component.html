@@ -1,0 +1,19 @@
+@if (items.length) {
+<ul class="classement">
+  <li *ngFor="let item of items; let index = index" [style.--index]="index">
+    <div class="classement-entete">
+      <span class="classement-libelle">{{ item.libelle }}</span>
+      <span class="classement-valeur">{{ item.valeur | number }}{{ suffixe }}</span>
+    </div>
+    <div class="classement-piste">
+      <span class="classement-barre" [style.width.%]="pourcentage(item.valeur)"
+        [style.background]="couleurDe(index)"></span>
+    </div>
+    @if (item.info) {
+    <span class="classement-info">{{ item.info }}</span>
+    }
+  </li>
+</ul>
+} @else {
+<p class="classement-vide">Aucune donnée à afficher.</p>
+}

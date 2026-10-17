@@ -9,19 +9,24 @@
                     <div class="col-sm-6 d-flex justify-content-end align-items-center">
                         <form [formGroup]="searchForm" (ngSubmit)="rechercher()" class="mt-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Rechercher  par Email"
+                                <input type="text" class="form-control" placeholder="Rechercher par e-mail"
                                     formControlName="rech">
-                                <button class="btn btn-primary btn-lg" type="submit">
+                                <button class="btn btn-primary px-4" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
                         </form>
                         <button class="btn btn-success btn-lg mt-3" data-toggle="modal" data-bs-toggle="modal"
-                            data-bs-target="#AjouterModal">
+                            data-bs-target="#AjouterModal" (click)="openAdd()">
                             <i class="fas fa-plus"></i> Ajouter un nouvel {{name}}
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Chargement initial des données -->
+            <div *ngIf="chargement" class="loading-indicator text-center my-3">
+                <i class="fa fa-spinner fa-spin fa-2x"></i> Chargement des données...
             </div>
 
             <!-- Indicateur de chargement -->
@@ -29,36 +34,36 @@
                 <i class="fa fa-spinner fa-spin fa-2x"></i> Recherche en cours...
             </div>
 
-            <!-- Affichage des produits ou du message -->
-            <div *ngIf="!isLoading && message" class="alert alert-info text-center">
+            <!-- Affichage des utilisateurs ou du message -->
+            <div *ngIf="!chargement && !isLoading && message" class="alert alert-info text-center">
                 {{ message }}
             </div>
 
-        <div *ngIf=" utilisateurs; else noData">
+        <div *ngIf="!chargement && utilisateurs.length > 0">
             <table class="table table-striped">
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">ID Utilisateur</th>
                         <th scope="col">Nom</th>
-                        <th scope="col">Prenom</th>
-                        <th scope="col">Email</th>
+                        <th scope="col">Prénom</th>
+                        <th scope="col">E-mail</th>
                         <th scope="col">Option</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let utilisateur of utilisateurs">
-                        <td>{{ utilisateur.id_utilisateur }}</td>
-                        <td>{{ utilisateur.nom }}</td>
-                        <td>{{ utilisateur.prenom }}</td>
-                        <td>{{ utilisateur.email}}</td>
-                        <td>
+                    <tr *ngFor="let utilisateur of utilisateursPage">
+                        <td data-label="ID Utilisateur">{{ utilisateur.id_utilisateur }}</td>
+                        <td data-label="Nom">{{ utilisateur.nom }}</td>
+                        <td data-label="Prénom">{{ utilisateur.prenom }}</td>
+                        <td data-label="E-mail">{{ utilisateur.email}}</td>
+                        <td data-label="Options" class="actions">
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#ConsulterModal" (click)="confirmer(utilisateur)">
                                     <i class="fas fa-eye"></i> Consulter
                                 </button>
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                    data-bs-target="#ModifierModal" (click)="confirmer(utilisateur)">
+                                    data-bs-target="#ModifierModal" (click)="openEdit(utilisateur)">
                                     <i class="fas fa-edit"></i> Modifier
                                 </button>
                                 <button type="button" class="btn btn-danger" data-bs-toggle="modal"
@@ -71,24 +76,29 @@
                 </tbody>
             </table>
         </div>
+
+            <app-pagination [page]="page" [pageSize]="pageSize" [total]="utilisateurs.length"
+                (pageChange)="changerPage($event)"></app-pagination>
+
             <ng-template #noData>
                 <p>Aucun élément à afficher</p>
             </ng-template>
 
             <!-- Message en cas d'absence de résultats ou d'erreur -->
-            <div *ngIf="!isLoading && utilisateurs.length === 0 && !message" class="alert alert-warning text-center">
-                Aucun produit trouvé.
+            <div *ngIf="!chargement && !isLoading && utilisateurs.length === 0 && !message"
+                class="alert alert-warning text-center">
+                Aucun utilisateur trouvé.
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Consulter -->
-<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label" aria-hidden="true">
+<div class="modal fade" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -99,15 +109,13 @@
                                 <div class="card-header">
                                     <h5 class="card-title"> {{name}} </h5>
                                 </div>
-                                <div class="card-body" *ngIf="utilisateur!null">
+                                <div class="card-body" *ngIf="utilisateur">
                                     <p class="card-text"><strong>Identifiant Utilisateur:</strong> {{
                                         utilisateur.id_utilisateur}}
                                     </p>
                                     <p class="card-text"><strong>Nom:</strong> {{ utilisateur.nom }}</p>
-                                    <p class="card-text"><strong>Prenom :</strong> {{ utilisateur.prenom }}</p>
-                                    <p class="card-text"><strong>Email </strong> {{ utilisateur.email }}</p>
-                                    <p class="card-text"><strong> Mot de passe:</strong> {{ utilisateur.mot_de_passe }}
-                                    </p>
+                                    <p class="card-text"><strong>Prénom :</strong> {{ utilisateur.prenom }}</p>
+                                    <p class="card-text"><strong>E-mail </strong> {{ utilisateur.email }}</p>
                                 </div>
                             </div>
                         </div>
@@ -130,73 +138,73 @@
             </div>
             <div class="modal-body">
                 <form [formGroup]="registerForm" (ngSubmit)="register()">
-                    <div>
+                    <div class="mb-3">
                         <label for="nom1" class="form-label">Nom</label>
-                        <div class="">
-                            <input type="text" id="nom1" class="form-control form-control-lg"
-                                placeholder="Entrez un nom valide" formControlName="nom" />
+                        <div>
+                            <input type="text" id="nom1" class="form-control"
+                                placeholder="Entrez un nom valide" formControlName="nom" [class.is-invalid]="nom?.invalid && (nom?.dirty || nom?.touched)">
                             @if (nom?.invalid && (nom?.dirty || nom?.touched)) {
                             @if(nom?.errors?.['required']){
-                            <p class="text-danger">Le nom est obligatoir!</p>
+                            <p class="invalid-feedback d-block">Le nom est obligatoire.</p>
                             }
                             @if(nom?.errors?.['minlength']){
-                            <p class="text-danger">Le nom doit contenir au moins 3 caractères.</p>
+                            <p class="invalid-feedback d-block">Le nom doit contenir au moins 3 caractères.</p>
                             }
                             }
                         </div>
                     </div>
-                    <div class="">
+                    <div>
                         <label for="prenom1" class="form-label">Prénom</label>
-                        <div class="">
-                            <input type="text" id="prenom1" class="form-control form-control-lg"
-                                placeholder="Entrez un Prenom valide" formControlName="prenom" />
+                        <div>
+                            <input type="text" id="prenom1" class="form-control"
+                                placeholder="Entrez un prénom valide" formControlName="prenom" [class.is-invalid]="prenom?.invalid && (prenom?.dirty || prenom?.touched)">
                             @if (prenom?.invalid && (prenom?.dirty || prenom?.touched)) {
                             @if(prenom?.errors?.['required']){
-                            <p class="text-danger">Le prenom est obligatoir!</p>
+                            <p class="invalid-feedback d-block">Le prénom est obligatoire.</p>
                             }
                             @if(prenom?.errors?.['minlength']){
-                            <p class="text-danger">Le prenom doit contenir au moins 3 caractères.</p>
+                            <p class="invalid-feedback d-block">Le prénom doit contenir au moins 3 caractères.</p>
                             }
                             }
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="email1" class="form-label">Email</label>
-                        <div class="">
-                            <input type="email" id="email1" class="form-control form-control-lg"
-                                placeholder="Entrez une adresse e-mail valide" formControlName="email" />
+                    <div class="mb-3">
+                        <label for="email1" class="form-label">E-mail</label>
+                        <div>
+                            <input type="email" id="email1" class="form-control"
+                                placeholder="Entrez une adresse e-mail valide" formControlName="email" [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)">
                             @if (email?.invalid && (email?.dirty || email?.touched)) {
                             @if(email?.errors?.['required']){
-                            <p class="text-danger">Veuillez saisir une adresse e-mail valide !</p>
+                            <p class="invalid-feedback d-block">Veuillez saisir une adresse e-mail valide.</p>
                             }
                             @if(email?.errors?.['pattern']){
-                            <p class="text-danger">Elle doit être sous la forme exemple"&#64;"domaine.com..</p>
+                            <p class="invalid-feedback d-block">L'adresse doit être au format exemple@domaine.com.</p>
                             }
                             }
                         </div>
 
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="mot_de_passe1" class="form-label">Mot de passe</label>
-                        <div class="">
-                            <input type="password" id="mot_de_passe1" class="form-control form-control-lg"
-                                placeholder="Entrez le mot de passe" formControlName="mot_de_passe" />
+                        <div>
+                            <input type="password" id="mot_de_passe1" class="form-control"
+                                placeholder="Entrez le mot de passe" formControlName="mot_de_passe" [class.is-invalid]="mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)">
                             @if (mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)) {
                             @if(mot_de_passe?.errors?.['required']){
-                            <p class="text-danger">Le mot de passe est obligatoir !</p>
+                            <p class="invalid-feedback d-block">Le mot de passe est obligatoire.</p>
                             }
                             @if(mot_de_passe?.errors?.['minlength']){
-                            <p class="text-danger">Le mot de passe doit contenir au moins 8 caractères.</p>
+                            <p class="invalid-feedback d-block">Le mot de passe doit contenir au moins 8 caractères.</p>
                             }
                             }
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-center">
-                        <button type="reset" class="btn btn-danger btn-lg m-10">Annuler</button>
-                        <button type="submit" class="btn btn-primary btn-lg"
-                            [disabled]="!registerForm.valid">S'inscrire</button>
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4"
+                            [disabled]="!registerForm.valid">Ajouter</button>
                     </div>
                 </form>
 
@@ -218,77 +226,72 @@
             </div>
             <div class="modal-body">
 
-                <form *ngIf="utilisateur!null" [formGroup]="registerForm" (ngSubmit)="modifier()">
-                    <div>
+                <form *ngIf="utilisateur" [formGroup]="registerForm" (ngSubmit)="modifier()">
+                    <div class="mb-3">
                         <label for="nom" class="form-label">Nom</label>
-                        <div class="">
-                            <input type="text" id="nom" class="form-control form-control-lg"
-                                placeholder="Entrez un nom valide" formControlName="nom" value="{{utilisateur.nom}}" />
+                        <div>
+                            <input type="text" id="nom" class="form-control"
+                                placeholder="Entrez un nom valide" formControlName="nom" [class.is-invalid]="nom?.invalid && (nom?.dirty || nom?.touched)">
                             @if (nom?.invalid && (nom?.dirty || nom?.touched)) {
                             @if(nom?.errors?.['required']){
-                            <p class="text-danger">Le nom est obligatoir!</p>
+                            <p class="invalid-feedback d-block">Le nom est obligatoire.</p>
                             }
                             @if(nom?.errors?.['minlength']){
-                            <p class="text-danger">Le nom doit contenir au moins 3 caractères.</p>
+                            <p class="invalid-feedback d-block">Le nom doit contenir au moins 3 caractères.</p>
                             }
                             }
                         </div>
                     </div>
-                    <div class="">
+                    <div>
                         <label for="prenom" class="form-label">Prénom</label>
-                        <div class="">
-                            <input type="text" id="prenom" class="form-control form-control-lg"
-                                placeholder="Entrez un prenom valide" formControlName="prenom"
-                                value="{{utilisateur.prenom}}" />
+                        <div>
+                            <input type="text" id="prenom" class="form-control"
+                                placeholder="Entrez un prénom valide" formControlName="prenom" [class.is-invalid]="prenom?.invalid && (prenom?.dirty || prenom?.touched)">
                             @if (prenom?.invalid && (prenom?.dirty || prenom?.touched)) {
                             @if(prenom?.errors?.['required']){
-                            <p class="text-danger">Le prenom est obligatoir!</p>
+                            <p class="invalid-feedback d-block">Le prénom est obligatoire.</p>
                             }
                             @if(prenom?.errors?.['minlength']){
-                            <p class="text-danger">Le prenom doit contenir au moins 3 caractères.</p>
+                            <p class="invalid-feedback d-block">Le prénom doit contenir au moins 3 caractères.</p>
                             }
                             }
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="email" class="form-label">Email</label>
-                        <div class="">
-                            <input type="email" id="email" class="form-control form-control-lg"
-                                placeholder="Entrez une adresse e-mail valide" formControlName="email"
-                                value="{{utilisateur.email}}" />
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <div>
+                            <input type="email" id="email" class="form-control"
+                                placeholder="Entrez une adresse e-mail valide" formControlName="email" [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)">
                             @if (email?.invalid && (email?.dirty || email?.touched)) {
                             @if(email?.errors?.['required']){
-                            <p class="text-danger">Veuillez saisir une adresse e-mail valide !</p>
+                            <p class="invalid-feedback d-block">Veuillez saisir une adresse e-mail valide.</p>
                             }
                             @if(email?.errors?.['pattern']){
-                            <p class="text-danger">Elle doit être sous la forme exemple"&#64;"domaine.com..</p>
+                            <p class="invalid-feedback d-block">L'adresse doit être au format exemple@domaine.com.</p>
                             }
                             }
                         </div>
 
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="mot_de_passe" class="form-label">Mot de passe</label>
-                        <div class="">
-                            <input type="password" id="mot_de_passe" class="form-control form-control-lg"
-                                placeholder="Entrez le mot de passe" formControlName="mot_de_passe"
-                                value="{{utilisateur.mot_de_passe}}" />
+                        <div>
+                            <input type="password" id="mot_de_passe" class="form-control"
+                                placeholder="Laissez vide pour conserver le mot de passe actuel"
+                                formControlName="mot_de_passe" [class.is-invalid]="mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)">
                             @if (mot_de_passe?.invalid && (mot_de_passe?.dirty || mot_de_passe?.touched)) {
-                            @if(mot_de_passe?.errors?.['required']){
-                            <p class="text-danger">Le mot de passe est obligatoir !</p>
-                            }
                             @if(mot_de_passe?.errors?.['minlength']){
-                            <p class="text-danger">Le mot de passe doit contenir au moins 8 caractères.</p>
+                            <p class="invalid-feedback d-block">Le mot de passe doit contenir au moins 8 caractères.</p>
                             }
                             }
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-center">
-                        <button type="reset" class="btn btn-danger btn-lg m-10">Annuler</button>
-                        <button type="submit" class="btn btn-primary btn-lg"
-                            [disabled]="!registerForm.valid">S'inscrire</button>
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+                        <button type="reset" class="btn btn-secondary px-4" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary px-4"
+                            [disabled]="!registerForm.valid">Modifier</button>
                     </div>
                 </form>
 
@@ -299,12 +302,12 @@
 <!-- Fin Modal Modifier -->
 
 <!-- Modal Supprimer  -->
-<div class="modal fade" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModal Label" aria-hidden="true"
-    *ngIf=utilisateur!null>
+<div class="modal fade" id="SupprimerModal" tabindex="-1" aria-labelledby="SupprimerModalLabel" aria-hidden="true"
+    *ngIf="utilisateur">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="SupprimerModal Label">Supprimer {{name}}</h1>
+                <h1 class="modal-title fs-5" id="SupprimerModalLabel">Supprimer {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -321,10 +324,9 @@
                                 </div>
                                 <p class="card-text"><strong>Identifiant Utilisateur:</strong> {{
                                     utilisateur.id_utilisateur}}</p>
-                                <p class="card-text"><strong>Nomn :</strong> {{ utilisateur.nom }}</p>
-                                <p class="card-text"><strong>Prenom :</strong> {{ utilisateur.prenom }}</p>
-                                <p class="card-text"><strong>Email </strong> {{ utilisateur.email }}</p>
-                                <p class="card-text"><strong> Mot de passe:</strong> {{ utilisateur.mot_de_passe }}</p>
+                                <p class="card-text"><strong>Nom :</strong> {{ utilisateur.nom }}</p>
+                                <p class="card-text"><strong>Prénom :</strong> {{ utilisateur.prenom }}</p>
+                                <p class="card-text"><strong>E-mail </strong> {{ utilisateur.email }}</p>
 
                             </div>
                         </div>

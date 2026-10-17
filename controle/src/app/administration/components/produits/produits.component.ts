@@ -1,21 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { AQL } from '../../../models/AQL';
 import { Order } from '../../../models/Order';
 import { Produit } from '../../../models/Produit';
+import { ProduitsResponse } from '../../../models/api';
 import { AqlsService } from '../../../services/aqls.service';
 import { OrdersService } from '../../../services/orders.service';
 import { ProduitsService } from '../../../services/produits.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-produits',
-  templateUrl: './produits.component.html',
-  styleUrls: ['../../shared/styles/style.css'], // Correction du nom de la clé
+    selector: 'app-produits',
+    templateUrl: './produits.component.html',
+    styleUrls: ['../../shared/styles/style.css'],
+    standalone: false
 })
 export class ProduitsComponent implements OnInit {
-  name = 'Produits';
+  protected readonly destroyRef = inject(DestroyRef);
+  name = 'Produit';
   produits: Produit[] = [];
   aqls: AQL[] = [];
   produit: Produit = new Produit();
@@ -23,6 +29,24 @@ export class ProduitsComponent implements OnInit {
   order = new Order();
   isLoading = false;
   message: string = '';
+
+  // Contrôle à la saisie : suivi de la quantité de l'OF sélectionné.
+  suiviQuantite: { qte_demandee: number; qte_enregistree: number; qte_restante: number } | null = null;
+  private readonly suiviRecherche$ = new Subject<number>();
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get produitsPage(): Produit[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.produits.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   constructor(
     private produitService: ProduitsService,
@@ -33,6 +57,27 @@ export class ProduitsComponent implements OnInit {
 
   ngOnInit(): void {
     this.reloadData();
+
+    // Recherche automatique du suivi de quantité dès qu'un OF est sélectionné
+    // ou que la quantité saisie change (avec anti-rebond).
+    this.suiviRecherche$
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+        switchMap((idOrder) => this.orderservice.getSuiviQuantite(idOrder, this.produit.id_produit)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (suivi) => (this.suiviQuantite = suivi),
+        error: () => (this.suiviQuantite = null),
+      });
+
+    // Réinitialise l'alerte quand le formulaire est vidé.
+    this.produitForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.produitForm.pristine) {
+        this.suiviQuantite = null;
+      }
+    });
   }
 
   reloadData(): void {
@@ -87,75 +132,91 @@ export class ProduitsComponent implements OnInit {
     return this.produitForm.get('id_order');
   }
 
+  /** Quantité formulée pour l'OF en cours de saisie. */
+  get quantiteSaisie(): number {
+    return Number(this.produitForm.get('quantite')?.value) || 0;
+  }
+
+  /** Vrai si la quantité saisie + quantité déjà enregistrée dépasse la commande. */
+  get depassementQuantite(): boolean {
+    if (!this.suiviQuantite) {
+      return false;
+    }
+    return this.quantiteSaisie > this.suiviQuantite.qte_restante;
+  }
+
+  /** Déclenche la vérification du suivi de quantité pour l'OF sélectionné. */
+  verifierSuiviQuantite(): void {
+    const idOrder = this.produitForm.get('id_order')?.value;
+    if (idOrder) {
+      this.suiviRecherche$.next(Number(idOrder));
+    } else {
+      this.suiviQuantite = null;
+    }
+  }
+
   resetForm() {
     this.produitForm.reset();
   }
 
   getAllOrdersFabrication(): void {
-    this.orderservice.getAllordersFabrication().subscribe(
+    this.orderservice.getAllordersFabrication().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.orders && Array.isArray(response.orders)) {
           this.orders = response.orders;
-          console.log('Orders de fabrication récupérés avec succès!');
         } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'orders' valide.",
-            response
-          );
         }
       },
       (error: any) => {
-        console.log(
-          'Erreur lors de la récupération des orders de fabrication.',
-          error
-        );
       }
     );
   }
 
   getAllProduits(): void {
-    this.produitService.getAllProduits().subscribe(
+    this.produitService.getAllProduits().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response.produits && Array.isArray(response.produits)) {
           this.produits = response.produits;
-          this.toastr.success('Produits récupérés avec succès!');
-        } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'produits' valide."
-          );
+          this.page = 1;
+          this.toastr.success('Produits récupérés avec succès.');
         }
       },
       (error: any) => {
-        console.log('Erreur lors de la récupération des produits.');
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des produits.', error);
+        this.toastr.error('Erreur lors de la récupération des produits.');
       }
     );
   }
 
   getAllAql(): void {
-    this.aqlservice.getAllAql().subscribe(
+    this.aqlservice.getAllAql().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.aqls && Array.isArray(response.aqls)) {
           this.aqls = response.aqls;
-          console.log('AQLs récupérés avec succès!', response);
         } else {
-          console.log(
-            "La réponse du service ne contient pas de tableau 'aqls' valide.",
-            response
-          );
         }
       },
       (error: any) => {
-        console.log('Erreur lors de la récupération des AQLs.', error);
       }
     );
   }
 
   ajouter() {
     if (this.produitForm.valid) {
-      this.produitService.createProduit(this.produitForm.value).subscribe(
+      // Contrôle à la saisie : avertir (sans bloquer) si le dépassement est confirmé
+      // par le serveur au moment de l'enregistrement.
+      this.produitService.createProduit(this.produitForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
         (response: any) => {
-          this.produits.push(response);
-          this.toastr.success('Produit ajouté avec succès!');
+          this.toastr.success('Produit ajouté avec succès.');
+          if (this.depassementQuantite && this.suiviQuantite) {
+            this.toastr.warning(
+              `Quantité dépassée : la commande prévoit ${this.formatNbre(this.suiviQuantite.qte_demandee)} pcs, ` +
+              `vous enregistrez ${this.formatNbre(this.suiviQuantite.qte_enregistree + this.quantiteSaisie)} pcs.`,
+              'Écart de quantité'
+            );
+          }
           this.resetForm(); // Réinitialiser le formulaire après ajout
           this.reloadData(); // Mettre à jour la liste des produits sans recharger la page
         },
@@ -170,6 +231,11 @@ export class ProduitsComponent implements OnInit {
     }
   }
 
+  /** Formate un nombre avec séparateur de milliers. */
+  formatNbre(valeur: number): string {
+    return new Intl.NumberFormat('fr-FR').format(valeur);
+  }
+
   modifier() {
     if (this.produitForm.valid) {
       const updatedProduit = {
@@ -179,9 +245,16 @@ export class ProduitsComponent implements OnInit {
 
       this.produitService
         .updateProduit(this.produit.id_produit, updatedProduit)
-        .subscribe(
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
           (response: any) => {
-            this.toastr.success('Produit modifié avec succès!');
+            this.toastr.success('Produit modifié avec succès.');
+            if (this.depassementQuantite && this.suiviQuantite) {
+              this.toastr.warning(
+                `Quantité dépassée : la commande prévoit ${this.formatNbre(this.suiviQuantite.qte_demandee)} pcs, ` +
+                `vous enregistrez ${this.formatNbre(this.suiviQuantite.qte_enregistree + this.quantiteSaisie)} pcs.`,
+                'Écart de quantité'
+              );
+            }
             this.resetForm(); // Réinitialiser le formulaire après modification
             this.reloadData(); // Rafraîchir les données affichées sans recharger la page
           },
@@ -200,13 +273,31 @@ export class ProduitsComponent implements OnInit {
     this.produit = produit;
   }
 
+  /** Sélectionne le produit et pré-remplit le formulaire de modification. */
+  ouvrirModifier(produit: Produit): void {
+    this.produit = produit;
+    this.produitForm.patchValue({
+      code: produit.code ?? '',
+      designation: produit.designation ?? '',
+      libelle_produit: produit.libelle_produit ?? '',
+      niveau: produit.niveau ?? null,
+      quantite: produit.quantite ?? null,
+      id_aql: produit.id_aql != null ? String(produit.id_aql) : null,
+      id_order: produit.id_order != null ? String(produit.id_order) : null,
+    } as any);
+    // Charge le suivi de quantité de l'OF concerné (hors produit en cours).
+    if (produit.id_order != null) {
+      this.suiviRecherche$.next(Number(produit.id_order));
+    }
+  }
+
   supprimer(produit: Produit) {
-    this.produitService.deleteProduit(produit.id_produit).subscribe(
+    this.produitService.deleteProduit(produit.id_produit).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.produits = this.produits.filter(
           (item) => item.id_produit !== produit.id_produit
         );
-        this.toastr.success('Produit supprimé avec succès!');
+        this.toastr.success('Produit supprimé avec succès.');
         this.reloadData();
       },
       (error: any) => {
@@ -222,29 +313,37 @@ export class ProduitsComponent implements OnInit {
   rechercher() {
     const searchValue = this.searchForm.get('rech')?.value;
 
-    // Vérification que searchValue est une chaîne non vide
+    // Vérification que searchValue est un code non vide
     if (
-      !searchValue ||
-      typeof searchValue !== 'string' ||
-      searchValue.trim() === ''
+      searchValue === null ||
+      searchValue === undefined ||
+      String(searchValue).trim() === ''
     ) {
-      this.message = 'Veuillez entrer un libellé valide.';
+      this.message = 'Veuillez entrer un code produit valide.';
+      this.toastr.warning(this.message);
+      return;
+    }
+
+    const code = Number(searchValue);
+    if (!Number.isFinite(code)) {
+      this.message = 'Le code produit doit être numérique.';
       this.toastr.warning(this.message);
       return;
     }
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.orderservice.getOrderByLibelle(searchValue.trim()).subscribe(
-      (response: { orders: any[] }) => {
+    this.produitService.getByCode(code).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: ProduitsResponse) => {
         this.isLoading = false; // Fin du chargement
 
-        if (response && response.orders && response.orders.length > 0) {
-          this.orders = response.orders;
-          this.toastr.success('Orders trouvés avec succès!');
+        if (response && response.produits && response.produits.length > 0) {
+          this.produits = response.produits;
+          this.page = 1;
+          this.toastr.success('Produits trouvés avec succès !');
         } else {
-          this.orders = [];
-          this.message = 'Aucun order trouvé pour ce libellé.';
+          this.produits = [];
+          this.message = 'Aucun produit trouvé pour ce code.';
           this.toastr.info(this.message);
         }
       },
@@ -253,7 +352,7 @@ export class ProduitsComponent implements OnInit {
         this.message =
           'Une erreur est survenue lors de la recherche. Veuillez réessayer plus tard.';
         this.toastr.error(this.message);
-        console.error("Erreur lors de la recherche d'orders:", error); // Log de l'erreur pour plus de détails
+        console.error('Erreur lors de la recherche de produits :', error);
       }
     );
   }

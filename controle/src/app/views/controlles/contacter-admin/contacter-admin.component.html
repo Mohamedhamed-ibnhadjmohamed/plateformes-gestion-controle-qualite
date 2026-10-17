@@ -5,50 +5,107 @@
             <span class="highlight">contactez-nous</span>
         </h1>
         <p class="description">
-            Envoyez-nous un message pour nous contacter.
+            Une question, un besoin d'accompagnement ou une demande de démonstration ? Écrivez-nous :
+            notre équipe vous répond dans les plus brefs délais.
         </p>
     </header>
 
-
     <div class="content-wrapper">
-        <div>
-            <img src="../../../../assets/images/contact.png" alt="Contact illustration" class="contact-illustration">
+
+        <!-- Colonne gauche : illustration + points forts -->
+        <div class="contact-aside">
+            <img src="../../../../assets/images/contact.png" alt="Illustration de contact" class="contact-illustration"
+                width="420" height="420" loading="lazy" decoding="async">
+
+            <ul class="contact-highlights">
+                <li>
+                    <span class="highlight-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                    Réponse sous 24 h ouvrées
+                </li>
+                <li>
+                    <span class="highlight-icon"><i class="fa-solid fa-headset" aria-hidden="true"></i></span>
+                    Assistance technique dédiée
+                </li>
+                <li>
+                    <span class="highlight-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+                    Vos données restent confidentielles
+                </li>
+            </ul>
         </div>
+
+        <!-- Colonne droite : formulaire -->
         <div class="form-container">
-        <form [formGroup]="contactForm" (ngSubmit)="ajouterContact()" class="contact-form">
-            <div class="form-fields">
-                <div class="form-field">
-                    <label for="non_utilisateur">Nom*</label>
-                    <input type="text" id="non_utilisateur" formControlName="non_utilisateur" placeholder="Votre nom" required>
-                    <div *ngIf="non_utilisateur?.invalid && (non_utilisateur?.touched || non_utilisateur?.dirty)">
-                        <small *ngIf="non_utilisateur?.errors?.['required']">Le nom est requis.</small>
+            <div class="form-head">
+                <span class="form-eyebrow">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Formulaire de contact
+                </span>
+                <h2 class="form-title">Envoyez-nous un message</h2>
+                <p class="form-subtitle">Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+            </div>
+
+            <div class="form-success" *ngIf="envoye" role="status">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span>Merci ! Votre message a bien été envoyé. Nous vous répondrons rapidement.</span>
+            </div>
+
+            <form [formGroup]="contactForm" (ngSubmit)="ajouterContact()" class="contact-form" novalidate>
+                <div class="form-fields">
+                    <div class="form-field">
+                        <label for="non_utilisateur">Nom *</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+                            <input type="text" id="non_utilisateur" formControlName="non_utilisateur"
+                                placeholder="Votre nom" autocomplete="name" required>
+                        </div>
+                        <small class="form-error"
+                            *ngIf="non_utilisateur?.invalid && (non_utilisateur?.touched || non_utilisateur?.dirty)">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            <span *ngIf="non_utilisateur?.errors?.['required']">Le nom est requis.</span>
+                        </small>
                     </div>
-                </div>
-        
-                <div class="form-field">
-                    <label for="email">Email*</label>
-                    <input type="email" id="email" formControlName="email" placeholder="Votre email" required>
-                    <div *ngIf="email?.invalid && (email?.touched || email?.dirty)">
-                        <small *ngIf="email?.errors?.['required']">L'email est requis.</small>
-                        <small *ngIf="email?.errors?.['email']">L'email n'est pas valide.</small>
+
+                    <div class="form-field">
+                        <label for="email">E-mail *</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope input-icon" aria-hidden="true"></i>
+                            <input type="email" id="email" formControlName="email" placeholder="Votre e-mail"
+                                autocomplete="email" required>
+                        </div>
+                        <small class="form-error" *ngIf="email?.invalid && (email?.touched || email?.dirty)">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            <span *ngIf="email?.errors?.['required']">L'email est requis.</span>
+                            <span *ngIf="email?.errors?.['email']">L'email n'est pas valide.</span>
+                        </small>
                     </div>
-                </div>
-        
-                <div class="form-field">
-                    <label for="message">Message*</label>
-                    <textarea id="message" formControlName="message" placeholder="Votre message" required></textarea>
-                    <div *ngIf="message?.invalid && (message?.touched || message?.dirty)">
-                        <small *ngIf="message?.errors?.['required']">Le message est requis.</small>
-                        <small *ngIf="message?.errors?.['minlength']">
-                            Le message doit contenir au moins 10 caractères.
+
+                    <div class="form-field">
+                        <label for="message">Message *</label>
+                        <div class="input-wrap input-wrap-textarea">
+                            <i class="fa-solid fa-comment-dots input-icon" aria-hidden="true"></i>
+                            <textarea id="message" formControlName="message" placeholder="Votre message" required></textarea>
+                        </div>
+                        <div class="field-meta">
+                            <small *ngIf="message?.value?.length"
+                                [class.form-error]="message?.invalid && (message?.touched || message?.dirty)"
+                                [class.form-hint]="!(message?.invalid && (message?.touched || message?.dirty))">
+                                {{ (message?.value?.length || 0) }} caractère(s)
+                            </small>
+                            <small class="char-target">Minimum 10 caractères</small>
+                        </div>
+                        <small class="form-error" *ngIf="message?.invalid && (message?.touched || message?.dirty)">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            <span *ngIf="message?.errors?.['required']">Le message est requis.</span>
+                            <span *ngIf="message?.errors?.['minlength']">Le message doit contenir au moins 10 caractères.</span>
                         </small>
                     </div>
                 </div>
-            </div>
-        
-            <button type="submit" class="submit-button" [disabled]="contactForm.invalid">Envoyer le message</button>
-        </form>
 
+                <button type="submit" class="submit-button" [disabled]="contactForm.invalid || isSubmitting">
+                    <i class="fa-solid" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'"
+                        aria-hidden="true"></i>
+                    {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le message' }}
+                </button>
+            </form>
         </div>
     </div>
 </section>

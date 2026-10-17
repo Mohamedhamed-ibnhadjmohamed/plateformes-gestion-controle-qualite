@@ -1,256 +1,261 @@
+/* ============================================================
+   Section « Types de contrôle » — trois cartes cliquables.
+   Rythme de section et en-tête repris par les sections voisines.
+   ============================================================ */
+
 .services-block {
-    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: center;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 3.75rem);
+    font-family: var(--qm-font);
 }
 
-.cards-section {
-    padding: 0 100px;
-    margin-top: 40px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    justify-content: center;
-}
-
-.card {
-    align-items: center;
-    border-radius: 45px;
-    border: 1px solid #191a23;
-    box-shadow: 0 5px 0 0 #191a23;
-    display: flex;
-    min-width: 300px;
-    /* Adjusted for smaller screens */
-    max-width: 100%;
-    /* Ensures the card doesn't overflow */
-    overflow: hidden;
-    flex-wrap: wrap;
-    width: 450px;
-    padding: 30px;
-    font-family: 'Space Grotesk', sans-serif;
-}
-
-.card-souschaine,
-.card-email {
-        background-color: #f3f3f3;
-}
-
-.card-ppc,
-.card-content-creation {
-    background-color: #b9ff66;
-}
-
-.card-social-media,
-.card-analytics {
-    background-color: #191a23;
-    color: #fff;
-}
-
-.card-content {
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    height: 300px;
-    /* Ensures the content takes full width */
-}
-
-.card-content>p {
-    height: 200px;
-    text-align: justify;
-}
-
-.card-heading {
-    display: flex;
-    flex-direction: column;
-    font-size: 24px;
-    /* Reduced size for better mobile compatibility */
-    font-weight: 500;
-}
-
-.card-label {
-    border-radius: 7px;
-    padding: 5px 10px;
-    /* Adjusted padding for better balance */
-    align-self: flex-start;
-}
-
-.card-souschaine .card-label,
-.card-email .card-label {
-    background-color: #b9ff66;
-}
-
-.card-ppc .card-label,
-.card-content-creation .card-label {
-    background-color: #fff;
-}
-
-.card-social-media .card-label,
-.card-analytics .card-label {
-    background-color: #b9ff66;
-    color: #000;
-}
-
-.card-link {
-    display: flex;
-    margin-top: 40px;
-    /* Reduced for better fit */
-    align-items: center;
-    gap: 15px;
-    font-size: 18px;
-    /* Reduced for better readability on mobile */
-    font-weight: 400;
-    line-height: 1.4;
-    text-decoration: none;
-    color: inherit;
-}
-
-.link-icon {
-    width: 35px;
-    /* Adjusted size */
-    height: 35px;
-    object-fit: contain;
-}
-
-.card-illustration {
-    align-self: stretch;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    height: 200px;
-}
-
-.illustration-image {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-}
-
-@media (max-width: 991px) {
-    .cards-section {
-        padding: 0 20px;
-        flex-direction: column;
-        /* Stacked layout for smaller screens */
-    }
-
-    .card {
-        width: 100%;
-        /* Ensures full width for mobile */
-        padding: 20px;
-        /* Reduced padding */
-    }
-
-    .card-link {
-        margin-top: 20px;
-        /* Reduced margin for mobile */
-    }
-
-    .card-heading {
-        font-size: 22px;
-        /* Adjusted heading size */
-    }
-
-    .link-icon {
-        width: 30px;
-        height: 30px;
-        /* Further reduced icon size */
-    }
-}
-
-@media (max-width: 576px) {
-    .card {
-        padding: 10px;
-        /* Further reduced padding for very small screens */
-    }
-
-    .card-heading {
-        font-size: 18px;
-        /* Further reduced for small screens */
-    }
-
-    .card-link {
-        font-size: 16px;
-        /* Font size adjustment */
-        margin-top: 10px;
-    }
-}
-
-
-
+/* ---------- En-tête de section ---------- */
 .case-studies-header {
     display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    color: #000;
-    justify-content: flex-start;
     flex-wrap: wrap;
-    padding: 0 100px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(1rem, 3vw, 1.875rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--qm-ink);
 }
 
 .title {
     display: flex;
     min-width: 240px;
     flex-direction: column;
-    font-size: 30px !important;
-    font-weight: 500;
-    justify-content: flex-start;
     margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
 }
 
 .highlight {
-    border-radius: 7px;
-    background-color: #b9ff66;
-    padding: 10px;
+    align-self: flex-start;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    padding: .2rem .7rem;
+    color: #14261c;
 }
 
 .description {
-    font-size: 18px;
-    font-weight: 400;
-    width: 580px;
+    width: 100%;
+    max-width: 62ch;
     margin: 0;
+    color: var(--qm-muted);
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1.65;
 }
 
-@media (max-width: 991px) {
-    .case-studies-header {
-        padding: 0 20px;
-    }
-
-    .description {
-        max-width: 100%;
-    }
+/* ---------- Cartes ---------- */
+.cards-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    width: 100%;
+    max-width: 1200px;
+    margin: clamp(1.75rem, 4vw, 2.75rem) auto 0;
 }
 
+.card {
+    display: flex;
+    /* Trois cartes côte à côte, retour à la ligne sans débordement.
+       `flex-direction: column` est explicite : Bootstrap impose déjà une
+       colonne sur `.card`, mieux vaut l'assumer que la contrecarrer. */
+    flex: 1 1 320px;
+    max-width: 380px;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-lg);
+    background-color: var(--qm-surface);
+    box-shadow: var(--qm-shadow-sm);
+    overflow: hidden;
+    font-family: var(--qm-font);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
 
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--qm-primary);
+    box-shadow: var(--qm-shadow-lg);
+}
 
-.button-souschaine {
-    background-color: #b9ff66;
-    border-radius: 5px;
-    border-color: #b9ff66;
-    font-size: 24px;
-    padding: 10px;
-    font-weight: 500;
-    color: #000;
+/* Les trois variantes de couleur conservent l'identité visuelle
+   (gris clair, accent, encre) mais sur des surfaces plus douces. */
+.card-souschaine {
+    background-color: #f8fafc;
+}
+
+.card-ppc {
+    background-color: var(--qm-accent);
+    border-color: rgba(20, 38, 28, .12);
+}
+
+.card-social-media {
+    background-color: var(--qm-ink);
+    border-color: var(--qm-ink);
+    color: #e2e8f0;
+}
+
+.card-content {
+    display: flex;
+    /* `flex: none` : dans une carte en colonne, `flex: 1` ferait grandir le
+       bloc de texte sur toute la hauteur disponible. */
+    flex: none;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.card-content>p {
+    margin: 0;
+    font-size: .95rem;
+    line-height: 1.65;
+    text-align: left;
+    color: inherit;
+    opacity: .9;
+}
+
+.card-heading {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 .75rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.card-label {
+    align-self: flex-start;
+    border-radius: var(--qm-radius-sm);
+    padding: .3rem .75rem;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+.card-souschaine .card-label {
+    background-color: var(--qm-accent);
+    color: #14261c;
+}
+
+.card-ppc .card-label {
+    background-color: #fff;
+    color: var(--qm-ink);
+}
+
+.card-social-media .card-label {
+    background-color: var(--qm-accent);
+    color: #14261c;
+}
+
+.card-illustration {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* Hauteur fixe : les trois cartes restent alignées et l'image n'est
+       jamais rognée par le `overflow: hidden` de la carte. */
+    height: 220px;
+    overflow: hidden;
+}
+
+.illustration-image {
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* ---------- Boutons d'action ---------- */
+.button-souschaine,
+.button-finchaine,
+.button-audit {
+    /* `margin-top: auto` colle le bouton en bas, même si les cartes
+       voisines sont plus hautes. */
+    flex: none;
+    align-self: stretch;
+    margin-top: auto;
+    padding: .7rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--qm-radius-sm);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease,
+        transform .05s ease;
+}
+
+.button-souschaine,
+.button-audit {
+    background-color: var(--qm-accent);
+    border-color: var(--qm-accent);
+    color: #14261c;
+}
+
+.button-souschaine:hover,
+.button-audit:hover {
+    background-color: var(--qm-ink);
+    border-color: var(--qm-ink);
+    color: var(--qm-accent);
 }
 
 .button-finchaine {
-    background-color: #fff;
-    border-radius: 5px;
-    border-color: #fff;
-    font-size: 24px;
-    padding: 10px;
-    font-weight: 500;
-    color: #000;
+    background-color: var(--qm-ink);
+    border-color: var(--qm-ink);
+    color: #fff;
 }
 
-.button-audit {
-    background-color: #b9ff66;
-    border-radius: 5px;
-    border-color: #b9ff66;
-    font-size: 24px;
-    padding: 10px;
-    font-weight: 500;
-    color: #000;
+.button-finchaine:hover {
+    background-color: var(--qm-primary);
+    border-color: var(--qm-primary);
+    color: #fff;
+}
+
+/* ---------- Adaptations ---------- */
+@media (max-width: 991.98px) {
+    .card {
+        /* Deux cartes par ligne au maximum ; la troisième reste centrée
+           au lieu de s'étirer sur toute la largeur. */
+        flex: 1 1 300px;
+        max-width: 460px;
+    }
+
+    .card-heading {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .card {
+        flex: 1 1 100%;
+        max-width: 100%;
+        padding: 1.25rem;
+    }
+
+    .card-heading {
+        font-size: 1.1rem;
+    }
+
+    .card-illustration {
+        height: 190px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card,
+    .card:hover {
+        transform: none;
+    }
 }

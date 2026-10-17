@@ -1,0 +1,66 @@
+/* ============================================================
+   Section « Fonctionnalités » — grille de cartes présentant
+   les capacités de la plateforme.
+   ============================================================ */
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+    width: 100%;
+    margin: clamp(1.75rem, 4vw, 2.75rem) auto 0;
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+    padding: clamp(1.35rem, 3vw, 1.85rem);
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius-lg);
+    background-color: var(--qm-surface);
+    box-shadow: var(--qm-shadow-sm);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--qm-primary);
+    box-shadow: var(--qm-shadow-lg);
+}
+
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: .35rem;
+    border-radius: var(--qm-radius);
+    background-color: var(--qm-primary-soft);
+    color: var(--qm-primary);
+    font-size: 1.25rem;
+}
+
+.feature-title {
+    margin: 0;
+    color: var(--qm-ink);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.feature-text {
+    margin: 0;
+    color: var(--qm-muted);
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .feature-card,
+    .feature-card:hover {
+        transform: none;
+    }
+}

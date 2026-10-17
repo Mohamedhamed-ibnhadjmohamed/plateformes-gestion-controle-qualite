@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Default } from '../../../models/Default';
+import { DefaultsResponse } from '../../../models/api';
 import { Employee } from '../../../models/Employee';
 import { FamilleDefault } from '../../../models/FamillieDefaults';
 import { Inspection } from '../../../models/Inspection';
@@ -10,13 +11,17 @@ import { EmployeesService } from '../../../services/employees.service';
 import { FamilliedefaultService } from '../../../services/familliedefault.service';
 import { InspectionsService } from '../../../services/inspections.service';
 import { ToastrService } from 'ngx-toastr';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../environments/environment';
 
 @Component({
-  selector: 'app-defauts',
-  templateUrl: './defauts.component.html',
-  styleUrl: '../../shared/styles/style.css',
+    selector: 'app-defauts',
+    templateUrl: './defauts.component.html',
+    styleUrl: '../../shared/styles/style.css',
+    standalone: false
 })
-export class DefautsComponent {
+export class DefautsComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   required: any;
   constructor(
     private http: HttpClient,
@@ -37,21 +42,23 @@ export class DefautsComponent {
     this.getAllinspection();
   }
   // Var
-  name: string = 'Default';
+  name: string = 'Défaut';
   default: Default = new Default();
   defaults: Default[] = [];
   employees: Employee[] = [];
   familledefaults: FamilleDefault[] = []; // Array of Aql objects (type safety)
   Inspections?: Inspection[] = [];
   selectedImage: File | null = null;
-  path = 'http://localhost:3000/upload/ ';
+  /** Nom du fichier image actuellement sélectionné (pour affichage). */
+  nomFichierSelectionne: string | null = null;
+  uploadUrl = environment.apiUrl + 'upload/';
   // Debut Form group defaultForm
   defaultForm = new FormGroup({
     description: new FormControl('', [
       Validators.required,
       Validators.maxLength(255),
     ]),
-    image: new FormControl('', Validators.required),
+    image: new FormControl(''),
     id_famille: new FormControl('', Validators.required),
     id_inspection: new FormControl('', Validators.required),
     nombre: new FormControl('', [
@@ -63,56 +70,36 @@ export class DefautsComponent {
     id_employee: new FormControl('', Validators.required),
   });
 
-  // Méthode pour soumettre le formulaire
-  submitForm() {
-    if (this.defaultForm.valid) {
-      console.log(this.defaultForm.value);
-      // Logique pour soumettre les données...
-    } else {
-      console.log("Le formulaire n'est pas valide");
-    }
-  }
-
   // Méthode pour réinitialiser le formulaire
   resetForm() {
     this.defaultForm.reset();
+    this.selectedImage = null;
+    this.nomFichierSelectionne = null;
   }
 
   get description() {
     return this.defaultForm.get('description');
   }
-  get image() {
-    // Récupérer la valeur actuelle du champ "image" dans le formulaire
-    const currentImageValue = this.defaultForm.get('image')?.value;
-
-    // Vérifier si une image est déjà présente dans le formulaire
-    if (currentImageValue) {
-      // Si une image est déjà présente, retourner directement sa valeur
-      return currentImageValue;
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedImage = input.files[0];
+      this.nomFichierSelectionne = input.files[0].name;
     } else {
-      // Si aucune image n'est présente, vérifier si une image est sélectionnée
-      if (this.selectedImage !== null && this.selectedImage instanceof File) {
-        // Si une image est sélectionnée, télécharger cette image
-        return new Promise<string>((resolve, reject) => {
-          this.uploadImage(this.selectedImage!).subscribe(
-            (imageResponse: any) => {
-              // Une fois l'image téléchargée, mettre à jour la valeur du champ "image" dans le formulaire
-              const imagePath = imageResponse.path;
-              this.defaultForm.get('image')?.setValue(imagePath);
-              // Renvoyer le chemin de l'image
-              resolve(imagePath);
-            },
-            (error: any) => {
-              // En cas d'erreur lors du téléchargement de l'image, rejeter la promesse avec l'erreur
-              reject("Erreur lors du téléchargement de l'image :" + error);
-            }
-          );
-        });
-      } else {
-        // Si aucune image n'est sélectionnée ou si elle n'est pas un fichier, retourner null ou une valeur par défaut selon vos besoins
-        return null;
-      }
+      this.selectedImage = null;
+      this.nomFichierSelectionne = null;
     }
+  }
+
+  /** Retire l'image choisie et vide le champ fichier associé. */
+  effacerImage(input: HTMLInputElement): void {
+    input.value = '';
+    this.selectedImage = null;
+    this.nomFichierSelectionne = null;
+  }
+
+  get image() {
+    return this.defaultForm.get('image');
   }
 
   uploadImage(image: File) {
@@ -120,7 +107,7 @@ export class DefautsComponent {
     formData.append('image', image);
 
     // Envoyer la demande POST pour télécharger l'image
-    return this.http.post<any>('defaults/upload', formData);
+    return this.http.post<any>(`${environment.apiUrl}defaults/upload`, formData);
   }
 
   get id_famille() {
@@ -142,111 +129,157 @@ export class DefautsComponent {
   // Debut crub defaut
   modifierDefault() {
     if (this.defaultForm.valid) {
-      const formData = this.defaultForm.value;
-      //alert(JSON.stringify(formData));
-      // alert(JSON.stringify(this.default.id_defaults));
-      this.defaultservice
-        .updatedefault(this.default.id_defaults, formData)
-        .subscribe(
-          (response: any) => {
-            console.log(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour.`
-            );
-            this.toastr.success(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour.`
-            );
-            this.reloadData();
+      if (this.selectedImage) {
+        this.uploadImage(this.selectedImage).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+          (imageResponse: any) => {
+            const formData = { ...this.defaultForm.value };
+            formData.image = imageResponse.filename || imageResponse.path;
+            this.defaultservice
+              .updatedefault(this.default.id_defaults, formData)
+              .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+                (response: any) => {
+                  this.toastr.success(
+                    `Défaut avec l'ID ${this.default.id_defaults} a été mis à jour.`
+                  );
+                  this.reloadData();
+                  this.selectedImage = null;
+                  this.nomFichierSelectionne = null;
+                },
+                (error: any) => {
+                  console.error('Erreur lors de la mise à jour du défaut.', error);
+                  this.toastr.error('Erreur lors de la mise à jour du défaut.');
+                }
+              );
           },
           (error: any) => {
-            console.error('Erreur lors de la mise à jour du défaut :', error);
-            this.toastr.error('Erreur lors de la mise à jour du défaut :');
+            console.error("Erreur lors du téléchargement de l'image :", error);
+            this.toastr.error("Erreur lors du téléchargement de l'image.");
           }
         );
+      } else {
+        const formData = this.defaultForm.value;
+        this.defaultservice
+          .updatedefault(this.default.id_defaults, formData)
+          .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+            (response: any) => {
+              this.toastr.success(
+                `Défaut avec l'ID ${this.default.id_defaults} a été mis à jour.`
+              );
+              this.reloadData();
+            },
+            (error: any) => {
+              console.error('Erreur lors de la mise à jour du défaut.', error);
+              this.toastr.error('Erreur lors de la mise à jour du défaut.');
+            }
+          );
+      }
     } else {
-      console.log('Form is invalid');
+      this.toastr.error('Formulaire invalide.');
     }
   }
 
   extraireNomFichier(cheminComplet: string) {
-    const derniereBarreObliqueIndex = cheminComplet.lastIndexOf('\\');
-    const nomFichier = cheminComplet.substring(derniereBarreObliqueIndex + 1);
-    return nomFichier;
+    if (!cheminComplet) return '';
+    const nomFichier = cheminComplet.split(/[/\\]/).pop();
+    return nomFichier || cheminComplet;
   }
 
   ajoutDefault(): void {
     // Vérifiez si le formulaire est valide
     if (this.defaultForm.valid) {
-      // Si le formulaire est valide, extrayez les valeurs du formulaire
-      const formData = this.defaultForm.value;
-
-      // Appeler la méthode createdefault du service pour ajouter le nouvel AQL
-      this.defaultservice.createdefault(formData).subscribe(
-        (response: any) => {
-          // Si la création réussit, ajouter la réponse à la liste des AQL
-          this.defaults.push(response);
-          this.toastr.success('defaut ajouter  ');
-          this.reloadData();
-        },
-        (error: any) => {
-          // En cas d'erreur, afficher un message d'erreur dans la console
-          console.error("Erreur lors de l'ajout de default :", error);
-          this.toastr.error('Erreur lors de l ajout ');
-        }
-      );
+      if (this.selectedImage) {
+        this.uploadImage(this.selectedImage).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+          (imageResponse: any) => {
+            const formData = { ...this.defaultForm.value };
+            formData.image = imageResponse.filename || imageResponse.path;
+            this.defaultservice.createdefault(formData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+              (response: any) => {
+                this.toastr.success('Défaut ajouté avec succès.');
+                this.reloadData();
+                this.selectedImage = null;
+                this.nomFichierSelectionne = null;
+              },
+              (error: any) => {
+                console.error("Erreur lors de l'ajout du défaut.", error);
+                this.toastr.error("Erreur lors de l'ajout.");
+              }
+            );
+          },
+          (error: any) => {
+            console.error("Erreur lors du téléchargement de l'image :", error);
+            this.toastr.error("Erreur lors du téléchargement de l'image.");
+          }
+        );
+      } else {
+        const formData = this.defaultForm.value;
+        this.defaultservice.createdefault(formData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+          (response: any) => {
+            this.toastr.success('Défaut ajouté avec succès.');
+            this.reloadData();
+          },
+          (error: any) => {
+            console.error("Erreur lors de l'ajout du défaut.", error);
+            this.toastr.error("Erreur lors de l'ajout.");
+          }
+        );
+      }
     } else {
-      console.log('Form is invalid');
-      this.toastr.error('form invalid');
+      this.toastr.error('Formulaire invalide.');
     }
   }
 
   getAlldefault(): void {
-    this.defaultservice.getAlldefault().subscribe(
+    this.defaultservice.getAlldefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response.defaults && Array.isArray(response.defaults)) {
           this.defaults = response.defaults;
+          this.page = 1;
+          this.toastr.success('Défauts récupérés avec succès.');
         } else {
           console.error(
             "La réponse du service ne contient pas de tableau 'defaults' valide :",
             response
           );
+          this.toastr.error('Données invalides reçues du service.');
           // Traiter les cas d'erreur appropriés ici
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        this.chargement = false;
+        console.error('Erreur lors de la récupération des données.', error);
+        this.toastr.error('Erreur lors de la récupération des défauts.');
         // Traiter les erreurs de requête ici
       }
     );
   }
 
   getAllEmployees(): void {
-    this.employeeservice.getAllEmployees().subscribe(
+    this.employeeservice.getAllEmployees().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
-        if (response.employés && Array.isArray(response.employés)) {
-          this.employees = response.employés;
-          console.log('Employés:', this.employees);
+        if (response.employees && Array.isArray(response.employees)) {
+          this.employees = response.employees;
         } else {
           console.error(
-            "La réponse du service ne contient pas de tableau 'employés' valide :",
+            "La réponse du service ne contient pas de tableau 'employees' valide :",
             response
           );
           // Traiter les cas d'erreur appropriés ici
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         // Traiter les erreurs de requête ici
       }
     );
   }
 
   getAllfamilledefault(): void {
-    this.familledeafultservice.getAllfamilledefault().subscribe(
+    this.familledeafultservice.getAllfamilledefault().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response && response.familles && Array.isArray(response.familles)) {
           // Utiliser la clé 'familles' au lieu de 'familledefault'
           this.familledefaults = response.familles; // Utiliser 'familles' au lieu de 'familledefault'
-          //alert(JSON.stringify(this.familledefaults));
         } else {
           console.error(
             'La réponse du service ne contient pas de tableau familledefaults valide :',
@@ -255,13 +288,13 @@ export class DefautsComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
 
   getAllinspection(): void {
-    this.inspectionservice.getAllinspection().subscribe(
+    this.inspectionservice.getAllinspection().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.inspections && Array.isArray(response.inspections)) {
           // Vérifier si la réponse contient la clé 'aqls' et si elle est un tableau
@@ -275,7 +308,7 @@ export class DefautsComponent {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
         // Traiter les erreurs de requête ici
       }
     );
@@ -285,51 +318,57 @@ export class DefautsComponent {
     this.default = def;
   }
 
+  /** Sélectionne le défaut et pré-remplit le formulaire de modification. */
+  ouvrirModifier(def: Default): void {
+    this.default = def;
+    this.selectedImage = null;
+    this.nomFichierSelectionne = null;
+    this.defaultForm.patchValue({
+      description: def.description ?? '',
+      image: def.image ?? '',
+      id_famille: def.id_famille != null ? String(def.id_famille) : null,
+      id_inspection:
+        def.id_inspection != null ? String(def.id_inspection) : null,
+      nombre: def.nombre ?? null,
+      type: def.type ?? '',
+      id_employee: def.id_employee != null ? String(def.id_employee) : null,
+    } as any);
+  }
+
   supprimer(def: Default) {
-    this.defaultservice.deletedefault(def.id_defaults).subscribe(
+    this.defaultservice.deletedefault(def.id_defaults).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.defaults = this.defaults.filter(
           (d) => d.id_defaults !== def.id_defaults
         );
-        console.log(`Default avec l'ID ${def.id_defaults} a été supprimé.`);
         this.toastr.success(
-          'Default avec l ID ${def.id_defaults} a été supprimé.'
+          `Défaut avec l'ID ${def.id_defaults} a été supprimé avec succès.`
         );
       },
       (error: any) => {
-        console.error('Erreur lors de la suppression du défaut :', error);
-        this.toastr.error('Erreur lors de la suppression du défaut :');
+        console.error('Erreur lors de la suppression du défaut.', error);
+        this.toastr.error('Erreur lors de la suppression du défaut.');
       }
     );
-  }
-
-  modifier(): void {
-    if (this.defaultForm.valid) {
-      const formData = this.defaultForm.value;
-      this.defaultservice
-        .updatedefault(this.default.id_defaults, formData)
-        .subscribe(
-          (response: any) => {
-            console.log(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour.`
-            );
-            this.toastr.success(
-              `Default avec l'ID ${this.default.id_defaults} a été mis à jour.`
-            );
-          },
-          (error: any) => {
-            console.error('Erreur lors de la mise à jour du défaut :', error);
-            this.toastr.error('Erreur lors de la mise à jour du défaut :');
-          }
-        );
-    } else {
-      console.log('Form is invalid');
-    }
   }
 
   //rechercher
   isLoading = false;
   message: string = '';
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get defaultsPage(): Default[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.defaults.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   searchForm = new FormGroup({
     rech: new FormControl('', Validators.required),
@@ -351,8 +390,8 @@ export class DefautsComponent {
 
     this.isLoading = true; // Indique que la recherche est en cours
 
-    this.defaultservice.rechercher(searchValue.trim()).subscribe(
-      (response: { defaults: any[] }) => {
+    this.defaultservice.rechercher(searchValue.trim()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (response: DefaultsResponse) => {
         this.isLoading = false; // Fin du chargement
 
         // Correction ici: vérification de 'response.defaults' au lieu de 'response.utilisateur'
@@ -361,12 +400,12 @@ export class DefautsComponent {
           response.defaults &&
           response.defaults.length > 0
         ) {
-          console.log(JSON.stringify(response));
           this.defaults = response.defaults;
-          this.toastr.success('defaults trouvés avec succès!');
+          this.page = 1;
+          this.toastr.success('Défauts trouvés avec succès !');
         } else {
           this.defaults = [];
-          this.message = 'Aucun utilisateur trouvé pour ce libellé.'; // Correction du message
+          this.message = 'Aucun défaut trouvé pour ce libellé.'; // Correction du message
           this.toastr.info(this.message);
         }
       },

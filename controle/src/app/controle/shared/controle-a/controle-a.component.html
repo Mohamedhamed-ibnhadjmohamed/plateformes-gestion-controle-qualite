@@ -17,14 +17,14 @@
     <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#AjouterModal"
             [disabled]="isButtonDisabled">
-            <i class="fa-solid fa-plus ms-2 "></i> Ajouter un defaut
+            <i class="fa-solid fa-plus ms-2 "></i> Ajouter un défaut
         </button>
     </div>
     <div *ngIf="defaults && defaults.length > 0; else noData">
         <h3 class="mb-0  ">
             <h1 class="title">
                 <span class="highlight"><i class="fas fa-box"></i>
-                    Liste des defauts
+                    Liste des défauts
                 </span>
             </h1>
         </h3>
@@ -43,7 +43,7 @@
                     <td>{{ default.description }}</td>
                     <td>
                         <img *ngIf="default.image"
-                            [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)" alt="img"
+                            [src]="uploadUrl + extraireNomFichier(default.image)" alt="img"
                             class="img-thumbnail" width="100">
                     </td>
                     <td>{{ default.type }}</td>
@@ -74,12 +74,12 @@
 </ng-template>
 
 <!-- Modal Consulter -->
-<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModal Label"
+<div class="modal fade modal-xl" id="ConsulterModal" tabindex="-1" aria-labelledby="ConsulterModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="ConsulterModal Label">Consulter {{name}}</h1>
+                <h1 class="modal-title fs-5" id="ConsulterModalLabel">Consulter {{name}}</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -89,7 +89,7 @@
 
                             <div class="card-body d-flex">
                                 <div class="flex-grow-1 text-start">
-                                    <p class="card-text"><strong>Identifiant Défault :</strong> {{ default.id_defaults
+                                    <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults
                                         }}
                                     </p>
                                     <p class="card-text"><strong>Description du défaut :</strong> {{ default.description
@@ -109,10 +109,10 @@
                                     </p>
                                     <p class="card-text"><strong>Nombre de pièces du même défaut :</strong> {{
                                         default.nombre }}</p>
-                                    <p class="card-text"><strong>Le employé qui commet une defaut</strong>
+                                    <p class="card-text"><strong>L'employé qui commet un défaut</strong>
                                         <span *ngFor="let employee of employees">
                                             <span *ngIf="employee.id_employee == default.id_employee">
-                                                Chonger : {{employee.nom}} {{employee.prenom}}
+                                                Changer : {{employee.nom}} {{employee.prenom}}
                                             </span>
                                         </span>
                                     </p>
@@ -122,7 +122,7 @@
                                     <strong>Image du défaut :</strong>
                                     <br>
                                     <img *ngIf="default.image" style="width: 400px; height: 200px;"
-                                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                        [src]="uploadUrl + extraireNomFichier(default.image)"
                                         alt="Image du défaut">
                                 </div>
                             </div>
@@ -202,7 +202,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="id_employee">Le employé qui commet une defaut:</label>
+                        <label for="id_employee">L'employé qui commet un défaut:</label>
                         <select class="form-control" id="id_employee" formControlName="id_employee">
                             <option *ngFor="let employee of employees" [value]="employee.id_employee">
                                 {{employee.nom}} {{employee.prenom}}
@@ -213,7 +213,7 @@
                         </div>
                     </div>
 
-                    <button type="reset" class="btn btn-danger" (click)="resetForm()">Annuler</button>
+                    <button type="reset" class="btn btn-secondary" (click)="resetForm()" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary" [disabled]="!defaultForm.valid"
                         data-bs-dismiss="modal">Ajouter un nouveau défaut</button>
                 </form>
@@ -247,16 +247,16 @@
 
                     <div class="form-group">
                         <label for="image">Image :</label>
-                        <input type="file" class="form-control" (change)="($event)" id="image" formControlName="image">
+                        <input type="file" class="form-control" id="image" formControlName="image">
                     </div>
 
                     <div class="form-group">
-                        <label for="id_famille">Famille default :</label>
+                        <label for="id_famille">Famille défaut :</label>
                         <select class="form-select" id="id_famille" formControlName="id_famille">
                             <option disabled>
                                 <span *ngFor="let familledefault of familledefaults">
                                     <span *ngIf="familledefault.id_famille == default.id_famille">
-                                        chonger : {{ familledefault.nom }}
+                                        changer : {{ familledefault.nom }}
                                     </span>
                                 </span>
                             </option>
@@ -283,7 +283,7 @@
                     <div class="form-group">
                         <label for="type">Type :</label>
                         <select class="form-select" id="type" formControlName="type">
-                            <option disabled>Chonger : {{default.type}}</option>
+                            <option disabled>Changer : {{default.type}}</option>
                             <option value="mineur">Mineur</option>
                             <option value="majeur">Majeur</option>
                             <option value="critique">Critique</option>
@@ -296,7 +296,7 @@
                             <option disabled>
                                 <span *ngFor="let employee of employees">
                                     <span *ngIf="employee.id_employee == default.id_employee">
-                                        Chonger : {{employee.nom}} {{employee.prenom}}
+                                        Changer : {{employee.nom}} {{employee.prenom}}
                                     </span>
                                 </span>
                             </option>
@@ -310,7 +310,7 @@
 
                     <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"
                         [disabled]="!defaultForm.valid">Modifier</button>
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+                    <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 </form>
             </div>
         </div>
@@ -335,7 +335,7 @@
                             </div>
                             <div class="card-body d-flex">
                                 <div class="flex-grow-1 text-start">
-                                    <p class="card-text"><strong>Identifiant Défault :</strong> {{ default.id_defaults
+                                    <p class="card-text"><strong>Identifiant défaut :</strong> {{ default.id_defaults
                                         }}
                                     </p>
                                     <p class="card-text"><strong>Description du défaut :</strong> {{ default.description
@@ -355,10 +355,10 @@
                                     </p>
                                     <p class="card-text"><strong>Nombre de pièces du même défaut :</strong> {{
                                         default.nombre }}</p>
-                                    <p class="card-text"><strong>Le employé qui commet une defaut</strong>
+                                    <p class="card-text"><strong>L'employé qui commet un défaut</strong>
                                         <span *ngFor="let employee of employees">
                                             <span *ngIf="employee.id_employee == default.id_employee">
-                                                Chonger : {{employee.nom}} {{employee.prenom}}
+                                                Changer : {{employee.nom}} {{employee.prenom}}
                                             </span>
                                         </span>
                                     </p>
@@ -368,7 +368,7 @@
                                     <strong>Image du défaut :</strong>
                                     <br>
                                     <img *ngIf="default.image" style="width: 400px; height: 200px;"
-                                        [src]="'http://localhost:3000/upload/' + extraireNomFichier(default.image)"
+                                        [src]="uploadUrl + extraireNomFichier(default.image)"
                                         alt="Image du défaut">
                                 </div>
                             </div>

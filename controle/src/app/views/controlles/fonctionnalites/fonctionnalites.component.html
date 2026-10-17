@@ -1,0 +1,23 @@
+<section class="qm-section qm-section--surface" id="fonctionnalites">
+    <div class="qm-section__inner">
+        <header class="qm-section-head">
+            <h2 class="qm-section-title">
+                <span>Fonctionnalités</span>
+            </h2>
+            <p class="qm-section-text">
+                Une plateforme complète pour piloter vos contrôles qualité, du poste de contrôle jusqu'au rapport
+                final. Chaque module a été pensé pour les équipes qualité exigeantes.
+            </p>
+        </header>
+
+        <div class="features-grid">
+            <article class="feature-card" *ngFor="let fonctionnalite of fonctionnalites">
+                <span class="feature-icon">
+                    <i [class]="fonctionnalite.icone" aria-hidden="true"></i>
+                </span>
+                <h3 class="feature-title">{{ fonctionnalite.titre }}</h3>
+                <p class="feature-text">{{ fonctionnalite.texte }}</p>
+            </article>
+        </div>
+    </div>
+</section>

@@ -1,57 +1,111 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+import { AuthService } from '../../services/login/auth.service';
 
+/**
+ * Barre de navigation de l'espace de contrôle.
+ *
+ * Regroupe les liens de navigation, le menu « Contrôle » et le menu
+ * utilisateur. Sur mobile, les liens sont repliés derrière un bouton.
+ */
 @Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css',
+    selector: 'app-navbar',
+    templateUrl: './navbar.component.html',
+    styleUrl: './navbar.component.css',
+    standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent implements OnInit {
-  idUtilisateur: number | null = null;
-  email: string = '';
-  motDePasse: string = '';
-  nom: string = '';
-  prenom: string = '';
+    private readonly router = inject(Router);
+    private readonly authService = inject(AuthService);
+    private readonly destroyRef = inject(DestroyRef);
 
-  constructor(private router: Router) {}
+    /** Nom complet affiché dans le menu utilisateur. */
+    nom = '';
+    /** Adresse de l'utilisateur, affichée en en-tête du menu. */
+    email = '';
+    /** Libellé lisible du rôle. */
+    roleLabel = '';
+    /** Initiales servant d'avatar. */
+    initiales = '';
+    /** Vrai lorsque le menu mobile est déplié. */
+    menuOuvert = false;
 
-  ngOnInit(): void {
-    
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser).utilisateur;
-
-      // Déstructurer l'objet utilisateur pour extraire chaque attribut dans une variable
-      const { id_utilisateur, email, mot_de_passe, nom, prenom } = user;
-
-      // Assigner chaque attribut à une variable
-      this.idUtilisateur = id_utilisateur;
-      this.email = email;
-      this.motDePasse = mot_de_passe;
-      this.nom = nom;
-      this.prenom = prenom;
-
-      // Affichage des valeurs dans la console (optionnel)
-      //console.log('ID:', this.idUtilisateur);
-      // console.log('Email:', this.email);
-      // console.log('Mot de passe:', this.motDePasse); // Notez que pour des raisons de sécurité, il est préférable de ne pas afficher les mots de passe
-      // console.log('Nom:', this.nom);
-      // console.log('Prénom:', this.prenom);
-    } else {
-      this.redirectToLogin();
+    get isAdmin(): boolean {
+        return this.authService.isAdmin();
     }
-  }
 
-  redirectToLogin(): void {
-    this.router.navigate(['/login']);
-  }
+    ngOnInit(): void {
+        const user = this.authService.getUser();
+        if (!user) {
+            this.redirectToLogin();
+            return;
+        }
 
+        this.nom = [user.prenom, user.nom].filter(Boolean).join(' ') || user.email || 'Utilisateur';
+        this.email = user.email ?? '';
+        this.roleLabel = user.role === 'admin' ? 'Administrateur' : 'Opérateur';
+        this.initiales = this.calculerInitiales(user.prenom, user.nom, user.email);
 
-  logout(): void {
-    localStorage.removeItem('user');
+        // Le menu mobile se referme dès qu'une navigation aboutit.
+        this.router.events
+            .pipe(filter((event) => event instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.fermerMenu());
+    }
 
-    // Redirection vers la page de connexion
-    this.redirectToLogin();
-  }
+    /** Replie le menu lorsqu'on revient à une largeur d'écran desktop. */
+    @HostListener('window:resize')
+    onRedimensionnement(): void {
+        if (typeof window !== 'undefined' && window.innerWidth > 991 && this.menuOuvert) {
+            this.menuOuvert = false;
+        }
+    }
+
+    /** Referme le menu mobile lorsqu'un clic a lieu en dehors de la navbar. */
+    @HostListener('document:click', ['$event'])
+    onClicDocument(event: MouseEvent): void {
+        if (!this.menuOuvert) {
+            return;
+        }
+        const cible = event.target as HTMLElement | null;
+        if (!cible?.closest('.navigation-bar')) {
+            this.menuOuvert = false;
+        }
+    }
+
+    basculerMenu(): void {
+        this.menuOuvert = !this.menuOuvert;
+    }
+
+    fermerMenu(): void {
+        this.menuOuvert = false;
+    }
+
+    redirectToLogin(): void {
+        this.router.navigate(['/login']);
+    }
+
+    logout(): void {
+        this.authService.logout();
+        this.redirectToLogin();
+    }
+
+    /** Construit deux initiales à partir du prénom, du nom ou de l'email. */
+    private calculerInitiales(prenom?: string, nom?: string, email?: string): string {
+        const p = (prenom ?? '').trim();
+        const n = (nom ?? '').trim();
+
+        if (p && n) {
+            return (p[0] + n[0]).toUpperCase();
+        }
+        if (p) {
+            return p.slice(0, 2).toUpperCase();
+        }
+        if (n) {
+            return n.slice(0, 2).toUpperCase();
+        }
+        return (email ?? '?').slice(0, 2).toUpperCase();
+    }
 }
-

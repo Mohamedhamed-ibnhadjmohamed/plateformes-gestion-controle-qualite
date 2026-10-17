@@ -1,15 +1,38 @@
-<div class="sidenav">
-  <div class="logo-container">
-    <button class="logo"><img src="../../../../assets/images/logo.png" style="width: 50px;height: 50px;"></button>
-    <div class="logo-text">QualityMaster</div>
-  </div>
-  <ul class="sidenav-nav">
-    <li class="sidenav-nav-item" *ngFor="let item of menuItem">
-      <a class="sidenav-nav-link" [routerLink]="item.routeLink" routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: true}">
-        <i class="sidenav-link-icon" [class]="item.icon"></i>
-        <span class="sidenav-link-text">{{ item.label }}</span>
-      </a>
-    </li>
-  </ul>
-</div>
+<aside class="sidenav" [class.sidenav--reduit]="reduit$ | async"
+    [class.sidenav--mobile-ouvert]="mobileOuvert$ | async">
+    <div class="sidenav__entete">
+        <a class="sidenav__marque" routerLink="/admin/statistiques" (click)="fermerMobile()"
+            aria-label="Administration — Tableau de bord">
+            <img class="sidenav__logo" src="../../../../assets/images/logo.png" alt="" />
+            <span class="sidenav__marque-texte">QualityMaster</span>
+        </a>
+    </div>
+
+    <nav class="sidenav__nav" aria-label="Navigation de l'administration">
+        <ng-container *ngFor="let section of sections">
+            <p class="sidenav__section">{{ section.titre }}</p>
+            <a class="sidenav__lien" *ngFor="let item of section.items" [routerLink]="item.routeLink"
+                routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [attr.title]="item.label"
+                (click)="fermerMobile()">
+                <i class="sidenav__icone" [class]="item.icon" aria-hidden="true"></i>
+                <span class="sidenav__lien-texte">{{ item.label }}</span>
+            </a>
+        </ng-container>
+    </nav>
+
+    <div class="sidenav__pied">
+        <a class="sidenav__lien" routerLink="/home/accueil" title="Retour au site" (click)="fermerMobile()">
+            <i class="sidenav__icone fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            <span class="sidenav__lien-texte">Retour au site</span>
+        </a>
+        <button class="sidenav__reduire" type="button" (click)="basculerReduit()"
+            aria-label="Réduire ou déplier le menu">
+            @if (reduit$ | async) {
+            <i class="fa-solid fa-angles-right" aria-hidden="true"></i>
+            } @else {
+            <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
+            }
+            <span class="sidenav__lien-texte">Réduire</span>
+        </button>
+    </div>
+</aside>

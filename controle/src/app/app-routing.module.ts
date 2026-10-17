@@ -9,6 +9,8 @@ import { InspectionsComponent } from "./administration/components/inspections/in
 import { OrdersComponent } from "./administration/components/orders/orders.component";
 import { ProduitsComponent } from "./administration/components/produits/produits.component";
 import { UtilisateursComponent } from "./administration/components/utilisateurs/utilisateurs.component";
+import { StatistiquesComponent } from "./administration/components/statistiques/statistiques.component";
+import { RapprochementComponent } from "./administration/components/rapprochement/rapprochement.component";
 import { AuditeComponent } from "./controle/audite/audite.component";
 import { FinChaineComponent } from "./controle/fin-chaine/fin-chaine.component";
 import { ConsultationComponent } from "./controle/shared/consultation/consultation.component";
@@ -18,8 +20,11 @@ import { SousChaineComponent } from "./controle/sous-chaine/sous-chaine.componen
 import { LoginComponent } from "./login/login/login.component";
 import { RegisterComponent } from "./login/register/register.component";
 import { NotfoundComponent } from "./shared/notfound/notfound.component";
+import { AuthGuard } from "./services/login/auth.guard";
+import { AdminGuard } from "./services/login/admin.guard";
 import { AdministrationComponent } from "./views/administration/administration.component";
 import { AccueilComponent } from "./views/controlles/accueil/accueil.component";
+import { AnalysesComponent } from "./views/controlles/analyses/analyses.component";
 import { HomeComponent } from "./views/controlles/home/home.component";
 import { ParametreComponent } from "./views/controlles/parametre/parametre.component";
 import { AjouterProduitComponent } from "./views/controlles/parametre/ajouter-produit/ajouter-produit.component";
@@ -34,7 +39,9 @@ const routes: Routes = [
   {
     path: 'admin',
     component: AdministrationComponent,
+    canActivate: [AuthGuard, AdminGuard],
     children: [
+      { path: 'statistiques', component: StatistiquesComponent },
       { path: 'produit', component: ProduitsComponent },
       { path: 'contacter', component: ContacterComponent },
       { path: 'employee', component: EmployeesComponent },
@@ -44,14 +51,17 @@ const routes: Routes = [
       { path: 'utilisateur', component: UtilisateursComponent },
       { path: 'inspection', component: InspectionsComponent },
       { path: 'order', component: OrdersComponent },
-      { path: '', redirectTo: 'produit', pathMatch: 'full' }, // Redirection par défaut vers 'produit'
+      { path: 'rapprochement', component: RapprochementComponent },
+      { path: '', redirectTo: 'statistiques', pathMatch: 'full' }, // Tableau de bord par défaut
     ],
   },
 
 {
   path: 'home', component: HomeComponent,
+  canActivate: [AuthGuard],
   children: [
     { path: 'accueil', component: AccueilComponent },
+    { path: 'analyses', component: AnalysesComponent },
     { path: 'consulter', component: ConsultationComponent },
     { path: 'pdf/:id', component: PdfComponent },
     { path: 'pdfimprimer/:id', component: PdfimprimerComponent },
@@ -89,7 +99,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { anchorScrolling: 'enabled' })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

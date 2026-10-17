@@ -21,7 +21,7 @@
     background:
         linear-gradient(140deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.07) 43%, transparent 44%, transparent 100%),
         linear-gradient(105deg, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.06) 41%, rgba(0, 0, 0, 0.07) 76%, transparent 77%, transparent 100%),
-        linear-gradient(to right, #d89ca4, #e27b7e);
+        linear-gradient(to right, #4f86f0, #2864dc);
 }
 
 .error-container>span.four:before,
@@ -40,7 +40,7 @@
     background:
         linear-gradient(128deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.07) 40%, transparent 41%, transparent 100%),
         linear-gradient(116deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.07) 50%, transparent 51%, transparent 100%),
-        linear-gradient(to top, #99749D, #B895AB, #CC9AA6, #D7969E, #E0787F);
+        linear-gradient(to top, #17365d, #1f50b5, #2864dc, #4f86f0, #7ba4f5);
 }
 
 .error-container>span.four:after {
@@ -49,7 +49,7 @@
     transform: rotate(-49.5deg);
     left: -18px;
     bottom: 36px;
-    background: linear-gradient(to right, #99749D, #B895AB, #CC9AA6, #D7969E, #E0787F);
+    background: linear-gradient(to right, #17365d, #1f50b5, #2864dc, #4f86f0, #7ba4f5);
 }
 
 .error-container>span.zero {
@@ -58,7 +58,7 @@
     height: 156px;
     border-radius: 999px;
     background: linear-gradient(-45deg, transparent 0%, rgba(0, 0, 0, 0.06) 50%, transparent 51%, transparent 100%),
-        linear-gradient(to top right, #99749D, #99749D, #B895AB, #CC9AA6, #D7969E, #ED8687, #ED8687);
+        linear-gradient(to top right, #17365d, #17365d, #1f50b5, #2864dc, #4f86f0, #7ba4f5, #7ba4f5);
     overflow: hidden;
     animation: bgshadow 5s infinite;
 }
@@ -87,7 +87,7 @@
     height: 70px;
     left: 43px;
     bottom: 43px;
-    background: #FDFAF5;
+    background: var(--qm-surface);
     box-shadow: -2px 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
 
@@ -127,13 +127,13 @@ input,
 select,
 textarea {
     font-family: 'Montserrat', Helvetica, sans-serif;
-    color: #bbb;
+    color: var(--qm-muted);
 }
 
 h1,
 h2 {
     font-weight: 900;
-    color: #e27b7e;
+    color: var(--qm-danger);
     text-align: center;
     margin: 30px 15px;
 }
@@ -152,9 +152,9 @@ h2 {
 a.more-link {
     text-transform: uppercase;
     font-size: 13px;
-    background-color: #de7e85;
+    background-color: var(--qm-primary);
     padding: 10px 15px;
-    border-radius: 0;
+    border-radius: var(--qm-radius-sm);
     color: #fff;
     display: inline-block;
     margin-right: 5px;
@@ -163,4 +163,10 @@ a.more-link {
     text-decoration: none;
     margin-top: 50px;
     letter-spacing: 1px;
+    transition: background-color .15s ease;
+}
+
+a.more-link:hover {
+    background-color: var(--qm-primary-hover);
+    color: #fff;
 }

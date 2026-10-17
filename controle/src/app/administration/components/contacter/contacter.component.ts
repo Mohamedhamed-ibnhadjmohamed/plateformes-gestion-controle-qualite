@@ -1,20 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Contact } from '../../../models/Contact';
 import { ContacterService } from '../../../services/contacter.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-contacter',
-  templateUrl: './contacter.component.html',
-  styleUrls: ['../../shared/styles/style.css'],
+    selector: 'app-contacter',
+    templateUrl: './contacter.component.html',
+    styleUrls: ['../../shared/styles/style.css'],
+    standalone: false
 })
-export class ContacterComponent {
+export class ContacterComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   name: string = 'Contact';
   contacts: Contact[] = [];
   contact: Contact = new Contact();
   isLoading = false;
   msg: string = '';
+
+  // Chargement initial (affiché avant les données) et pagination.
+  chargement = true;
+  page = 1;
+  pageSize = 10;
+
+  get contactsPage(): Contact[] {
+    const debut = (this.page - 1) * this.pageSize;
+    return this.contacts.slice(debut, debut + this.pageSize);
+  }
+
+  changerPage(page: number): void {
+    this.page = page;
+  }
 
   constructor(
     private contactService: ContacterService,
@@ -31,11 +48,12 @@ export class ContacterComponent {
 
   // Récupérer tous les contacts
   getAllContacts(): void {
-    this.contactService.getAllContacts().subscribe(
+    this.contactService.getAllContacts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
+        this.chargement = false;
         if (response && Array.isArray(response.contacts)) {
           this.contacts = response.contacts;
-          console.log('Contacts:', this.contacts);
+          this.page = 1;
           this.toastr.success('Contacts récupérés avec succès');
         } else {
           this.toastr.error('Format de réponse inattendu');
@@ -43,6 +61,7 @@ export class ContacterComponent {
         }
       },
       (error: any) => {
+        this.chargement = false;
         console.error('Erreur lors de la récupération des contacts :', error);
         this.toastr.error('Erreur lors de la récupération des contacts');
       }
@@ -84,35 +103,32 @@ export class ContacterComponent {
       return;
     }
 
-    this.contactService.createContact(this.contactForm.value).subscribe(
-      (response: any) => {
-        this.contacts.push(response);
-        console.log('Contact ajouté avec succès :', response);
-        this.toastr.success('Contact ajouté avec succès');
-        this.reloadData();
+    this.contactService.createContact(this.contactForm.value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      () => {
+        this.toastr.success('Contact ajouté avec succès.');
         this.resetForm();
+        this.reloadData();
       },
       (error: any) => {
         console.error("Erreur lors de l'ajout du contact :", error);
-        this.toastr.error("Erreur lors de l'ajout du contact");
+        this.toastr.error("Erreur lors de l'ajout du contact.");
       }
     );
   }
 
   // Supprimer un contact
   supprimerContact(contact: Contact) {
-    this.contactService.deleteContact(contact.id_contact).subscribe(
+    this.contactService.deleteContact(contact.id_contact).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.contacts = this.contacts.filter(
           (item) => item.id_contact !== contact.id_contact
         );
-        console.log('Contact supprimé avec succès :', response);
-        this.toastr.success('Contact supprimé avec succès');
+        this.toastr.success('Contact supprimé avec succès.');
         this.reloadData();
       },
       (error: any) => {
         console.error('Erreur lors de la suppression du contact :', error);
-        this.toastr.error('Erreur lors de la suppression du contact');
+        this.toastr.error('Erreur lors de la suppression du contact.');
       }
     );
   }
@@ -137,13 +153,15 @@ export class ContacterComponent {
 
     this.isLoading = true;
 
-    this.contactService.rechercher(searchValue).subscribe(
+    this.contactService.rechercher(searchValue).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         this.isLoading = false;
         if (response && response.contacts && response.contacts.length > 0) {
           this.contacts = response.contacts;
+          this.page = 1;
           this.toastr.success('Contacts trouvés avec succès !');
         } else {
+          this.contacts = [];
           this.msg = 'Aucun contact trouvé avec ces informations.';
           this.toastr.info(this.msg);
         }
@@ -157,9 +175,8 @@ export class ContacterComponent {
     );
   }
 
-  // Confirmation pour modifier un contact
+  // Sélectionne le contact (utilisé par la modale de suppression)
   confirmer(contact: Contact) {
     this.contact = contact;
-    this.contactForm.patchValue(contact); // Pré-remplir le formulaire avec les données existantes
   }
 }

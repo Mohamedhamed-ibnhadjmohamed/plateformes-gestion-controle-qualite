@@ -1,0 +1,35 @@
+<div class="donut" [class.donut--vide]="!segments.length">
+  <svg class="donut-svg" viewBox="0 0 120 120" role="img" [attr.aria-label]="libelleCentre + ' : ' + total">
+    <circle class="donut-piste" cx="60" cy="60" r="48" />
+    <g transform="rotate(-90 60 60)">
+      <circle *ngFor="let segment of segments; let index = index" class="donut-part" cx="60" cy="60" r="48"
+        [attr.stroke]="segment.couleur" [attr.stroke-dasharray]="segment.dasharray"
+        [attr.stroke-dashoffset]="segment.dashoffset" [class.est-actif]="actif?.libelle === segment.libelle"
+        [style.--index]="index" (mouseenter)="survoler(segment)" (mouseleave)="survoler(null)" />
+    </g>
+  </svg>
+
+  <div class="donut-centre">
+    @if (actif) {
+    <strong class="donut-valeur">{{ actif.valeur | number }}</strong>
+    <span class="donut-legende">{{ actif.libelle }} · {{ actif.pourcentage | number: '1.0-0' }} %</span>
+    } @else {
+    <strong class="donut-valeur">{{ total | number }}</strong>
+    <span class="donut-legende">{{ libelleCentre }}</span>
+    }
+  </div>
+</div>
+
+@if (segments.length) {
+<ul class="donut-liste">
+  <li *ngFor="let segment of segments" [class.est-actif]="actif?.libelle === segment.libelle"
+    (mouseenter)="survoler(segment)" (mouseleave)="survoler(null)">
+    <i class="donut-pastille" [style.background]="segment.couleur"></i>
+    <span class="donut-liste-libelle">{{ segment.libelle }}</span>
+    <span class="donut-liste-part">{{ segment.pourcentage | number: '1.0-0' }} %</span>
+    <b class="donut-liste-valeur">{{ segment.valeur | number }}</b>
+  </li>
+</ul>
+} @else {
+<p class="donut-vide">Aucune donnée à représenter.</p>
+}

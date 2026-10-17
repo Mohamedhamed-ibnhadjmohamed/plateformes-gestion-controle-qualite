@@ -1,0 +1,25 @@
+<section class="qm-section qm-section--surface" id="chiffres">
+    <div class="qm-section__inner">
+        <header class="qm-section-head">
+            <h2 class="qm-section-title">
+                <span>Chiffres clés</span>
+            </h2>
+            <p class="qm-section-text">
+                Les indicateurs sont calculés en direct à partir de vos données de contrôle : suivez l'activité
+                qualité et la performance de vos inspections en un coup d'œil.
+            </p>
+        </header>
+
+        <div class="kpi-grid">
+            <article class="kpi-card" *ngFor="let chiffre of chiffres">
+                <span class="kpi-icon">
+                    <i [class]="chiffre.icone" aria-hidden="true"></i>
+                </span>
+                <p class="kpi-value">
+                    {{ chiffre.valeur }}<span class="kpi-suffixe" *ngIf="chiffre.suffixe">{{ chiffre.suffixe }}</span>
+                </p>
+                <p class="kpi-label">{{ chiffre.libelle }}</p>
+            </article>
+        </div>
+    </div>
+</section>

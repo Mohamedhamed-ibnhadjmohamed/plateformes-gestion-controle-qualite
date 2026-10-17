@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AllProduit } from '../../models/AllProduit';
 import { Produit } from '../../models/Produit';
@@ -8,13 +8,17 @@ import { Default } from '../../models/Default';
 import { DefautsService } from '../../services/defauts.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/login/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-audite',
-  templateUrl: './audite.component.html',
-  styleUrls: ['../shared/style/style.css'],
+    selector: 'app-audite',
+    templateUrl: './audite.component.html',
+    styleUrls: ['../shared/style/style.css'],
+    standalone: false
 })
 export class AuditeComponent implements OnInit {
+  protected readonly destroyRef = inject(DestroyRef);
   produitVisible = false;
   DefaultVisible = false;
   formVisible = true;
@@ -25,7 +29,6 @@ export class AuditeComponent implements OnInit {
   allproduit: any;
   idUtilisateur: any;
   email = '';
-  motDePasse = '';
   nom = '';
   prenom = '';
   currentDate = new Date();
@@ -52,19 +55,18 @@ export class AuditeComponent implements OnInit {
     private inspectionService: InspectionsService,
     private defautsService: DefautsService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.getAllProduits();
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser).utilisateur;
+    const user = this.authService.getUser();
+    if (user) {
       this.idUtilisateur = user.id_utilisateur;
-      this.email = user.email;
-      this.motDePasse = user.mot_de_passe;
-      this.nom = user.nom;
-      this.prenom = user.prenom;
+      this.email = user.email ?? '';
+      this.nom = user.nom ?? '';
+      this.prenom = user.prenom ?? '';
     } else {
       this.redirectToLogin();
     }
@@ -91,7 +93,7 @@ export class AuditeComponent implements OnInit {
   }
 
   getAllProduits(): void {
-    this.produitService.getAllProduits().subscribe(
+    this.produitService.getAllProduits().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: any) => {
         if (response.produits && Array.isArray(response.produits)) {
           this.produits = response.produits;
@@ -104,7 +106,7 @@ export class AuditeComponent implements OnInit {
         }
       },
       (error: any) => {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données.', error);
       }
     );
   }
@@ -113,7 +115,7 @@ export class AuditeComponent implements OnInit {
     this.produitVisible = true;
     this.DefaultVisible = true;
     this.formVisible = false;
-    this.produitService.getAllById(this.idForm.value.idproduit).subscribe(
+    this.produitService.getAllById(this.idForm.value.idproduit).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
       (response: AllProduit[]) => {
         this.allproduit = response;
         this.donneePourEnfant=this.allproduit;
@@ -134,16 +136,15 @@ export class AuditeComponent implements OnInit {
     if (this.inspectionForm.valid) {
       this.inspectionService
         .createinspection(this.inspectionForm.value)
-        .subscribe(
+        .pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
           (response) => {
-            this.toastr.success('Inspection créée avec succès');
-            this.defautsService.updateIdInspection().subscribe(
+            this.toastr.success('Inspection créée avec succès.');
+            this.defautsService.updateIdInspection().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
               (updateResponse) => {
-                console.log('Mise à jour réussie', updateResponse);
                  this.router.navigate(['/home/consulter']);
               },
               (updateError) => {
-                console.error('Erreur lors de la mise à jour', updateError);
+                console.error("Erreur lors de la mise à jour de l'employé.", updateError);
               }
               ////
               ///this.router.navigate([`/home/pdf/${idInspection}`])
@@ -151,8 +152,8 @@ export class AuditeComponent implements OnInit {
             );
           },
           (error) => {
-            console.error("Erreur lors de la création de l'inspection", error);
-            this.toastr.error("Erreur lors de la création de l'inspection");
+            console.error("Erreur lors de la création de l'inspection.", error);
+            this.toastr.error("Erreur lors de la création de l'inspection.");
           }
         );
     } else {

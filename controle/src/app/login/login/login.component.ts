@@ -1,18 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Utilisateur } from '../../models/Utilisateur';
 import { UtilisateursService } from '../../services/utilisateurs.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/login/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.css',
+    standalone: false
 })
 export class LoginComponent implements OnInit {
-  utilisateur?: Utilisateur;
-  utilisateurs: Utilisateur[] = [];
+  protected readonly destroyRef = inject(DestroyRef);
   errorMessage: string = '';
 
   loginForm = new FormGroup({
@@ -33,64 +33,48 @@ export class LoginComponent implements OnInit {
   get password() {
     return this.loginForm.get('password');
   }
-  login() {
-    if (this.loginForm.valid) {
-      const email = this.loginForm.get('username')?.value;
-      const password = this.loginForm.get('password')?.value; 
-      // Appel au service pour trouver l'utilisateur par email et mot de passe
-      this.utilisateurService
-        .findByEmailAndPassword({
-          email: email as string,
-          password: password as string,
-        })
-        .subscribe(
-          (res) => {
-            // Si l'utilisateur est trouvé
-            if (res) {
-              // Si l'utilisateur est administrateur
-              if (email === 'admin@admin.com' && password === 'admin.admin') {
-                this.router.navigate(['/admin']);
-              } else {
-                // Si l'utilisateur est normal
-                this.router.navigate(['/home']);
-              }
-              // Stocker les informations de l'utilisateur dans le localStorage
-              localStorage.setItem('user', JSON.stringify(res));
-            } else {
-              console.error('Utilisateur non trouvé');
-              this.errorMessage = 'Utilisateur non trouvé.';
-            }
-          },
-          (error) => {
-            // Gestion des erreurs d'authentification
-            console.error('Erreur de connexion:', error);
-            if (error.status === 401) {
-              // Si l'erreur est due à des informations d'identification invalides, afficher un message d'erreur
-              this.errorMessage = 'Adresse e-mail ou mot de passe incorrect.';
-            } else {
-              // Pour d'autres erreurs, afficher un message générique
-              this.errorMessage = 'Une erreur est survenue lors de la tentative de connexion. Veuillez réessayer.';
-            }
-          }
-        );
-    } else {
-      // Si le formulaire est invalide
-      console.log('Formulaire invalide');
-    }
-  }
-  
-  
 
   constructor(
     private utilisateurService: UtilisateursService,
+    private authService: AuthService,
     private router: Router
   ) {}
+
   ngOnInit(): void {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-     
-      this.router.navigate(['/home']);
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate([this.authService.isAdmin() ? '/admin' : '/home']);
     }
+  }
+
+  login() {
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    const email = this.loginForm.get('username')?.value as string;
+    const password = this.loginForm.get('password')?.value as string;
+
+    this.utilisateurService.login({ email, password }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      (res) => {
+        if (!res?.utilisateur || !res.token) {
+          this.errorMessage = 'Utilisateur non trouvé.';
+          return;
+        }
+
+        // Enregistre l'utilisateur et le token, puis redirige selon le rôle.
+        this.authService.setSession(res.utilisateur, res.token);
+        this.router.navigate([
+          res.utilisateur.role === 'admin' ? '/admin' : '/home',
+        ]);
+      },
+      (error) => {
+        console.error('Erreur de connexion:', error);
+        this.errorMessage =
+          error.status === 401
+            ? 'Adresse e-mail ou mot de passe incorrect.'
+            : 'Une erreur est survenue lors de la tentative de connexion. Veuillez réessayer.';
+      }
+    );
   }
 
   redirectToRegister() {

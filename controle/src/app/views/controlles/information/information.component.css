@@ -1,112 +1,213 @@
+/* ============================================================
+   Section « Étapes des contrôles » — étapes dépliables.
+   ============================================================ */
+
 .process-block {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 0 auto;
-    height: 100vh;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 3.75rem);
+    font-family: var(--qm-font);
+    /* Fond légèrement teinté pour détacher les cartes d'étapes. */
+    background-color: var(--qm-bg);
 }
 
-.card {
-    border-radius: 45px;
-    border: 1px solid #191a23;
-    box-shadow: 0 5px 0 0 #191a23;
+/* ---------- En-tête de section ---------- */
+.case-studies-header {
     display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: clamp(1rem, 3vw, 1.875rem);
     width: 100%;
-    max-width: 1234px;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 15px 50px;
-    margin-bottom: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--qm-ink);
 }
 
+.title {
+    display: flex;
+    min-width: 240px;
+    flex-direction: column;
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+}
+
+.highlight {
+    align-self: flex-start;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-accent);
+    padding: .2rem .7rem;
+    color: #14261c;
+}
+
+.description {
+    width: 100%;
+    max-width: 62ch;
+    margin: 0;
+    color: var(--qm-muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+/* ---------- Cartes d'étapes ---------- */
+.card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+    padding: .85rem clamp(1.25rem, 3vw, 3rem);
+    border: 1px solid var(--qm-border);
+    border-radius: var(--qm-radius);
+    background-color: var(--qm-surface);
+    box-shadow: var(--qm-shadow-sm);
+    overflow: hidden;
+    font-family: var(--qm-font);
+    transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.card:last-of-type {
+    margin-bottom: 0;
+}
+
+/* L'étape ouverte garde la couleur d'accent, en version adoucie. */
 .card-expanded {
-    background-color: #b9ff66;
+    border-color: var(--qm-accent);
+    background-color: var(--qm-accent);
+    box-shadow: var(--qm-shadow-md);
 }
 
 .card-collapsed {
-    background-color: #f3f3f3;
+    background-color: #f8fafc;
+}
+
+.card-collapsed:hover {
+    border-color: var(--qm-primary);
 }
 
 .card-content {
     display: flex;
-    width: 100%;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .card-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 15px;
-    font-family: 'Space Grotesk', sans-serif;
-    color: #000;
+    gap: clamp(.75rem, 2vw, 1.25rem);
+    color: var(--qm-ink);
     font-weight: 500;
 }
 
 .step-number {
-    font-size: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.25rem;
     margin: 0;
+    padding: .35rem .75rem;
+    border-radius: var(--qm-radius-sm);
+    background-color: var(--qm-ink);
+    color: #fff;
+    font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em;
+}
+
+.card-expanded .step-number {
+    background-color: #14261c;
+    color: var(--qm-accent);
 }
 
 .step-title {
-    font-size: 24px;
-    font-weight: 700;
     margin: 0;
+    color: var(--qm-ink);
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.3;
 }
 
+/* ---------- Bouton d'ouverture ---------- */
 .expand-button {
-    background: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .35rem;
     border: none;
+    border-radius: 999px;
+    background: none;
     cursor: pointer;
-    padding: 0;
+    transition: opacity .15s ease;
+}
+
+.expand-button:hover {
+    opacity: .8;
 }
 
 .plus-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f3f3f3;
-    border: 1px solid #191a23;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--qm-ink);
+    border-radius: 50%;
+    background-color: var(--qm-surface);
+    transition: background-color .2s ease, border-color .2s ease;
+}
+
+.card-expanded .plus-icon {
+    background-color: #14261c;
+    border-color: #14261c;
 }
 
 .plus-icon::before,
 .plus-icon::after {
     content: '';
     position: absolute;
-    background-color: #000;
-    transition: transform 0.3s ease;
+    background-color: var(--qm-ink);
+    transition: transform .3s ease, background-color .2s ease;
 }
 
 .plus-icon::before {
-    width: 18px;
+    width: 1.1rem;
     height: 2px;
 }
 
 .plus-icon::after {
     width: 2px;
-    height: 18px;
+    height: 1.1rem;
 }
 
+.card-expanded .plus-icon::before,
+.card-expanded .plus-icon::after {
+    background-color: var(--qm-accent);
+}
+
+/* Croix lorsque l'étape est dépliée. */
 .plus-icon.expanded::after {
     transform: rotate(90deg);
 }
 
 .card-divider {
     width: 100%;
-    border-top: 1px solid #000;
-    margin: 10px 0;
+    border-top: 1px solid rgba(16, 24, 40, .15);
+    margin: .85rem 0;
 }
 
 .step-description {
-    color: #000;
-    font-weight: 600 ;
     margin: 0;
+    color: #14261c;
+    font-size: .98rem;
+    font-weight: 600;
+    line-height: 1.65;
 }
 
 .visually-hidden {
@@ -121,70 +222,13 @@
     border: 0;
 }
 
-@media (max-width: 991px) {
-    .process-block {
-        padding: 0 20px;
-    }
-
+/* ---------- Adaptations ---------- */
+@media (max-width: 991.98px) {
     .card {
-        max-width: 100%;
-        padding: 20px;
+        padding: .85rem 1.25rem;
     }
 
     .step-number {
-        font-size: 40px;
-    }
-
-    .step-title,
-    .step-description {
-        max-width: 100%;
-    }
-}
-
-
-
-
-
-
-.case-studies-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    color: #000;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    padding: 0 100px;
-}
-
-.title {
-    display: flex;
-    min-width: 240px;
-    flex-direction: column;
-    font-size: 30px !important;
-    font-weight: 500;
-    justify-content: flex-start;
-    margin: 0;
-}
-
-.highlight {
-    border-radius: 7px;
-    background-color: #b9ff66;
-    padding: 10px;
-}
-
-.description {
-    font-size: 18px;
-    font-weight: 400;
-    width: 580px;
-    margin: 0;
-}
-
-@media (max-width: 991px) {
-    .case-studies-header {
-        padding: 0 20px;
-    }
-
-    .description {
-        max-width: 100%;
+        font-size: 1.5rem;
     }
 }

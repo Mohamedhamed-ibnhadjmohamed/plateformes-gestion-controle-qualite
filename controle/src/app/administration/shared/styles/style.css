@@ -1,41 +1,41 @@
 .container-xl {
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px,
-        rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
-        rgba(0, 0, 0, 0.2) 0px -3px 0px;
-    margin-top: 30px;
-    padding: 1px 5px;
-    border-radius: 5px;
-    zoom: 110%
+    max-width: 1180px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+    border-radius: var(--qm-radius);
 }
 
-
 .table-responsive {
-    margin: 20px 0;
-
+    margin: 1.25rem 0;
 }
 
 .table-wrapper {
-    background: #fff;
-    padding: 20px 25px;
-    border-radius: 3px;
+    background: var(--qm-surface);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--qm-radius);
+    border: 1px solid var(--qm-border);
+    box-shadow: var(--qm-shadow-md);
     min-width: 1000px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
 }
 
 .table-title {
-    padding-bottom: 15px;
-    background: #435d7d;
+    background: linear-gradient(135deg, #1f50b5, #2864dc);
     color: #fff;
-    padding: 16px 30px;
-    min-width: 100%;
-    margin: -20px -25px 10px;
-    border-radius: 3px 3px 0 0;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--qm-radius-sm);
+    margin-bottom: 1rem;
+    box-shadow: var(--qm-shadow-sm);
 }
 
 .table-title h2 {
-    margin: 5px 0 0;
-    font-size: 24px;
+    margin: 0;
+    font-size: 1.35rem;
+    color: #fff;
+}
+
+.table-title h2 b {
+    color: var(--qm-accent);
+    font-weight: 800;
 }
 
 .table-title .btn-group {
@@ -44,57 +44,124 @@
 
 .table-title .btn {
     color: #fff;
-    float: right;
-    font-size: 13px;
+    font-size: .85rem;
     border: none;
-    min-width: 50px;
-    border-radius: 2px;
-    border: none;
-    outline: none !important;
-    margin-left: 10px;
+    min-width: 0;
+    border-radius: var(--qm-radius-sm);
+    margin-left: .5rem;
 }
 
 .table-title .btn i {
-    float: left;
-    font-size: 21px;
-    margin-right: 5px;
+    margin-right: .35rem;
 }
 
 .table-title .btn span {
-    float: left;
     margin-top: 2px;
-}
-
-input {
-    &.ng-invalid.ng-touched {
-        border: 3px solid red;
-    }
-
-    &.ng-valid.ng-dirty {
-        border: 3px solid green;
-    }
 }
 
 img {
     width: 50px;
     height: 50px;
+    object-fit: cover;
+    border-radius: var(--qm-radius-sm);
 }
 
 .hhhh>.table-responsive {
     max-height: 50vh;
-    /* Hauteur maximale de la table */
     overflow-y: auto;
-    /* Ajoute une barre de défilement verticale si nécessaire */
+}
 
-}
 .loading-indicator {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #007bff;
+    margin-top: .75rem;
+    font-size: 1rem;
+    color: var(--qm-primary);
 }
-.btn{
-    font-size: 20px;
-}
+
 .loading-indicator .fa-spin {
-    margin-right: 5px;
+    margin-right: .35rem;
+}
+
+/* Responsive : transformer les tableaux en cartes sur mobile */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: visible;
+    }
+
+    .table-wrapper {
+        min-width: 0;
+        padding: 1rem;
+    }
+
+    .table {
+        min-width: 0;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--qm-border);
+        border-radius: var(--qm-radius-sm);
+        background: var(--qm-surface);
+        box-shadow: var(--qm-shadow-sm);
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border: 0;
+        border-bottom: 1px solid var(--qm-border);
+        text-align: right;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--qm-muted);
+        text-align: left;
+        flex: 0 0 45%;
+    }
+
+    .table tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .table tbody td.actions,
+    .table tbody td:last-child {
+        justify-content: flex-end;
+    }
+
+    .table tbody td.actions::before,
+    .table tbody td:last-child::before {
+        display: none;
+    }
+}
+
+/* ============================================================
+   Action « Supprimer » sur les cartes message (page Contact).
+   Style tonal cohérent avec les boutons d'action des tableaux.
+   ============================================================ */
+.table-wrapper .list-group .btn-danger {
+    padding: .4rem .7rem;
+    border-color: transparent;
+    border-radius: var(--qm-radius-sm);
+    background-color: #feeceb;
+    color: var(--qm-danger);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.table-wrapper .list-group .btn-danger:hover,
+.table-wrapper .list-group .btn-danger:focus,
+.table-wrapper .list-group .btn-danger:active {
+    background-color: #fddcda;
+    color: #b9251b;
 }

@@ -1,105 +1,238 @@
+/* ============================================================
+   Barre latérale de l'administration.
+   Fond encre, sections regroupées, repliable en icônes (desktop)
+   et tiroir coulissant (mobile).
+   ============================================================ */
+
+:host {
+    display: block;
+}
+
 .sidenav {
-  background: #263238;
-  transition: all 0.5s ease;
-  top: 0;
-  width: 270px;
-  height: 100vh;
-  box-shadow: 0.063rem 0 1.25rem 0 #8690a3;
-  margin: 0px 0px;
-  position: fixed;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    width: 270px;
+    height: 100vh;
+    background: linear-gradient(180deg, var(--qm-industrial) 0%, var(--qm-sidebar) 100%);
+    color: #cbd5e1;
+    box-shadow: var(--qm-shadow-md);
+    overflow: hidden;
+    transition: width .2s ease, transform .25s ease;
 }
 
-.sidenav .logo-container {
-  display: flex;
-  align-items: center;
-  padding: 0.938rem;
-  width: 100%;
-}
-.logo ,img{
-  background-color: #263238;
-  border: 0;
-}
-.sidenav .logo-container .logo {
-  text-align: center;
-  width: 3rem;
-  min-width: 3rem;
-  border-radius: 0.313rem;
-  padding: 0.313rem;
-  font-size: 24px;
-  font-weight: 900;
-  cursor: pointer;
-  border: none;
+/* ---------- En-tête ---------- */
+.sidenav__entete {
+    display: flex;
+    align-items: center;
+    min-height: 76px;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
 
-.sidenav .logo-container .logo-text {
-  margin-left: 1.5rem;
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
+.sidenav__marque {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    color: #fff;
+    text-decoration: none;
+    overflow: hidden;
 }
 
-.sidenav .logo-container .btn-close {
-  margin-left: auto;
-  cursor: pointer;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: transparent;
-  border: none;
+.sidenav__logo {
+    flex: none;
+    width: 46px;
+    height: 46px;
+    padding: 4px;
+    border-radius: 10px;
+    background-color: #fff;
+    object-fit: contain;
 }
 
-.sidenav .logo-container .btn-close .fa-times {
-  color: #fff;
-  font-size: 24px;
+.sidenav__marque-texte {
+    font-size: 1.12rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    white-space: nowrap;
 }
 
-.sidenav-nav {
-  list-style: none;
-  padding: 0.938rem;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: calc(100% - 3.65rem);
+/* ---------- Navigation ---------- */
+.sidenav__nav {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: .15rem;
+    padding: 1rem .75rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.sidenav-nav .sidenav-nav-item {
-  width: 100%;
-  margin-bottom: 0.625rem;
+.sidenav__nav::-webkit-scrollbar {
+    width: 8px;
 }
 
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link {
-  display: flex;
-  align-items: center;
-  height: 3rem;
-  color: #f3f3f3;
-  text-decoration: none;
-  border-radius: 0.625rem;
-  transition: all 0.3s ease;
+.sidenav__nav::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, .15);
 }
 
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon {
-  font-size: 22px;
-  width: 2rem;
-  min-width: 2rem;
-  margin: 0 0.5rem;
-  text-align: center;
+.sidenav__section {
+    margin: .9rem .65rem .35rem;
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-text {
-  margin-left: 1.5rem;
+.sidenav__section:first-child {
+    margin-top: 0;
 }
 
-.sidenav-nav .sidenav-nav-item:hover .sidenav-nav-link {
-  background-color: #fff;
-  color: #000;
+.sidenav__lien {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .7rem .85rem;
+    border-radius: 10px;
+    color: #cbd5e1;
+    font-size: .95rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color .15s ease, color .15s ease;
 }
 
-.active {
-  background-color: #fff;
+.sidenav__icone {
+    flex: none;
+    width: 1.5rem;
+    min-width: 1.5rem;
+    text-align: center;
+    font-size: 1.05rem;
 }
 
-.active .sidenav-link-icon,
-.active .sidenav-link-text {
-  color: #000;
+.sidenav__lien-texte {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidenav__lien:hover {
+    background-color: rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+.sidenav__lien:focus-visible {
+    outline: 3px solid rgba(185, 255, 102, .45);
+    outline-offset: -2px;
+}
+
+.sidenav__lien.active {
+    background-color: var(--qm-primary);
+    color: #fff;
+    box-shadow: var(--qm-shadow-sm);
+}
+
+/* ---------- Pied ---------- */
+.sidenav__pied {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    padding: .85rem .75rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.sidenav__pied .sidenav__lien {
+    color: #64748b;
+}
+
+.sidenav__pied .sidenav__lien:hover {
+    color: #fff;
+}
+
+.sidenav__reduire {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    width: 100%;
+    padding: .7rem .85rem;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: #64748b;
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.sidenav__reduire i {
+    flex: none;
+    width: 1.5rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.sidenav__reduire:hover {
+    background-color: rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+.sidenav__reduire:focus-visible {
+    outline: 3px solid rgba(185, 255, 102, .45);
+    outline-offset: -2px;
+}
+
+/* ---------- Repli en icônes (desktop uniquement) ---------- */
+@media (min-width: 992px) {
+    .sidenav--reduit {
+        width: 76px;
+    }
+
+    .sidenav--reduit .sidenav__entete {
+        justify-content: center;
+        padding-left: .65rem;
+        padding-right: .65rem;
+    }
+
+    .sidenav--reduit .sidenav__marque-texte,
+    .sidenav--reduit .sidenav__section,
+    .sidenav--reduit .sidenav__lien-texte {
+        display: none;
+    }
+
+    .sidenav--reduit .sidenav__lien,
+    .sidenav--reduit .sidenav__reduire {
+        justify-content: center;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+}
+
+/* ---------- Tiroir (mobile) ---------- */
+@media (max-width: 991.98px) {
+    .sidenav {
+        transform: translateX(-100%);
+    }
+
+    .sidenav--mobile-ouvert {
+        transform: translateX(0);
+    }
+
+    /* Le repli en icônes ne concerne que le desktop. */
+    .sidenav__reduire {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidenav {
+        transition: none;
+    }
 }

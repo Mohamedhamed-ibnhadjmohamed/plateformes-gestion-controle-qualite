@@ -1,0 +1,60 @@
+/* ============================================================
+   Section « Chiffres clés » — bandeau d'indicateurs animés.
+   ============================================================ */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    width: 100%;
+    margin: clamp(1.75rem, 4vw, 2.75rem) auto 0;
+}
+
+.kpi-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    border-radius: var(--qm-radius-lg);
+    /* Fond encre pour détacher fortement les chiffres. */
+    background-color: var(--qm-ink);
+    box-shadow: var(--qm-shadow-md);
+    text-align: center;
+}
+
+.kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: .35rem;
+    border-radius: 50%;
+    background-color: var(--qm-accent);
+    color: #14261c;
+    font-size: 1.25rem;
+}
+
+.kpi-value {
+    margin: 0;
+    color: var(--qm-accent);
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1;
+    /* Chiffres à chasse fixe : évite le « tremblement » pendant l'animation. */
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi-suffixe {
+    font-size: .55em;
+    font-weight: 700;
+}
+
+.kpi-label {
+    margin: 0;
+    color: #cbd5e1;
+    font-size: .98rem;
+    font-weight: 500;
+}

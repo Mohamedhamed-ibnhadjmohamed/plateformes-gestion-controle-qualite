@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QualityMaster — Captures d'écran</title>
+<style>
+  :root { --qm-bg:#f3f5fa; --qm-surface:#fff; --qm-border:#e4e7ec; --qm-ink:#101828; --qm-muted:#667085; --qm-primary:#2563eb; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:2rem 1.5rem 4rem; background:var(--qm-bg); color:var(--qm-ink);
+         font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+  header.top { max-width:1200px; margin:0 auto 2rem; }
+  h1 { margin:0 0 .35rem; font-size:1.6rem; }
+  .sub { color:var(--qm-muted); margin:0; }
+  .grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:1.5rem; }
+  .card { background:var(--qm-surface); border:1px solid var(--qm-border); border-radius:12px; overflow:hidden;
+          box-shadow:0 6px 16px rgba(16,24,40,.08); display:flex; flex-direction:column; }
+  .card h2 { font-size:.95rem; margin:0; padding:.7rem .9rem; border-bottom:1px solid var(--qm-border); }
+  .card .route { display:block; padding:.35rem .9rem; font-size:.72rem; color:var(--qm-muted); background:#fafbfd; border-bottom:1px solid var(--qm-border); font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .card img { display:block; width:100%; height:auto; background:#fff; }
+  .section-title { max-width:1200px; margin:2.5rem auto 1rem; font-size:1.05rem; color:var(--qm-primary); font-weight:700; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>QualityMaster — Captures d'écran de l'application</h1>
+  <p class="sub">24 pages · générées automatiquement depuis http://localhost:4200</p>
+</header>
+
+<p class="section-title">Espace public &amp; administration</p>
+<div class="grid">
+  <div class="card"><h2>Connexion</h2><span class="route">/login</span><img src="./01-login.png" alt="Connexion"></div>
+  <div class="card"><h2>Inscription</h2><span class="route">/register</span><img src="./02-register.png" alt="Inscription"></div>
+  <div class="card"><h2>Admin · Tableau de bord</h2><span class="route">/admin/statistiques</span><img src="./03-admin-statistiques.png" alt="Tableau de bord"></div>
+  <div class="card"><h2>Admin · Produit</h2><span class="route">/admin/produit</span><img src="./04-admin-produit.png" alt="Produit"></div>
+  <div class="card"><h2>Admin · Contact</h2><span class="route">/admin/contacter</span><img src="./05-admin-contact.png" alt="Contact"></div>
+  <div class="card"><h2>Admin · Employé</h2><span class="route">/admin/employee</span><img src="./06-admin-employe.png" alt="Employé"></div>
+  <div class="card"><h2>Admin · Famille défaut</h2><span class="route">/admin/famille</span><img src="./07-admin-famille-defaut.png" alt="Famille défaut"></div>
+  <div class="card"><h2>Admin · AQL</h2><span class="route">/admin/aql</span><img src="./08-admin-aql.png" alt="AQL"></div>
+  <div class="card"><h2>Admin · Défaut</h2><span class="route">/admin/default</span><img src="./09-admin-defaut.png" alt="Défaut"></div>
+  <div class="card"><h2>Admin · Utilisateur</h2><span class="route">/admin/utilisateur</span><img src="./10-admin-utilisateur.png" alt="Utilisateur"></div>
+  <div class="card"><h2>Admin · Inspection</h2><span class="route">/admin/inspection</span><img src="./11-admin-inspection.png" alt="Inspection"></div>
+  <div class="card"><h2>Admin · Ordre de fabrication</h2><span class="route">/admin/order</span><img src="./12-admin-order.png" alt="Ordre de fabrication"></div>
+</div>
+
+<p class="section-title">Espace contrôle</p>
+<div class="grid">
+  <div class="card"><h2>Accueil</h2><span class="route">/home/accueil</span><img src="./13-home-accueil.png" alt="Accueil"></div>
+  <div class="card"><h2>Analyses</h2><span class="route">/home/analyses</span><img src="./14-home-analyses.png" alt="Analyses"></div>
+  <div class="card"><h2>Consulter les inspections</h2><span class="route">/home/consulter</span><img src="./15-home-consulter.png" alt="Consulter"></div>
+  <div class="card"><h2>Contrôle sous-chaîne</h2><span class="route">/home/souschain</span><img src="./16-controle-sous-chaine.png" alt="Sous-chaîne"></div>
+  <div class="card"><h2>Contrôle fin de chaîne</h2><span class="route">/home/finchain</span><img src="./17-controle-fin-chaine.png" alt="Fin de chaîne"></div>
+  <div class="card"><h2>Contrôle audit</h2><span class="route">/home/audit</span><img src="./18-controle-audit.png" alt="Audit"></div>
+  <div class="card"><h2>Paramètres</h2><span class="route">/home/parametre</span><img src="./19-parametre.png" alt="Paramètres"></div>
+  <div class="card"><h2>Paramètres · Ajouter produit</h2><span class="route">/home/parametre/ajouterproduit</span><img src="./20-parametre-ajouter-produit.png" alt="Ajouter produit"></div>
+  <div class="card"><h2>Paramètres · Ajouter AQL</h2><span class="route">/home/parametre/ajouteraql</span><img src="./21-parametre-ajouter-aql.png" alt="Ajouter AQL"></div>
+  <div class="card"><h2>Paramètres · Ajouter employé</h2><span class="route">/home/parametre/ajouteremployee</span><img src="./22-parametre-ajouter-employe.png" alt="Ajouter employé"></div>
+  <div class="card"><h2>Paramètres · Ajouter ordre</h2><span class="route">/home/parametre/ajouterorder</span><img src="./23-parametre-ajouter-order.png" alt="Ajouter ordre"></div>
+  <div class="card"><h2>Paramètres · Ajouter famille</h2><span class="route">/home/parametre/ajouterfamille</span><img src="./24-parametre-ajouter-famille.png" alt="Ajouter famille"></div>
+</div>
+</body>
+</html>

@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Text+New+Romance:wght@400;700&display=swap');
 
 /* Application de la police à l'étiquette */
 p {
     font-size: 1em;
-    font-family: 'Text New Romance', serif;
+    font-family: inherit;
     font-weight: 700;
     color: #343a40;
     text-align: center;
@@ -11,9 +10,17 @@ p {
 }
 
 .btn-success {
-    background: linear-gradient(109.5deg, rgb(13, 11, 136) 9.4%, rgb(86, 255, 248) 78.4%) !important;
-    font-weight: 900;
-    color: #fefeff;
+    background-color: var(--qm-accent);
+    border-color: var(--qm-accent);
+    font-weight: 700;
+    color: #14261c;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #b9f36b;
+    border-color: #b9f36b;
+    color: #14261c;
 }
 
 .section {
